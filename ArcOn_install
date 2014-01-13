@@ -1,0 +1,70 @@
+#! /bin/bash  
+
+# First make sure that the ArcOn bashrc has been sourced to add the necessary modules (see below as well)
+# This script must be run using 'source ArcOn_install.sh' if you wish to set global directories:
+
+module load boost qt cmake git valgrind hdf5 netcdf #metis
+
+export CC=mpicc
+export CXX=mpicxx
+export FC=mpif90 
+
+export ArcOn_DIR=`pwd`
+
+# First, we will unpack the parallel adaptive mesh refinement forest (a.k.a. 'p4est') for parallel decomposition
+sh p4est-setup.sh p4est-0.3.4.2.tar.gz $ArcOn_DIR/p4est
+
+cd $ArcOn_DIR
+
+# Let's build petsc now, and remember also to add these (PETSC_DIR, PETSC_ARCH, and LD_LIBRARY_PATH) to your bashrc or .bashrc_local for initialization
+tar xzfv petsc-3.4.3.tar.gz
+
+export PETSC_DIR=$ArcOn_DIR/petsc-3.4.3
+export PETSC_ARCH=intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt
+cd $PETSC_DIR
+
+./configure --with-shared-libraries --with-debugging=false \
+--COPTFLAGS='-O3' --CXXOPTFLAGS='-O3' --FOPTFLAGS='-O3' \
+--with-mpi-compilers=1 --with-mpi-dir=/opt/apps/intel13/mvapich2/1.9 \
+--with-scalar-type=real --with-dynamic-loading=0 \
+--with-shared-libraries=1 --with-spai=1 --download-spai --with-hypre=1 \
+--download-hypre --with-mumps=1 --download-mumps --with-scalapack=1 \
+--download-scalapack --with-blacs=1 --download-blacs --with-spooles=1 \
+--download-spooles --with-superlu=1 --download-superlu \
+--with-superlu_dist=1 --download-superlu_dist --with-parmetis=1 \
+--download-parmetis --with-metis=1 --download-metis \
+--with-blas-lapack-dir=/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/intel64
+
+make clean
+make all
+make test
+
+cd ..
+
+chmod -R g+rwX $PETSC_DIR
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ArcOn_DIR/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib
+
+# We can use a bundled deal.ii
+# tar xzfv deal.II.tar.gz
+#tar xzfv deal.II-8.0.0.tar.gz 
+# tar xzfv deal.II-7.3.0.tar.gz 
+# or just checkout the newest svn
+
+#svn checkout https://svn.dealii.org/trunk/deal.II
+
+mkdir build
+cd build
+
+cmake ../deal.II/deal.II -DP4EST_DIR=$ArcOn_DIR/p4est -DPETSC-DIR=$PETSC_DIR -DCMAKE_INSTALL_PREFIX=$ArcOn_DIR/trigger -DDEAL_II_WITH_THREADS=OFF 
+
+#-DDEAL_II_WITH_METIS=ON --DMETIS_DIR=$PETSC_DIR
+
+#-DDEAL_II_WITH_HDF5=ON -DDEAL_II_WITH_NETCDF=ON
+
+make install
+
+cd ..
+
+#source .bashrc_local
+

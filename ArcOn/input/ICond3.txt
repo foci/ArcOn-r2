@@ -1,0 +1,15 @@
+# Listing of Parameters
+# ---------------------
+subsection Alphas
+  # Any constant used inside the function which is not a variable name.
+  set Function constants  = 
+
+  # Separate vector valued expressions by ';' as ',' is used internally by the
+  # function parser.
+  set Function expression =    10.0 + sin(x*y*z/10.0) + sin(y/10.0) + cos(x/10.0);  10.0 + sin(x*y*z/10.0) + sin(y/10.0) + cos(x/10.0);  10.0 + sin(x*y*z/10.0) + sin(y/10.0) + cos(x/10.0)
+
+
+  # The name of the variables as they will be used in the function, separated
+  # by ','.
+  set Variable names      = x,y,z,t
+end

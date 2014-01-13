@@ -1,0 +1,19 @@
+
+# Listing of Parameters
+# ---------------------
+subsection Alphas
+  # Any constant used inside the function which is not a variable name.
+  set Function constants  = 
+
+  # Separate vector valued expressions by ';' as ',' is used internally by the
+  # function parser.
+  set Function expression =    1.0 + 10.0 *exp((-((x-70.0)^2.0 + (y-130.0)^2.0 ) / 900.0)); 0.0 ; 0.0 #1.0 + 0.8 *exp((-((x+0.50)^2.0 + (y+0.50)^2.0 ) / 3.75)) #; 1.0
+
+
+  # The name of the variables as they will be used in the function, separated
+  # by ','.
+  set Variable names      = x,y,t
+end
+
+
+ # 6 *exp((-((x+1.60)^2+(y+1.60)^2) / 1.75)); 

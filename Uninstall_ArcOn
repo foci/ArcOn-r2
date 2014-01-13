@@ -1,0 +1,10 @@
+#! /bin/bash  
+
+rm -rf deal.II/
+rm -rf p4est/
+rm -rf p4est-build/
+rm -rf p4est-0.3.4.2/
+rm -rf petsc-3.4.3/
+rm *.*~
+rm -rf build
+rm -rf trigger

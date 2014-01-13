@@ -1,0 +1,18 @@
+#!/bin/bash                                                                                                       
+#SBATCH -J arcOn_ITER      # Job name                                                                          
+#SBATCH -A Oil            # Disc_Gal_Blobs  
+#SBATCH -o ITER.o%j       # Name of stdout output file (%j expands to jobId)   
+#SBATCH -e ITER.e%j       # Name of stdout output file (%j expands to jobId)                               
+#SBATCH -p development   # Queue name                                                         
+#SBATCH -n 16             #Total number of mpi tasks requested
+#SBATCH -t 4:00:00      # Run time (hh:mm:ss) - 1.5 hours                                                   
+#SBATCH --mail-user=michoski@ices.utexas.edu
+#SBATCH --mail-type=ALL 
+
+export MV2_ON_DEMAND_THRESHOLD=16
+
+#ibrun -np 16 valgrind --tool=callgrind ./ArcOn -log_summary petsc_log_summary 
+
+ibrun ./ArcOn -log_summary petsc_log_summary -ksp_view petsc_ksp_summary
+   #ibrun ./ArcOn
+

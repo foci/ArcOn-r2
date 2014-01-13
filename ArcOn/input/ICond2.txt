@@ -1,0 +1,16 @@
+
+# Listing of Parameters
+# ---------------------
+subsection Alphas
+  # Any constant used inside the function which is not a variable name.
+  set Function constants  = 
+
+  # Separate vector valued expressions by ';' as ',' is used internally by the
+  # function parser.
+  set Function expression = exp( -(x^2.0 + y^2.0) / 2.0) ; 0.0; 0.0 
+
+
+  # The name of the variables as they will be used in the function, separated
+  set Variable names      = x,y,t
+end
+

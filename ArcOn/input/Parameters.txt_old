@@ -1,0 +1,40 @@
+#Mesh parameters
+   subsection Mesh
+	set Minimum Number of refinements = 0
+	set Initial Number of refinements = 0
+	set Maximum Number of refinements = 0
+
+	set Minimum Degree = 3
+	set Initial Degree = 3
+	set Maximum Degree = 3
+	set Refine Above = 1.0
+	set Coarsen Below = 0.0
+	set Enrich Below = 0.0
+	set Unenrich Above = 1.0
+   end 
+#Runtime
+   subsection Time
+	set dt = 0.100
+	set nstep = 100 #20000
+	set fstep = 0
+	set RK Order = 4
+	set RK Stage = 6 #>3 for RKC
+	set method = 1 #1=explicit, 2=IMEX
+	set RKtype = 1 #1=RKSSP, 2=RKC
+	set eps = 0.153846154 #RKC epsilon
+   end
+#Convergence
+   subsection Convergence
+	set Threshold = 1e-12
+	set Bound = 5
+	set FastThreshold = 1e-10
+	set FastBound = 5
+   end
+#Loading/Saving
+   subsection SavedSolution
+	set Load = true
+	set Save = false
+	set h    = 3
+        set p    = 3
+   end
+
