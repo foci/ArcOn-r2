@@ -78,26 +78,30 @@ void arcOn<dim>::run()
 
     }
   }
-
+  
   //Y-periodicity
   std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >
-    periodicity_vector = GridTools::collect_periodic_faces 	( 	triangulation,
-									1, //b_id1
-									2, //b_id2
-									1 //direction
-									);
+    periodicity_vector;
+  
+  GridTools::collect_periodic_faces 	
+    ( 	triangulation,	1 /* b_id1 */, 2 /* b_id2 */,1 /* direction */,	periodicity_vector );
+  
   triangulation.add_periodicity(periodicity_vector);
   //X-periodicity
+  //std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >
+  //  periodicity_vector2 = 
   std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >
-    periodicity_vector2 = GridTools::collect_periodic_faces 	( 	triangulation,
-									3, //b_id1
-									4, //b_id2
-									0 //direction
-									);
+    periodicity_vector2;
+
+  GridTools::collect_periodic_faces 	( 	triangulation,
+						3, //b_id1
+						4, //b_id2
+						0, //direction
+						periodicity_vector2
+						);
+
   triangulation.add_periodicity(periodicity_vector2);
   
-
-
   triangulation.refine_global (refinements);
   
   num_blocks = 2;

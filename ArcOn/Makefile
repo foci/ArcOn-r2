@@ -42,10 +42,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /opt/apps/cmake/2.8.9/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn
+CMAKE_SOURCE_DIR = /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn
+CMAKE_BINARY_DIR = /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -72,9 +72,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn/CMakeFiles /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn/CMakeFiles /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

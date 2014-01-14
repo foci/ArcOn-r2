@@ -165,8 +165,8 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
     
       SolverControl solver_control (n_iters, conv_threshold, true, true);
       
-      //PETScWrappers::SolverGMRES solver(solver_control, mpi_communicator);
-      PETScWrappers::SolverCG solver(solver_control, mpi_communicator);
+      PETScWrappers::SolverGMRES solver(solver_control, mpi_communicator);
+      //PETScWrappers::SolverCG solver(solver_control, mpi_communicator);
       
       solver.solve (poisson_matrix.block(0,0), 
 		    subdomain_solution[component].block(0), 

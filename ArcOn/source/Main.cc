@@ -6,6 +6,9 @@
 #include <base/point.h>
 #include <base/tensor.h>
 #include <base/thread_local_storage.h>
+#include <base/utilities.h>
+#include <base/conditional_ostream.h>
+#include <base/index_set.h>
 
 #include <lac/vector.h>
 #include <lac/full_matrix.h>

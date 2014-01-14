@@ -38,10 +38,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /opt/apps/cmake/2.8.9/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn
+CMAKE_SOURCE_DIR = /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn
+CMAKE_BINARY_DIR = /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn
 
 # Include any dependencies generated for this target.
 include CMakeFiles/./lib/2d/ArcOn.dir/depend.make
@@ -54,17 +54,17 @@ include CMakeFiles/./lib/2d/ArcOn.dir/flags.make
 
 CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.o: CMakeFiles/./lib/2d/ArcOn.dir/flags.make
 CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.o: source/Main.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.o"
-	/opt/apps/intel13/mvapich2/1.9/bin/mpicxx   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.o -c /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn/source/Main.cc
+	/opt/apps/intel13/mvapich2/1.9/bin/mpicxx   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.o -c /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn/source/Main.cc
 
 CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.i"
-	/opt/apps/intel13/mvapich2/1.9/bin/mpicxx  $(CXX_DEFINES) $(CXX_FLAGS) -E /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn/source/Main.cc > CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.i
+	/opt/apps/intel13/mvapich2/1.9/bin/mpicxx  $(CXX_DEFINES) $(CXX_FLAGS) -E /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn/source/Main.cc > CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.i
 
 CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.s"
-	/opt/apps/intel13/mvapich2/1.9/bin/mpicxx  $(CXX_DEFINES) $(CXX_FLAGS) -S /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn/source/Main.cc -o CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.s
+	/opt/apps/intel13/mvapich2/1.9/bin/mpicxx  $(CXX_DEFINES) $(CXX_FLAGS) -S /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn/source/Main.cc -o CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.s
 
 CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.o.requires:
 .PHONY : CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.o.requires
@@ -84,25 +84,27 @@ _/lib/2d/ArcOn_EXTERNAL_OBJECTS =
 
 ./lib/2d/ArcOn: CMakeFiles/./lib/2d/ArcOn.dir/source/Main.cc.o
 ./lib/2d/ArcOn: CMakeFiles/./lib/2d/ArcOn.dir/build.make
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/trigger/lib/libdeal_II.so.8.1.pre
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/p4est/FAST/lib/libp4est.so
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/p4est/FAST/lib/libsc.so
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libpetsc.so
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libspai.a
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libcmumps.a
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libdmumps.a
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libsmumps.a
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libzmumps.a
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libmumps_common.a
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libpord.a
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libscalapack.a
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libHYPRE.a
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libsuperlu_4.3.a
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libsuperlu_dist_3.3.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/trigger/lib/libdeal_II.g.so.8.2.pre
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/p4est/DEBUG/lib/libp4est.so
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/p4est/DEBUG/lib/libsc.so
+./lib/2d/ArcOn: /usr/lib64/libbz2.so
+./lib/2d/ArcOn: /usr/lib64/libz.so
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libpetsc.so
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libspai.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libcmumps.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libdmumps.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libsmumps.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libzmumps.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libmumps_common.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libpord.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libscalapack.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libHYPRE.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libsuperlu_4.3.a
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libsuperlu_dist_3.3.a
 ./lib/2d/ArcOn: /opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/intel64/libmkl_sequential.so
 ./lib/2d/ArcOn: /usr/lib64/libX11.so
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libparmetis.so
-./lib/2d/ArcOn: /work/00004/michoski/arcOn-r2-11.13/arcOn/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libmetis.so
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libparmetis.so
+./lib/2d/ArcOn: /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib/libmetis.so
 ./lib/2d/ArcOn: /opt/apps/intel13/mvapich2/1.9/lib/libmpichcxx.so
 ./lib/2d/ArcOn: /opt/apps/intel/13/composer_xe_2013.2.146/compiler/lib/intel64/libirng.so
 ./lib/2d/ArcOn: /opt/apps/intel/13/composer_xe_2013.2.146/compiler/lib/intel64/libdecimal.a
@@ -134,7 +136,6 @@ _/lib/2d/ArcOn_EXTERNAL_OBJECTS =
 ./lib/2d/ArcOn: /usr/lib64/librt.so
 ./lib/2d/ArcOn: /opt/apps/limic2/0.5.5/lib/liblimic2.so
 ./lib/2d/ArcOn: /usr/lib64/libpthread.so
-./lib/2d/ArcOn: /usr/lib64/libz.so
 ./lib/2d/ArcOn: CMakeFiles/./lib/2d/ArcOn.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable ./lib/2d/ArcOn"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/./lib/2d/ArcOn.dir/link.txt --verbose=$(VERBOSE)
@@ -151,6 +152,6 @@ CMakeFiles/./lib/2d/ArcOn.dir/clean:
 .PHONY : CMakeFiles/./lib/2d/ArcOn.dir/clean
 
 CMakeFiles/./lib/2d/ArcOn.dir/depend:
-	cd /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn /work/00004/michoski/arcOn-r2-11.13/arcOn/ArcOn/CMakeFiles/lib/2d/ArcOn.dir/DependInfo.cmake --color=$(COLOR)
+	cd /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn /work/00004/michoski/ArcOn-r2-anisitropic-elliptic-test/ArcOn-r2/ArcOn/CMakeFiles/lib/2d/ArcOn.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/./lib/2d/ArcOn.dir/depend
 
