@@ -137,12 +137,23 @@ void arcOn<dim>::assemble_stiffness(SolutionVector& subdomain_solution, double d
 		  wbv.gradient_list( quadrature_points, sigmas_boundary2, normals, 2, current_time);
 
 		  const unsigned int normal1 = GeometryInfo<dim>::unit_normal_direction[face_num];
-
-		  unsigned int Method = -1; //NIPG = 1, IIPG = 0, SIPG = -1
+		  //const unsigned int normal2 = GeometryInfo<dim>::unit_normal_direction[neighbor2];		
 		  
 		  double pen1 = cell->extent_in_direction(normal1);
+		  //double pen2 = neighbor->extent_in_direction(normal2);
+		  
+		  double sigma_p1 = degree*( degree + 1.0 ) / pen1;
+		  double sigma_p2 = degree*( degree + 1.0 ) / pen1;
+		  
+		  double sigma_penalty = sigma_prefactor*0.5*(sigma_p1+sigma_p2);
 
-		  double sigma_penalty = 0.0; //sigma_prefactor*degree*( degree + 1.0 ) / pen1;
+		  /* const unsigned int normal1 = GeometryInfo<dim>::unit_normal_direction[face_num]; */
+
+		  /* unsigned int Method = -1; //NIPG = 1, IIPG = 0, SIPG = -1 */
+		  
+		  /* double pen1 = cell->extent_in_direction(normal1); */
+
+		  /* double sigma_penalty = 0.0; //sigma_prefactor*degree*( degree + 1.0 ) / pen1; */
 
 		  //pcout << "sigma_boundary = " << sigma_penalty << std::endl;
 

@@ -90,8 +90,12 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
     line_tquadrature_collection.push_back ( new QGauss<1>(qud_pts));
     tface_quadrature_collection.push_back ( new QGauss<dim-1>(qud_pts));
 
-    tfe_collection.push_back ( new FESystem<dim>(FE_DGQArbitraryNodes<dim>( *line_tquadrature_collection[component] ), 1,
-    						 FE_DGQArbitraryNodes<dim>( *line_tquadrature_collection[component] ), dim));
+    //    tfe_collection.push_back ( new FESystem<dim>(FE_DGQArbitraryNodes<dim>( *line_tquadrature_collection[component] ), 1,
+    //						 FE_DGQArbitraryNodes<dim>( *line_tquadrature_collection[component] ), dim));
+
+    tfe_collection.push_back ( new FESystem<dim>(FE_Q<dim>(top_deg), 1, 
+						 FE_Q<dim>(top_deg), dim)); 
+
 
     /* tfe_collection.push_back ( new FESystem<dim>(FE_DGQ<dim>(top_deg), 1, */
     /* 						 FE_DGQ<dim>(top_deg), dim)); */

@@ -299,6 +299,8 @@ private:
   SolutionVector       interpolation_error;
   SolutionVector       naive_interpolation_error;
 
+  SolutionVector       cont_output1;
+
   SolutionVector div_flux_integrated;
   SolutionVector naive_div_flux_integrated;
   SolutionVector MassAction_integrated;

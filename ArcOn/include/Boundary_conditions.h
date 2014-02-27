@@ -105,7 +105,7 @@ void WallBoundaryValues<dim>::value_list(const std::vector<Point<dim> > &points,
       (void) time;
 
       if(component == 0 ){ values[i] = values[i];};//0.0;}; //values[i]*0.9999;};(0.1) * ( values[i] - points[i](0) ) ;};
-      if(component == 1 ){ values[i] = values[i];};  //0.0;}; //values[i];};
+      if(component == 1 ){ values[i] = values[i];}; //values[i];};
       if(component == 2 ){ values[i] = values[i];};  // Force dirichlet vanishing?
       
       /* leave values[i] as passed in */
@@ -129,8 +129,8 @@ void WallBoundaryValues<dim>::gradient_list (const std::vector< Point< dim > > &
     {
       for (unsigned int j=0; j<dim; ++j){
 
-	if (component == 0){ result[i][j] = gradients[i][j];}; //do nothing
-	if (component == 1){ result[i][j] = gradients[i][j];}; //do nothing
+	if (component == 0){ result[i][j] = 0.0;}; //gradients[i][j];}; //do nothing
+	if (component == 1){ result[i][j] = 0.0;}; //
 	if (component == 2){ result[i][j] = gradients[i][j];}; 
 
 

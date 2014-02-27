@@ -5,6 +5,15 @@ void arcOn<dim>::output_results (const unsigned int cycle_in)
   static int cycle=0;
   (void)cycle_in;
 
+  //This is the interpolation info                              
+  /* for(unsigned int k=0; k<alphadim; k++){ */
+                                                                                                                                                                         
+  /*   interpolate_base[k] = subdomain_solution[k];  */
+  /*   FETools::interpolate (*(dof_handler[k]), interpolate_base[k],  */
+  /* 			  *(tdof_handler[k]), cont_output1[k]);  */
+  
+  /* } */
+
   for(unsigned int k=0; k<alphadim; k++){
     if(k==0){
       

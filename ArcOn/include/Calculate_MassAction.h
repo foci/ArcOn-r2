@@ -65,14 +65,24 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 
 	  Tensor<1,alphadim> syncopated_alphas;
 	  mass_action = 0.0;
+
+	  //double rseed = Utilities::generate_normal_random_number(0.0,0.25); 	
 	
 	  if (component == 0){
-	    double alph = 1e-2;
+	    double alph = 1e-4; //5e-4;
 	    double gam = 1.0; //2e-2;
 	    for (unsigned int q=0; q<n_q_points; ++q){
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 		//mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) * (syncopated[0][q]-syncopated[2][q]) * JxW[q]);
-		//if ( quadrature_point[q][0] <= 0.0 ){
+		if ( quadrature_point[q][0] <= 0.0 ){
+		  mass_action(component,i) += 0.01*std::abs(std::sin(0.1*quadrature_point[q][1]))*fe_values[*(alpha[component])].value(i,q)*JxW[q];
+		}
+
+		if(syncopated[component][q]>0.0){
+		  mass_action(component,i) -= alph*syncopated[component][q]*fe_values[*(alpha[component])].value(i,q)*JxW[q];}
+		else{
+		  mass_action(component,i) += 0.0;}
+
 		  //mass_action(component,i) += std::exp( std::abs(quadrature_point[q][1])/(2.0*pi) ) * ( std::sin(quadrature_point[q][1]*pi) / (quadrature_point[q][1]*pi) * sin(quadrature_point[q][0]*pi) / (quadrature_point[q][0]*pi) )  *   (fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) * JxW[q]);        
 
 		  //mass_action(component,i) += dramp *(0.00101 + 0.001 *( std::cos(0.5*pi*quadrature_point[q][1]) ) ) 
@@ -114,7 +124,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 
 	  if (component == 1){
 	    fe_values[*(alpha[2])].get_function_values(subdomain_solution[2],syncopated[2]);
-	    double alph = 3e-5; 
+	    double alph = 1e-4; //5e-4; 
 	    for (unsigned int q=0; q<n_q_points; ++q){
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 		// mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) 

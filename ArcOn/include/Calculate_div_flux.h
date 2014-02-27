@@ -323,7 +323,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 	    for (unsigned int q=0; q<n_q_points; ++q){
 	      //const TableBase<3,double> D = functionals.Ficks();
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
-		double beta = 6e-4 ; //1e-6;
+		double beta = 5e-4; //1e-6;
 		
                 if ( s_flag == 0 ){
 		  //this is the good one
@@ -353,7 +353,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 							   * ( (prev_soln_sigma[component][q])[0] *  prev_soln_alpha[2][q]) * JxW[q] );
           
 		  //pressure term
-		  convection_int(component,i) +=  (fe_values[*(alpha[component])].gradient(i,q))[1] * prev_soln_alpha[0][q] * JxW[q];
+		  convection_int(component,i) +=  beta * (fe_values[*(alpha[component])].gradient(i,q))[1] * prev_soln_alpha[0][q] * JxW[q];
 		  
 		
 		  
@@ -596,7 +596,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 
                      if (component == 1){
 
-                        double beta = 0.0; //6e-3; //1e-6;                                                                                                                                                                                   
+                        double beta = 5e-4; //6e-3; //1e-6;                                                                                                                                                                                
                         double norm21 = sigmas_boundary2[q][0] * normal(1);
                         double norm20 = sigmas_boundary2[q][1] * normal(0);
                         double avg_sca1 =  0.5 * (alphas_boundary[q] + prev_soln_alpha_face[component][q]);
@@ -615,7 +615,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 
                           convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca2 * (norm01) * JxW_face[q];
 
-			  convection_flux(component,i) -= alphas_boundary0[q] * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
+			  convection_flux(component,i) -= beta*alphas_boundary0[q] * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
 
                         }
 
@@ -800,7 +800,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 
 	    	      if (component == 1){
 			
-	    		double beta = 0.0; //6e-3; //1e-6;
+	    		double beta = 5e-4; //6e-3; //1e-6;
 			
 	    		double norm21 = 0.5 * (  (grad_drawX[2][CO][q])[0] + (prev_soln_sigma_face[2][q])[0] ) * normal(1);
 	    		double norm20 = 0.5 * (  (grad_drawX[2][CO][q])[1] + (prev_soln_sigma_face[2][q])[1] ) * normal(0);
@@ -830,7 +830,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 			  
 	    		  convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca2 * (norm01) * JxW_face[q];
 
-			  convection_flux(component,i) -=  avg_sca0 * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
+			  convection_flux(component,i) -=  beta * avg_sca0 * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
 
 			  
 	    		}
@@ -1011,7 +1011,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 
 	    	      if (component == 1){
 			
-	    		double beta = 0.0; //6e-3; //1e-6;
+	    		double beta = 5e-4; //6e-3; //1e-6;
 			
 	    		double norm21 = 0.5 * (  (grad_drawY[2][CO][q])[0] + (prev_soln_sigma_face[2][q])[0] ) * normal(1);
 	    		double norm20 = 0.5 * (  (grad_drawY[2][CO][q])[1] + (prev_soln_sigma_face[2][q])[1] ) * normal(0);
@@ -1041,7 +1041,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 			  
 	    		  convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca2 * (norm01) * JxW_face[q];
 
-			  convection_flux(component,i) -=  avg_sca0 * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
+			  convection_flux(component,i) -=  beta*avg_sca0 * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
 
 			  
 	    		}
@@ -1280,7 +1280,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 
 		    if (component == 1){
 		      
-		      double beta = 0.0; //6e-3; //1e-6;                                                                                                                                                                                     		      
+		      double beta = 5e-4; //6e-3; //1e-6;                                                                                                                                                                                     		      
 		      double norm21 = 0.5 * ( (prev_soln_sigma_neigh_face[2][q])[0] + (prev_soln_sigma_face[2][q])[0] ) * normal(1);
 		      double norm20 = 0.5 * ( (prev_soln_sigma_neigh_face[2][q])[1] + (prev_soln_sigma_face[2][q])[1] ) * normal(0);
 		      double avg_sca1 =  0.5 * (prev_soln_alpha_face[component][q] + prev_soln_alpha_neigh_face[component][q]);
@@ -1306,7 +1306,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 			
 			convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca2 * (norm01) * JxW_face[q];
 
-			convection_flux(component,i) -=  avg_sca0  * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
+			convection_flux(component,i) -=  beta * avg_sca0  * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
 			
 		      }
 		      

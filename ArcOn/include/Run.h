@@ -24,8 +24,8 @@ void arcOn<dim>::run()
   double epspi = 0.0;
   double pi = 1.0 + epspi ; //2.0*3.1415926535897932384626433832795;
 
-  const Point<dim> lb = Point<dim>(-5,-10);
-  const Point<dim> rt = Point<dim>(5,10);
+  const Point<dim> lb = Point<dim>(-10,-250);
+  const Point<dim> rt = Point<dim>(250,250);
 
   //const Point<dim> lb = Point<dim>(epspi,epspi);
   //const Point<dim> rt = Point<dim>(pi,pi);
@@ -48,13 +48,13 @@ void arcOn<dim>::run()
   for (typename Triangulation<dim>::cell_iterator cell = triangulation.begin();
        cell != triangulation.end(); ++cell) {
     for (unsigned int f=0; f<GeometryInfo<dim>::faces_per_cell; ++f) {
-      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == -10)) {
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == -250.0)) {
   	//set bottom boundary
   	//pcout << "Left boundary cell index = " << cell->index() << std::endl;
   	//pcout << "Left boundary face index = " << f << std::endl;
   	cell->face(f)->set_boundary_indicator(1);
       }
-      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 10)) {
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 250.0)) {
   	//set top boundary
   	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
   	//pcout << "Right boundary face index = " << f << std::endl;
@@ -62,18 +62,18 @@ void arcOn<dim>::run()
       }
 
       
-      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == -5)) {
-  	//set left boundary
-  	//pcout << "Left boundary cell index = " << cell->index() << std::endl;
-  	//pcout << "Left boundary face index = " << f << std::endl;
-  	cell->face(f)->set_boundary_indicator(3);
-      }
-      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 5)) {
-  	//set right boundary
-  	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
-  	//pcout << "Right boundary face index = " << f << std::endl;
-  	cell->face(f)->set_boundary_indicator(4);
-      }
+      /* if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == -10.0)) { */
+      /* 	//set left boundary */
+      /* 	//pcout << "Left boundary cell index = " << cell->index() << std::endl; */
+      /* 	//pcout << "Left boundary face index = " << f << std::endl; */
+      /* 	cell->face(f)->set_boundary_indicator(3); */
+      /* } */
+      /* if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 500.0)) { */
+      /* 	//set right boundary */
+      /* 	//pcout << "Right boundary cell index = " << cell->index() << std::endl; */
+      /* 	//pcout << "Right boundary face index = " << f << std::endl; */
+      /* 	cell->face(f)->set_boundary_indicator(4); */
+      /* } */
 
 
     }
@@ -90,17 +90,17 @@ void arcOn<dim>::run()
   //X-periodicity
   //std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >
   //  periodicity_vector2 = 
-  std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >
-    periodicity_vector2;
+  /* std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > */
+  /*   periodicity_vector2; */
 
-  GridTools::collect_periodic_faces 	( 	triangulation,
-						3, //b_id1
-						4, //b_id2
-						0, //direction
-						periodicity_vector2
-						);
+  /* GridTools::collect_periodic_faces 	( 	triangulation, */
+  /* 						3, //b_id1 */
+  /* 						4, //b_id2 */
+  /* 						0, //direction */
+  /* 						periodicity_vector2 */
+  /* 						); */
 
-  triangulation.add_periodicity(periodicity_vector2);
+  /* triangulation.add_periodicity(periodicity_vector2); */
   
   triangulation.refine_global (refinements);
   
@@ -141,6 +141,7 @@ void arcOn<dim>::run()
   ilocal_solution.resize(alphadim);
   interpolate_base.resize(alphadim);
   interpolate_active.resize(alphadim);
+  cont_output1.resize(alphadim);
   proj_solution.resize(alphadim);
   ilocally_owned_dofs.resize(alphadim);
   ilocally_relevant_dofs.resize(alphadim);
@@ -315,6 +316,7 @@ void arcOn<dim>::run()
     ilocal_solution[component].reinit(num_blocks1); 
 
     interpolate_base[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
+    cont_output1[component].reinit(num_blocks3,mpi_communicator,num_blocks3); 
     interpolate_active[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
     proj_solution[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
 
@@ -362,6 +364,12 @@ void arcOn<dim>::run()
 
       interpolate_base[component].block(bl).reinit(mpi_communicator, 
 						   fesystem_partitioning[bl] );
+      cont_output1[component].block(bl).reinit(mpi_communicator,
+                                                   tfesystem_partitioning[bl] );
+
+      /* cont_output1[component].block(bl).reinit(mpi_communicator, */
+      /*                                                tfesystem_partitioning[bl], */
+      /*                                                tfesystem_relevant_partitioning[bl] ); */
       interpolate_active[component].block(bl).reinit(mpi_communicator, 
 						     ifesystem_partitioning[bl] );
       proj_solution[component].block(bl).reinit(mpi_communicator, 
@@ -403,6 +411,7 @@ void arcOn<dim>::run()
     poisson_rhs.collect_sizes();
 
     interpolate_base[component].collect_sizes();
+    cont_output1[component].collect_sizes();
     interpolate_active[component].collect_sizes();
     proj_solution[component].collect_sizes();
 
