@@ -26,7 +26,9 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
   bool quasistrong = false;
   double kappa;
 
-  int s_flag = 1;
+  double local_min_ribbon_density = 0.0;
+
+  int s_flag = 0;
 
   for (unsigned int component=0; component< alphadim; ++component){
     
@@ -82,14 +84,14 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
   //double visc_median = (gvisc_temp1 - gvisc_temp2) / 2.0;
 
       if (component == 0){ 
-	kappa = 0.0; //+ 4.0*gvisc_median + 1e-8; //0.3; 1.9
-	s0 = 0.0; //1.6 and 1.5 ubove work 2
-	e1 = 5e-4;
+	kappa = 0.1; //+ 4.0*gvisc_median + 1e-8; //0.3; 1.9
+	s0 = 0.4; //1.6 and 1.5 ubove work 2
+	//e1 = 3e-1;
       }
       else{
-	kappa = 77.0; //+ 4.0*gvisc_median + 1e-8; //0.3; 1.9
-	s0 = 80.0; //1.6 and 1.5 ubove work 2
-	e1 = 5e-3;
+	kappa = 0.9; //+ 4.0*gvisc_median + 1e-8; //0.3; 1.9
+	s0 = 1.0; //1.6 and 1.5 ubove work 2
+	e1 = 0.0; //1e-1;
       }
       /* FETools::project_dg (*(dof_handler[component]), interpolate_base[component],  */
       /* 		      *(idof_handler[component]), interpolate_active[component]); */
@@ -191,7 +193,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		//lnSe = std::pow(degree,std::abs(o_flow -l2_base));
 		if(component < 2){
 		  
-		  max_val_loc[component] = std::max( std::abs(prev_soln_alpha[component][q]), max_val_loc[component] ); 
+		  max_val_loc[component] = std::max( std::abs(prev_soln_alpha[component][q]), max_val_loc[component] );
+		  //gmax_val_loc[component] = std::max( gmax_val_loc[component], max_val_loc[component] );
 		  lnSe = std::max(std::abs(prev_soln_sigma[component][q][0]),std::abs(prev_soln_sigma[component][q][1]))/gmax_val_loc[component];
 		  
 		  //std::cout << " first = " << lnSe << ", " << o_flow << ", " << l2_base <<  std::endl;
@@ -261,7 +264,16 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 	    for (unsigned int i=0; i<dofs_per_cell; ++i){
 	      interior_div(component,i) += (fe_values[*(alpha[component])].gradient(i,q)) 
 		* (prev_soln_sigma[component][q]) 
-		* (difs(component)+eps_smooth(component,q)) * JxW[q] ;
+		* (difs(component)+eps_smooth(component,q)) * JxW[q];
+
+	      if(component == 0){
+		interior_div(component,i) += (difs(component)+eps_smooth(component,q))*(prev_soln_sigma[component][q])* (prev_soln_sigma[component][q])*(fe_values[*(alpha[component])].value(i,q))* JxW[q];
+
+		if ( quadrature_point[q][0] > 175.0 &&  quadrature_point[q][0] < 250.0 && quadrature_point[q][1] > 0.0 && quadrature_point[q][1] < 5.0  ){
+		  local_min_ribbon_density = std::min(local_min_ribbon_density, prev_soln_alpha[0][q]);
+		}
+				
+	      }
 
 	      //	      std::cout << "what is going on1? = " <<  difs(component)+eps_smooth(component,q) << std::endl;
 
@@ -314,7 +326,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		    * ( (prev_soln_sigma[2][q])[1] *  prev_soln_alpha[component][q]) * JxW[q];
 		  
                 }
-	  
+
 	      }
 	    }
 	  }
@@ -334,7 +346,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 			  *  (prev_soln_sigma[component][q])[0] ))* JxW[q];
 		  
 		//Pressure type term -- good one (remember to remove beta and background)
-		convection_int(component,i) -=  (prev_soln_sigma[0][q])[1] 
+		convection_int(component,i) -=  beta*(prev_soln_sigma[0][q])[1] 
 		  * fe_values[*(alpha[component])].value(i,q)  * JxW[q];
 		/* convection_int(component,i) -=  beta*(prev_soln_sigma[0][q])[1]*std::pow(prev_soln_alpha[0][q],-1.0) * fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) * JxW[q]; */
 
@@ -366,7 +378,10 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 
                 }
 
+		double sig0x = std::abs((prev_soln_sigma[2][q])[0]) ; //* fe_values[*(alpha[0])].value(i,q) * JxW[q];
+		double sig0y = ( std::abs((prev_soln_sigma[2][q])[1])+std::abs(beta*(prev_soln_sigma[0][q])[1]) ) ; //* fe_values[*(alpha[1])].value(i,q) * JxW[q];
 
+                CFL_temp = std::max(CFL_temp,std::max( sig0x, sig0y ) );
 
 	      }
 	    }
@@ -416,7 +431,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		std::vector<double> alphas_boundary(n_q_points_face);
 		std::vector<double> alphas_boundary2(n_q_points_face);
 		std::vector<double> alphas_boundary0(n_q_points_face);
-		std::vector<double> lap_boundary(n_q_points_face);
+		//std::vector<double> lap_boundary(n_q_points_face);
 		
 		std::vector< Tensor< 1, dim > > sigmas_boundary(n_q_points_face);
 		std::vector< Tensor< 1, dim > > sigmas_boundary2(n_q_points_face);
@@ -430,7 +445,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		sigmas_boundary = prev_soln_sigma_face[component];
 		sigmas_boundary2 = prev_soln_sigma_face[2];
 
-		lap_boundary = prev_soln_alpha_face[component];
+		//lap_boundary = prev_soln_alpha_face[component];
 
 		/* if (component == 0){ */
 
@@ -448,7 +463,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		  wbv.value_list( quadrature_points, alphas_boundary0, 0, current_time);
 		  wbv.gradient_list( quadrature_points, sigmas_boundary, normals, component, current_time);
 		  wbv.gradient_list( quadrature_points, sigmas_boundary2, normals, 2, current_time);
-		
+
 		  //}
 		
 		FullMatrix<double> eps_smooth_face(alphadim-1, n_q_points_face);
@@ -478,6 +493,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 			
 			
 			max_val_loc[component] = std::max( std::abs(prev_soln_alpha_face[component][q]), max_val_loc[component] ); 
+			//gmax_val_loc[component] = std::max( gmax_val_loc[component], max_val_loc[component] );
 			lnSe = std::max(std::abs(prev_soln_sigma_face[component][q][0]),std::abs(prev_soln_sigma_face[component][q][1]))/gmax_val_loc[component];
 			
 			//lnSe = std::pow(degree,damn);
@@ -563,14 +579,14 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		      //std::cout << "what is going on2? = " <<  difs(component)+eps_smooth_face(component,q) << std::endl;
 
 		      if (component == 0){
-			
-                        double norm21 = sigmas_boundary2[q][0] * normal(1);
-                        double norm20 = sigmas_boundary2[q][1] * normal(0);
-                        double avg_sca0 =  0.5 * ( alphas_boundary[q] + prev_soln_alpha_face[component][q] ) ;
-			
-                        double norm01 =  sigmas_boundary[q][0] * normal(1);
-        		double norm00 =  sigmas_boundary[q][1] * normal(0);
-                        double avg_sca2 =  0.5 * ( alphas_boundary2[q] + prev_soln_alpha_face[2][q]) ;
+
+			  double norm21 = sigmas_boundary2[q][0] * normal(1);
+			  double norm20 = sigmas_boundary2[q][1] * normal(0);
+			  double avg_sca0 =  0.5 * ( alphas_boundary[q] + prev_soln_alpha_face[component][q] ) ;
+			  
+			  double norm01 =  sigmas_boundary[q][0] * normal(1);
+			  double norm00 =  sigmas_boundary[q][1] * normal(0);
+			  double avg_sca2 =  0.5 * ( alphas_boundary2[q] + prev_soln_alpha_face[2][q]) ;
 			
                         if ( s_flag == 1){
 			  
@@ -596,44 +612,308 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 
                      if (component == 1){
 
-                        double beta = 5e-4; //6e-3; //1e-6;                                                                                                                                                                                
-                        double norm21 = sigmas_boundary2[q][0] * normal(1);
-                        double norm20 = sigmas_boundary2[q][1] * normal(0);
-                        double avg_sca1 =  0.5 * (alphas_boundary[q] + prev_soln_alpha_face[component][q]);
+		       double beta = 5e-4;//6e-3; //1e-6;                                                                                                                                                                                
+		       
+		       double norm21 = sigmas_boundary2[q][0] * normal(1);
+		       double norm20 = sigmas_boundary2[q][1] * normal(0);
+		       double avg_sca1 =  0.5 * (alphas_boundary[q] + prev_soln_alpha_face[component][q]);
+		       
+		       double norm01 =  sigmas_boundary[q][0] * normal(1);
+		       double norm00 =  sigmas_boundary[q][1] * normal(0);
+		       double avg_sca2 =  0.5 * ( alphas_boundary2[q] + prev_soln_alpha_face[2][q]);
+		       
+		       if ( s_flag == 1 ){
+			 
+			 convection_flux(component,i) -=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm21) * JxW_face[q];
+			 
+			 convection_flux(component,i) -=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca2 * (norm00) * JxW_face[q];
+			 
+			 convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm20) * JxW_face[q];
+			 
+			 convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca2 * (norm01) * JxW_face[q];
+			 
+			 convection_flux(component,i) -= beta*alphas_boundary0[q] * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
+			 
+		       }
+		       
+		       if ( s_flag == 2){
+			 
+			 convection_flux(component,i) -=  ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm21) * JxW_face[q];
+			 
+			 convection_flux(component,i) +=  ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm20) * JxW_face[q];
+			 
+			 
+		       }
+		       
+		     }
+		     
+		     //std::cout << "dif2 = " << D( TableIndices<3>(component,l,l) ) << std::endl;
+		     //}
+		      //}
+		     
+		    }
+		  }
+		}
+	      }
+	    else if ( face->at_boundary() && (face->boundary_indicator() == 15) )
+	      {
+		hp_fe_values_face[component]->reinit (cell,face_num);
+		const FEFaceValues<dim>& fe_values_face = hp_fe_values_face[component]->get_present_fe_values ();
+		const Quadrature<dim-1>& face_quadrature_formula = fe_values_face.get_quadrature();
+		const unsigned int n_q_points_face = face_quadrature_formula.size();
 
-                        double norm01 =  sigmas_boundary[q][0] * normal(1);
-                        double norm00 =  sigmas_boundary[q][1] * normal(0);
-                        double avg_sca2 =  0.5 * ( alphas_boundary2[q] + prev_soln_alpha_face[2][q]);
+		const std::vector<double> &JxW_face = fe_values_face.get_JxW_values ();
+		const std::vector<Point<dim> > &normals = fe_values_face.get_normal_vectors ();   
 
-                        if ( s_flag == 1 ){
+		//for(unsigned int k=0;k<alphadim;k++){
+		prev_soln_alpha_face[component] =  std::vector<double>(n_q_points_face);
+		prev_soln_sigma_face[component] =  std::vector<Tensor<1,dim> >(n_q_points_face);
+		prev_soln_alpha_face[0] =  std::vector<double>(n_q_points_face);
+		prev_soln_sigma_face[0] =  std::vector<Tensor<1,dim> >(n_q_points_face);
+		prev_soln_alpha_face[2] =  std::vector<double>(n_q_points_face);
+		prev_soln_sigma_face[2] =  std::vector<Tensor<1,dim> >(n_q_points_face);
+		  //}
+		fe_values_face[*(alpha[component])].get_function_values(subdomain_solution[component],prev_soln_alpha_face[component]);
+		fe_values_face[*(sigma[component])].get_function_values(subdomain_solution[component],prev_soln_sigma_face[component]);
 
-                          convection_flux(component,i) -=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm21) * JxW_face[q];
+		if (component !=0) {
+		  fe_values_face[*(alpha[2])].get_function_values(subdomain_solution[2],prev_soln_alpha_face[2]);
+		  fe_values_face[*(sigma[2])].get_function_values(subdomain_solution[2],prev_soln_sigma_face[2]);
+		}
+		if (component !=2) {
+		  fe_values_face[*(alpha[0])].get_function_values(subdomain_solution[0],prev_soln_alpha_face[0]);
+		  fe_values_face[*(sigma[0])].get_function_values(subdomain_solution[0],prev_soln_sigma_face[0]);
+		}
+		
+		/* if (component == 0){ */
+		/*   fe_values_face[*(alpha[2])].get_function_laplacians(subdomain_solution[2], */
+		/* 						 prev_soln_alpha_face[1]); */
+		/* } */
 
+
+		std::vector<double> alphas_boundary(n_q_points_face);
+		std::vector<double> alphas_boundary2(n_q_points_face);
+		std::vector<double> alphas_boundary0(n_q_points_face);
+		//std::vector<double> lap_boundary(n_q_points_face);
+		
+		std::vector< Tensor< 1, dim > > sigmas_boundary(n_q_points_face);
+		std::vector< Tensor< 1, dim > > sigmas_boundary2(n_q_points_face);
+		unsigned char boundary_index = face->boundary_indicator();
+		const WallBoundaryValues<dim>& wbv = WBV[boundary_index];
+		const std::vector< Point<dim> > &quadrature_points = fe_values_face.get_quadrature_points();
+
+		alphas_boundary = prev_soln_alpha_face[component];
+		alphas_boundary2 = prev_soln_alpha_face[2];
+		alphas_boundary0 = prev_soln_alpha_face[0];
+		sigmas_boundary = prev_soln_sigma_face[component];
+		sigmas_boundary2 = prev_soln_sigma_face[2];
+
+		//lap_boundary = prev_soln_alpha_face[component];
+
+		/* if (component == 0){ */
+
+		/*   wbv.value_list( quadrature_points, alphas_boundary, component, current_time); */
+		/*   wbv.value_list( quadrature_points, alphas_boundary2, 2, current_time); */
+		/*   wbv.value_list( quadrature_points, alphas_boundary0, 0, current_time); */
+		/*   wbv.gradient_list( quadrature_points, sigmas_boundary, normals, component, current_time); */
+		/*   wbv.gradient_list( quadrature_points, sigmas_boundary2, normals, 2, current_time); */
+
+		/* } */
+		//else{
+
+		  wbv.value_list2( quadrature_points, alphas_boundary, component, current_time);
+		  wbv.value_list2( quadrature_points, alphas_boundary2, 2, current_time);
+		  wbv.value_list2( quadrature_points, alphas_boundary0, 0, current_time);
+		  wbv.gradient_list2( quadrature_points, sigmas_boundary, normals, component, current_time);
+		  wbv.gradient_list2( quadrature_points, sigmas_boundary2, normals, 2, current_time);
+
+		  //}
+		
+		FullMatrix<double> eps_smooth_face(alphadim-1, n_q_points_face);
+		eps_smooth_face = 0.0;
+		if (artificial_visc == true ){
+
+		  //iprev_soln_alpha_face[component] =  std::vector<double>(n_q_points_face);
+		  //fe_values_face[*(ialpha[component])].get_function_values(proj_solution[component],iprev_soln_alpha_face[component]);
+		  
+		  for (unsigned int q=0; q<n_q_points_face; ++q){
+		    
+		    //o_flow = 0.0;
+		    //l2_base = 0.0;
+
+		    //o_flow  = std::pow(iprev_soln_alpha_face[component][q],2);
+		    //l2_base = std::pow(prev_soln_alpha_face[component][q],2);
+
+		    if ( std::abs(prev_soln_alpha_face[component][q]) > 1e-10 ){
+
+		      if(component < 2){
+			
+			//lnSe = std::pow(degree,std::abs(o_flow -l2_base));
+			
+			//		      double damn = std::max(std::pow(prev_soln_sigma[component][q][0],2),std::pow(prev_soln_sigma[component][q][1],2));
+			//		      lnSe = std::max(std::abs(prev_soln_sigma[component][q][0]),std::abs(prev_soln_sigma[component][q][1]));
+			//lnSe = std::max(std::abs(prev_soln_sigma[component][q][0]/prev_soln_alpha[component][q]),std::abs(prev_soln_sigma[component][q][1]/prev_soln_alpha[component][q]));
+			
+			
+			max_val_loc[component] = std::max( std::abs(prev_soln_alpha_face[component][q]), max_val_loc[component] ); 
+			//gmax_val_loc[component] = std::max( gmax_val_loc[component], max_val_loc[component] );
+			lnSe = std::max(std::abs(prev_soln_sigma_face[component][q][0]),std::abs(prev_soln_sigma_face[component][q][1]))/gmax_val_loc[component];
+			
+			//lnSe = std::pow(degree,damn);
+			
+			//pcout << " second = " << lnSe << ", " << o_flow << ", " << l2_base <<  std::endl;
+			visc_temp1 = std::max(visc_temp1, lnSe );
+			visc_temp2 = std::min(visc_temp2, lnSe );
+			e0 = e1;
+			
+			
+			if ( lnSe >= s0 + kappa){
+			  eps_smooth_face(component,q) = e0;  
+			  //std::cout << "t1 = " << current_time << ", lnSe = " << lnSe << ", eps = " << eps_smooth(component,q) << ", l2_base = " << l2_base << ", oflow = " << o_flow << std::endl;
+			}
+			else if ( lnSe >= s0 - kappa &&  lnSe < s0 + kappa){
+			  
+			  //eps_smooth(component,q) = e0*std::sin( pi * (lnSe/(2.0*(s0+kappa))) ); //(e0/2.0) * ( 1 + std::sin( pi*(lnSe-s0) / (2.0*kappa) )  );
+			  eps_smooth_face(component,q) = e0*std::sin( pi * ( (lnSe - (s0 - kappa)) / (2.0*kappa)) ) / 2.0;
+			  //std::cout << ", eps = " << eps_smooth(component,q) << ", k = " << kappa << ", component = " << component << std::endl;
+			}
+			else{
+			}
+			art_max = std::max(eps_smooth_face(component,q),art_max);
+			//if ( eps_smooth_face(component,q) > e0){pcout << "wtf" << std::endl;}
+		      }
+		    }
+		    
+		    /* o_flow  = std::pow(prev_soln_alpha_face[component][q]-iprev_soln_alpha_face[component][q],2); */
+		    /* l2_base = std::pow(prev_soln_alpha_face[component][q],2); */
+
+		    /* if (o_flow > 1e-13 && l2_base > 1e-13){ */
+		      
+		    /*   lnSe = std::log10(o_flow/l2_base); */
+		    /*   e0 = e1; //\*std::abs(lnSe); */
+		    /*   //pcout << " second = " << lnSe << ", " << o_flow << ", " << l2_base <<  std::endl; */
+		  		      
+		    /*   //if(component < 2){ */
+		    /* 	if ( lnSe > kappa){ */
+		    /* 	  eps_smooth_face(component,q) = e0;   */
+		    /* 	  //	      std::cout << "t1 = " << current_time << ", lnSe = " << lnSe << ", eps = " << eps_smooth << ", k= " << kappa << ", guy = " << component << ", co = " << co << std::endl; */
+		    /* 	} */
+		    /* 	else if ( lnSe <= kappa && lnSe >= -kappa ){ */
+		    /* 	  eps_smooth_face(component,q) =  e0*std::tanh( (lnSe+kappa) / kappa ); //(e0/2.0) * ( 1 + std::sin( pi*(lnSe-s0) / (2.0*kappa) )  ); */
+		    /* 	  //std::cout << "t2 = " << current_time << ", lnSe = " << lnSe << ", eps = " << eps_smooth << ", k = " << kappa << ", guy = " << component << ", co = " << co << std::endl; */
+		    /* 	} */
+		    /* 	else{ */
+		    /* 	} */
+		    /* 	//} */
+		    /* } */
+		  }
+
+
+/* 		  } */
+		  
+/* 		  lnSe = std::log10(o_flow/l2_base); */
+/* 		  //eps_smooth = 0.0; */
+		  
+/* 		  if(component < 2){ */
+/* 		    if ( lnSe > s0 + kappa){ */
+/* 		      //eps_smooth(component) = e0; */
+/* 		      //		    std::cout << "tb1 = " << current_time << ", lnSe = " << lnSe << ", eps = " << eps_smooth << ", k= " << kappa << ", guy = " << component << ", co = " << co << std::endl;                                                         */
+/* 		    } */
+/* 		    else if ( lnSe <= s0+kappa && lnSe >= s0-kappa ){ */
+/* 		      //eps_smooth(component) = e0; //(e0/2.0) * ( 1 + std::sin( pi*(lnSe-s0) / (2.0*kappa) )  ); \ */
+/* 		      //std::cout << "tb2 = " << current_time << ", lnSe = " << lnSe << ", eps = " << eps_smooth << ", k = " << kappa << ", guy = " << component << ", co = " << co << std::endl;                          */
+/* 		    } */
+/* 		    else{ */
+/* 		    } */
+/* 		  } */
+		}
+		
+
+		for (unsigned int q=0; q<fe_values_face.n_quadrature_points; ++q){
+		  const Point<dim>& normal = normals[q]; 
+		  //const TableBase<3,double> D = functionals.Ficks();
+		  for (unsigned int i=0; i< dofs_per_cell; ++i){
+		    //if( !checksupport || fe.has_support_on_face( pinfo[component].alpha_dof_index[i], face_num ) ){
+		    //for(unsigned int l=0; l<dim; ++l){
+		    if (component < 2){ 
+		      
+		      //diffusion_flux(component,i) += (D( TableIndices<3>(component,l,l) ) + eps_test ) *( (prev_soln_sigma_face[component][q])[l] )* fe_values_face[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) * normal(l) * JxW_face[q];
+		      diffusion_flux(component,i) += ( difs(component) + eps_smooth_face(component,q) )* ( sigmas_boundary[q] ) * (fe_values_face[*(alpha[component])].value(i,q)) * normals[q] * JxW_face[q];
+		      //std::cout << "what is going on2? = " <<  difs(component)+eps_smooth_face(component,q) << std::endl;
+
+		      if (component == 0){
+
+			  double norm21 = sigmas_boundary2[q][0] * normal(1);
+			  double norm20 = sigmas_boundary2[q][1] * normal(0);
+			  double avg_sca0 =  0.5 * ( alphas_boundary[q] + prev_soln_alpha_face[component][q] ) ;
+			  
+			  double norm01 =  sigmas_boundary[q][0] * normal(1);
+			  double norm00 =  sigmas_boundary[q][1] * normal(0);
+			  double avg_sca2 =  0.5 * ( alphas_boundary2[q] + prev_soln_alpha_face[2][q]) ;
+			
+                        if ( s_flag == 1){
+			  
+                          convection_flux(component,i) -=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca0 * (norm21) * JxW_face[q];
+			  
                           convection_flux(component,i) -=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca2 * (norm00) * JxW_face[q];
-
-                          convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm20) * JxW_face[q];
+			  
+                          convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca0 * (norm20) * JxW_face[q];
 
                           convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca2 * (norm01) * JxW_face[q];
-
-			  convection_flux(component,i) -= beta*alphas_boundary0[q] * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
-
-                        }
-
-                        if ( s_flag == 2){
-
-                          convection_flux(component,i) -=  ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm21) * JxW_face[q];
-
-                          convection_flux(component,i) +=  ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm20) * JxW_face[q];
-
-
+			  
+			  
                         }
 			
-		     }
-		      
-		      //std::cout << "dif2 = " << D( TableIndices<3>(component,l,l) ) << std::endl;
-		      //}
-		      //}
+        		else if ( s_flag == 2){
+			  
+                          convection_flux(component,i) -=  ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca0 * (norm21) * JxW_face[q];
+			  
+                          convection_flux(component,i) +=  ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca0 * (norm20) * JxW_face[q];
+			  
+                        }
+                      }
 
+                     if (component == 1){
+
+		       double beta = 5e-4;//6e-3; //1e-6;                                                                                                                                                                                
+		       
+		       double norm21 = sigmas_boundary2[q][0] * normal(1);
+		       double norm20 = sigmas_boundary2[q][1] * normal(0);
+		       double avg_sca1 =  0.5 * (alphas_boundary[q] + prev_soln_alpha_face[component][q]);
+		       
+		       double norm01 =  sigmas_boundary[q][0] * normal(1);
+		       double norm00 =  sigmas_boundary[q][1] * normal(0);
+		       double avg_sca2 =  0.5 * ( alphas_boundary2[q] + prev_soln_alpha_face[2][q]);
+		       
+		       if ( s_flag == 1 ){
+			 
+			 convection_flux(component,i) -=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm21) * JxW_face[q];
+			 
+			 convection_flux(component,i) -=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca2 * (norm00) * JxW_face[q];
+			 
+			 convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm20) * JxW_face[q];
+			 
+			 convection_flux(component,i) +=  0.5 * ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca2 * (norm01) * JxW_face[q];
+			 
+			 convection_flux(component,i) -= beta*alphas_boundary0[q] * normal(1) * ( fe_values_face[*(alpha[component])].value(i,q)) *  JxW_face[q];
+			 
+		       }
+		       
+		       if ( s_flag == 2){
+			 
+			 convection_flux(component,i) -=  ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm21) * JxW_face[q];
+			 
+			 convection_flux(component,i) +=  ( fe_values_face[*(alpha[component])].value(i,q)) * avg_sca1 * (norm20) * JxW_face[q];
+			 
+			 
+		       }
+		       
+		     }
+		     
+		     //std::cout << "dif2 = " << D( TableIndices<3>(component,l,l) ) << std::endl;
+		     //}
+		      //}
+		     
 		    }
 		  }
 		}
@@ -686,6 +966,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 			//lnSe = std::max(std::abs(prev_soln_sigma[component][q][0]/prev_soln_alpha[component][q]),std::abs(prev_soln_sigma[component][q][1]/prev_soln_alpha[component][q]));
 			
 			max_val_loc[component] = std::max( std::abs(prev_soln_alpha_face[component][q]), max_val_loc[component] ); 
+			//gmax_val_loc[component] = std::max( gmax_val_loc[component], max_val_loc[component] );
 			lnSe = std::max(std::abs(prev_soln_sigma_face[component][q][0]),std::abs(prev_soln_sigma_face[component][q][1]))/gmax_val_loc[component];		      
 			//lnSe = std::max(std::abs(prev_soln_sigma[component][q][0]),std::abs(prev_soln_sigma[component][q][1]));
 			//lnSe = std::pow(degree,damn);
@@ -773,8 +1054,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 			//pcout << "prev_soln[" << q << "] = " << prev_soln_alpha_face[2][q] << std::endl;
 			//pcout << "draw[" << q << "] = " << soln_draw[2][CO][q] << std::endl;
 
-			CFL_temp = std::max(CFL_temp,std::abs(avg_sca0) );
-			CFL_temp = std::max(CFL_temp,std::abs(avg_sca2) );
+			//CFL_temp = std::max(CFL_temp,std::abs(avg_sca0) );
+			//CFL_temp = std::max(CFL_temp,std::abs(avg_sca2) );
 			
 	    		if ( s_flag == 1 ){
 			  
@@ -897,6 +1178,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 			//lnSe = std::max(std::abs(prev_soln_sigma[component][q][0]/prev_soln_alpha[component][q]),std::abs(prev_soln_sigma[component][q][1]/prev_soln_alpha[component][q]));
 			
 			max_val_loc[component] = std::max( std::abs(prev_soln_alpha_face[component][q]), max_val_loc[component] ); 
+			//gmax_val_loc[component] = std::max( gmax_val_loc[component], max_val_loc[component] );
 			lnSe = std::max(std::abs(prev_soln_sigma_face[component][q][0]),std::abs(prev_soln_sigma_face[component][q][1]))/gmax_val_loc[component];		      
 			//lnSe = std::max(std::abs(prev_soln_sigma[component][q][0]),std::abs(prev_soln_sigma[component][q][1]));
 			//lnSe = std::pow(degree,damn);
@@ -984,8 +1266,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 			//pcout << "prev_soln[" << q << "] = " << prev_soln_alpha_face[2][q] << std::endl;
 			//pcout << "draw[" << q << "] = " << soln_draw[2][CO][q] << std::endl;
 
-			CFL_temp = std::max(CFL_temp,std::abs(avg_sca0) );
-			CFL_temp = std::max(CFL_temp,std::abs(avg_sca2) );
+			//CFL_temp = std::max(CFL_temp,std::abs(avg_sca0) );
+			//CFL_temp = std::max(CFL_temp,std::abs(avg_sca2) );
 			
 	    		if ( s_flag == 1 ){
 			  
@@ -1128,6 +1410,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		    //lnSe = std::pow(degree,std::abs(o_flow -l2_base));
 
 		      max_val_loc[component] = std::max( std::abs(prev_soln_alpha_face[component][q]), max_val_loc[component] ); 
+		      //gmax_val_loc[component] = std::max( gmax_val_loc[component], max_val_loc[component] );
 		      lnSe = std::max(std::abs(prev_soln_sigma_face[component][q][0]),std::abs(prev_soln_sigma_face[component][q][1]))/gmax_val_loc[component];
 		      //double damn = std::max(std::pow(prev_soln_sigma[component][q][0],2),std::pow(prev_soln_sigma[component][q][1],2));
 		      //lnSe = std::max(std::abs(prev_soln_sigma[component][q][0]/prev_soln_alpha[component][q]),std::abs(prev_soln_sigma[component][q][1]/prev_soln_alpha[component][q]));		    
@@ -1225,8 +1508,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 
 		    for (unsigned int l=0; l<2; ++l){
 		      for (unsigned int m=0; m<2; ++m){
-			double temp =  0.5 * ( (prev_soln_sigma_face[component][q])[l] + (prev_soln_sigma_neigh_face[component][q])[m] );
-			CFL_temp = std::max(CFL_temp,std::abs(temp) );
+		    	double temp =  0.5 * ( (prev_soln_sigma_face[component][q])[l] + (prev_soln_sigma_neigh_face[component][q])[m] );
+		    	CFL_temp = std::max(CFL_temp,std::abs(temp) );
 		      }
 		    }
 			
@@ -1252,8 +1535,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		      double norm00 = 0.5 * ( (prev_soln_sigma_neigh_face[component][q])[1] + (prev_soln_sigma_face[component][q])[1] ) * normal(0);
 		      double avg_sca2 =  0.5 * (prev_soln_alpha_face[2][q] + prev_soln_alpha_neigh_face[2][q]);
 		      
-		      CFL_temp = std::max(CFL_temp,std::abs(avg_sca0) );
-		      CFL_temp = std::max(CFL_temp,std::abs(avg_sca2) );
+		      //CFL_temp = std::max(CFL_temp,std::abs(avg_sca0) );
+		      //CFL_temp = std::max(CFL_temp,std::abs(avg_sca2) );
 		      
 		      if ( s_flag == 1 ){
 			
@@ -1291,8 +1574,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 
 		      double avg_sca0 =  0.5 * (prev_soln_alpha_face[0][q] + prev_soln_alpha_neigh_face[0][q]);
 		      
-		      CFL_temp = std::max(CFL_temp,std::abs(avg_sca1) );
-		      CFL_temp = std::max(CFL_temp,std::abs(avg_sca2) );
+		      //CFL_temp = std::max(CFL_temp,std::abs(avg_sca1) );
+		      //CFL_temp = std::max(CFL_temp,std::abs(avg_sca2) );
 
 		      //pcout << "CFL = " << CFL_temp << std::endl;
 		      
@@ -1390,9 +1673,11 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
     
   }
 
-  CFL_temp *= 6.0;
+  CFL_temp *= 5.0; //h_min_dist; //10.0;
+  //CFL_temp = std::max(CFL_temp,0.01);
 
   //MPI_Allreduce(&CFL_temp, &CFL_bound, Utilities::MPI::n_mpi_processes(mpi_communicator), MPI_DOUBLE, MPI_MAX, mpi_communicator);
+  MPI_Allreduce(&local_min_ribbon_density, &glob_min_ribbon_density, 1, MPI_DOUBLE, MPI_MIN, mpi_communicator);
   MPI_Allreduce(&CFL_temp, &CFL_bound, 1, MPI_DOUBLE, MPI_MAX, mpi_communicator);
   MPI_Allreduce(&h_min_loc, &h_min_dist, 1, MPI_DOUBLE, MPI_MIN, mpi_communicator);
   if (artificial_visc == true ){

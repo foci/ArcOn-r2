@@ -3,18 +3,52 @@ template <int dim>
 void arcOn<dim>::assemble_system()
 {
 
+  if(loading_solution == true){
+
+    for (unsigned int component=0; component< alphadim; ++component){
+
+      parallel::distributed::SolutionTransfer<dim,PETScWrappers::MPI::BlockVector> soltrans(*dof_handler[component]);
+      
+      if(component==0){
+	std::string filename = "dat0";
+	triangulation.load(filename.c_str());
+	soltrans.deserialize(naive_subdomain_solution[component]);
+      }
+      if(component==1){
+	std::string filename = "dat1";
+	triangulation.load(filename.c_str());
+	soltrans.deserialize(naive_subdomain_solution[component]);
+      }
+      if(component==2){
+	std::string filename = "dat2";
+	triangulation.load(filename.c_str());
+	soltrans.deserialize(naive_subdomain_solution[component]);
+      }
+      
+      subdomain_solution[component] = naive_subdomain_solution[component];
+      
+    }
+     
+    init_solution = subdomain_solution;
+    load_top(L2_error_interpolant);
+  }
+  
+  else{
+
   init_flag = 1;
   load_initial_conditions(subdomain_solution,init_flag);
   //init_flag = 2;
   //load_initial_conditions(subdomain_solution,init_flag);
   load_top(L2_error_interpolant);
   init_solution = subdomain_solution;
+  }
 
   static_periodicity_map(subdomain_solution,0.0);
   assemble_stiffness(subdomain_solution,0.0);
 
-
   //poisson_matrix.block(0,0).vmult(subdomain_solution[1].block(0),subdomain_solution[2].block(0));
+
+  glob_min_ribbon_density = 0.0;
 
   periodicity_map(subdomain_solution,0.0);
   assemble_sigma(subdomain_solution,0.0);
@@ -55,9 +89,9 @@ void arcOn<dim>::assemble_system()
   for(unsigned int step =0; step<nstep;++step){
     
     if (step > 0){
-      dt = h_min_dist /((2.0*degree+1.0)*CFL_bound);
+      dt = h_min_dist / ((2.0*degree+1.0)*(CFL_bound) );
       pcout << "h_min_dist2= " << h_min_dist << ", CFL_bound2 = " << CFL_bound << std::endl;
-	    pcout << "dt (" << step << " ) = " << h_min_dist / ((2.0*degree+1.0)*CFL_bound) << std::endl;
+      pcout << "dt (" << step << " ) = " << h_min_dist / ((2.0*degree+1.0)*(CFL_bound)) << std::endl;
     }
 
     current_time_s = current_time_s + dt;
@@ -194,7 +228,7 @@ void arcOn<dim>::assemble_system()
 
     periodicity_map(subdomain_solution,dt);
 
-    assemble_sigma(subdomain_solution,current_time_s);
+    assemble_sigma(subdomain_solution,dt*step);
 
     periodicity_map(subdomain_solution,dt);
 
@@ -239,7 +273,34 @@ void arcOn<dim>::assemble_system()
 
 
     if ( (step+1) % modulus == 0){
+
       output_results(step+1);
+
+      for (unsigned int component=0; component< alphadim; ++component){
+
+	if(saving_solution == true){
+
+	  parallel::distributed::SolutionTransfer<dim,PETScWrappers::MPI::BlockVector> soltrans(*dof_handler[component]);
+	  
+	  soltrans.prepare_serialization (subdomain_solution[component]);
+	  
+	  if(component==0){
+	    std::string filename = "dat0";
+	    triangulation.save(filename.c_str());
+	  }
+	  if(component==1){
+	    std::string filename = "dat1";
+	    triangulation.save(filename.c_str());
+	  }
+	  if(component==2){
+	    std::string filename = "dat2";
+	    triangulation.save(filename.c_str());
+	  }
+	  
+	}
+
+      }
+
     }
        
   }

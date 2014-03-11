@@ -71,17 +71,24 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	  if (component == 0){
 	    double alph = 1e-4; //5e-4;
 	    double gam = 1.0; //2e-2;
+	    double sqrt2pi = 2.506628275;
+	    double sigs = 0.02*290.0;
 	    for (unsigned int q=0; q<n_q_points; ++q){
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 		//mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) * (syncopated[0][q]-syncopated[2][q]) * JxW[q]);
-		if ( quadrature_point[q][0] <= 0.0 ){
-		  mass_action(component,i) += 0.01*std::abs(std::sin(0.1*quadrature_point[q][1]))*fe_values[*(alpha[component])].value(i,q)*JxW[q];
-		}
+		/* if ( quadrature_point[q][0] <= 0.0 ){ */
+		/*   mass_action(component,i) += 0.001*std::abs(std::sin(0.1*quadrature_point[q][1]))*fe_values[*(alpha[component])].value(i,q)*JxW[q]; */
+		/* } */
 
-		if(syncopated[component][q]>0.0){
-		  mass_action(component,i) -= alph*syncopated[component][q]*fe_values[*(alpha[component])].value(i,q)*JxW[q];}
-		else{
-		  mass_action(component,i) += 0.0;}
+		//if(syncopated[component][q]>0.0){
+
+
+		mass_action(component,i) += ( 3.0*alph*std::exp(-0.5*std::pow(quadrature_point[q][0],2.0)/std::pow(sigs,2.0))/(0.2*sqrt2pi) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
+
+		//	else{
+		//mass_action(component,i) += 0.0;}
+
+		//mass_action(component,i) += difs(0) * (fe_values[*(alpha[component])].gradient(i,q)) * (fe_values[*(alpha[component])].gradient(i,q))  * JxW[q];
 
 		  //mass_action(component,i) += std::exp( std::abs(quadrature_point[q][1])/(2.0*pi) ) * ( std::sin(quadrature_point[q][1]*pi) / (quadrature_point[q][1]*pi) * sin(quadrature_point[q][0]*pi) / (quadrature_point[q][0]*pi) )  *   (fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) * JxW[q]);        
 
@@ -128,9 +135,10 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	    for (unsigned int q=0; q<n_q_points; ++q){
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 		// mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) 
+
 		//mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(i,q)          
 		//				  *  (syncopated[2][q]) * JxW[q]);
-		  
+		
 		  double xpt = quadrature_point[q][0];
 		  double ypt = quadrature_point[q][1];
 

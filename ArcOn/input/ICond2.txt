@@ -7,8 +7,9 @@ subsection Alphas
 
   # Separate vector valued expressions by ';' as ',' is used internally by the
   # function parser.
-  set Function expression = exp( -(x^2.0 + y^2.0) / 2.0) ; 0.0; 0.0 
+  set Function expression =  (0.1*exp( -(x^2.0) / 2.0))*(1.0+0.2*sin(10.0*y)*sin(20.0*y)); 0.0; 0.0 
 
+  #exp( -(x^2.0 + y^2.0) / 100.0)
 
   # The name of the variables as they will be used in the function, separated
   set Variable names      = x,y,t

@@ -101,7 +101,7 @@ void arcOn<dim>::assemble_stiffness(SolutionVector& subdomain_solution, double d
 	      
 	      boundary_matrix = 0.0;
 
-	      if (face->at_boundary()  && (face->boundary_indicator() == 0))
+	      if (face->at_boundary()  && (face->boundary_indicator() == 0 || (face->boundary_indicator() == 15 ) ) )
 		{
 		  hp_fe_values_face[component]->reinit (cell,face_num);
 		  const FEFaceValues<dim>& fe_values_face = hp_fe_values_face[component]->get_present_fe_values ();
@@ -119,22 +119,36 @@ void arcOn<dim>::assemble_stiffness(SolutionVector& subdomain_solution, double d
 		  fe_values_face[*(alpha[component])].get_function_values(subdomain_solution[component],prev_soln_alpha_face[component]);
 		  fe_values_face[*(sigma[component])].get_function_values(subdomain_solution[component],prev_soln_sigma_face[component]);
 
-		  std::vector<double> alphas_boundary(n_q_points_face);
-		  std::vector<double> alphas_boundary2(n_q_points_face);
-		  std::vector< Tensor< 1, dim > > sigmas_boundary(n_q_points_face);
-		  std::vector< Tensor< 1, dim > > sigmas_boundary2(n_q_points_face);
+		  /* std::vector<double> alphas_boundary(n_q_points_face); */
+		  /* std::vector<double> alphas_boundary2(n_q_points_face); */
+		  /* std::vector< Tensor< 1, dim > > sigmas_boundary(n_q_points_face); */
+		  /* std::vector< Tensor< 1, dim > > sigmas_boundary2(n_q_points_face );*/
 		  unsigned char boundary_index = face->boundary_indicator();
 		  const WallBoundaryValues<dim>& wbv = WBV[boundary_index];
 		  const std::vector< Point<dim> > &quadrature_points = fe_values_face.get_quadrature_points();
 
-		  alphas_boundary = prev_soln_alpha_face[component];
-		  alphas_boundary2 = prev_soln_alpha_face[1];
-		  sigmas_boundary = prev_soln_sigma_face[component];
-		  sigmas_boundary2 = prev_soln_sigma_face[1];
-		  wbv.value_list( quadrature_points, alphas_boundary, component, current_time);
-		  wbv.value_list( quadrature_points, alphas_boundary2, 2, current_time);
-		  wbv.gradient_list( quadrature_points, sigmas_boundary, normals, component, current_time);
-		  wbv.gradient_list( quadrature_points, sigmas_boundary2, normals, 2, current_time);
+		  /* alphas_boundary = prev_soln_alpha_face[component]; */
+		  /* alphas_boundary2 = prev_soln_alpha_face[1]; */
+		  /* sigmas_boundary = prev_soln_sigma_face[component]; */
+		  /* sigmas_boundary2 = prev_soln_sigma_face[1]; */
+		  /* wbv.value_list( quadrature_points, alphas_boundary, component, current_time); */
+		  /* wbv.value_list( quadrature_points, alphas_boundary2, 2, current_time); */
+		  /* wbv.gradient_list( quadrature_points, sigmas_boundary, normals, component, current_time); */
+		  /* wbv.gradient_list( quadrature_points, sigmas_boundary2, normals, 2, current_time); */
+
+		  /* std::vector<double> 2alphas_boundary(n_q_points_face); */
+		  /* std::vector<double> 2alphas_boundary2(n_q_points_face); */
+		  /* std::vector< Tensor< 1, dim > > 2sigmas_boundary(n_q_points_face); */
+		  /* std::vector< Tensor< 1, dim > > 2sigmas_boundary2(n_q_points_face); */
+	
+		  /* 2alphas_boundary = prev_soln_alpha_face[component]; */
+		  /* 2alphas_boundary2 = prev_soln_alpha_face[1]; */
+		  /* 2sigmas_boundary = prev_soln_sigma_face[component]; */
+		  /* 2sigmas_boundary2 = prev_soln_sigma_face[1]; */
+		  /* wbv.value_list2( quadrature_points, 2alphas_boundary, component, current_time); */
+		  /* wbv.value_list2( quadrature_points, 2alphas_boundary2, 2, current_time); */
+		  /* wbv.gradient_list2( quadrature_points, 2sigmas_boundary, normals, component, current_time); */
+		  /* wbv.gradient_list2( quadrature_points, 2sigmas_boundary2, normals, 2, current_time); */
 
 		  const unsigned int normal1 = GeometryInfo<dim>::unit_normal_direction[face_num];
 		  //const unsigned int normal2 = GeometryInfo<dim>::unit_normal_direction[neighbor2];		

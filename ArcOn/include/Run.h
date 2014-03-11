@@ -18,14 +18,14 @@ void arcOn<dim>::run()
   //subdivisions[0] = 15;
   //subdivisions[1] = 15;
 
-  subdivisions[0] = 1; 
-  subdivisions[1] = 2;
+  subdivisions[0] = 2; 
+  subdivisions[1] = 5;
 
   double epspi = 0.0;
   double pi = 1.0 + epspi ; //2.0*3.1415926535897932384626433832795;
 
-  const Point<dim> lb = Point<dim>(-10,-250);
-  const Point<dim> rt = Point<dim>(250,250);
+  const Point<dim> lb = Point<dim>(0.0,0.0);
+  const Point<dim> rt = Point<dim>(290.0,754.0);
 
   //const Point<dim> lb = Point<dim>(epspi,epspi);
   //const Point<dim> rt = Point<dim>(pi,pi);
@@ -48,19 +48,25 @@ void arcOn<dim>::run()
   for (typename Triangulation<dim>::cell_iterator cell = triangulation.begin();
        cell != triangulation.end(); ++cell) {
     for (unsigned int f=0; f<GeometryInfo<dim>::faces_per_cell; ++f) {
-      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == -250.0)) {
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 0.0)) {
   	//set bottom boundary
   	//pcout << "Left boundary cell index = " << cell->index() << std::endl;
   	//pcout << "Left boundary face index = " << f << std::endl;
   	cell->face(f)->set_boundary_indicator(1);
       }
-      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 250.0)) {
-  	//set top boundary
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 754.0)) {
+  	//set top boundayr
   	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
   	//pcout << "Right boundary face index = " << f << std::endl;
   	cell->face(f)->set_boundary_indicator(2);
       }
-
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 290.0)) {
+  	//set top boundary
+  	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
+  	//pcout << "Right boundary face index = " << f << std::endl;
+  	cell->face(f)->set_boundary_indicator(15);
+      }
+      
       
       /* if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == -10.0)) { */
       /* 	//set left boundary */
@@ -103,6 +109,15 @@ void arcOn<dim>::run()
   /* triangulation.add_periodicity(periodicity_vector2); */
   
   triangulation.refine_global (refinements);
+
+  for (typename Triangulation<dim>::cell_iterator cell = triangulation.begin();
+       cell != triangulation.end(); ++cell) {
+    for (unsigned int f=0; f<GeometryInfo<dim>::faces_per_cell; ++f) {
+
+      
+
+    }
+  }
   
   num_blocks = 2;
   

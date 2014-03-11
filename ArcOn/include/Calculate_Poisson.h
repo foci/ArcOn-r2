@@ -108,6 +108,7 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
 	    							  prev_soln_sigma_face[1]);
 
 	    	  std::vector<double> alphas_boundary(n_q_points_face);
+		  std::vector<double> Salphas_boundary(n_q_points_face);
 	    	  /* std::vector<double> alphas_boundary2(n_q_points_face); */
 	    	  /* std::vector< Tensor< 1, dim > > sigmas_boundary(n_q_points_face); */
 	    	  /* std::vector< Tensor< 1, dim > > sigmas_boundary2(n_q_points_face); */
@@ -145,10 +146,91 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
 
 	    	  for (unsigned int i=0; i<dofs_per_cell; ++i){
 	    	    for (unsigned int q=0; q<n_q_points_face; ++q){
+
+			cell_rhs_boundary(i) +=  ( - sigma_penalty * ( alphas_boundary[q]- prev_soln_alpha_face[component][q] )
+						   * fe_values_face[*(alpha[component])].value(i,q) ) * JxW_face[q];
+
+	    	      /* cell_rhs_boundary(i) +=  ( - 2.0*sigma_penalty*fe_values_face[*(alpha[component])].value(i,q) */
+	    	      /* 				 *fe_values_face[*(alpha[component])].value(j,q) //\*(prev_soln_alpha_face[component])[q] */
+	    	      /* 				 + normals[q] * (fe_values_face[*(alpha[component])].gradient(i,q))  */
+	    	      /* 				 *fe_values_face[*(alpha[component])].value(j,q) //(prev_soln_alpha_face[component])[q] */
+	    	      /* 				 + normals[q] * (fe_values_face[*(alpha[component])].gradient(j,q)) */
+                      /*                            *fe_values_face[*(alpha[component])].value(i,q) ) * JxW_face[q]; */
 			
-	    	      cell_rhs_boundary(i) +=  ( - sigma_penalty * ( alphas_boundary[q]- prev_soln_alpha_face[component][q] )
-	    					 * fe_values_face[*(alpha[component])].value(i,q) ) * JxW_face[q];
-		      
+			
+	    	    }
+	    	  }
+		  
+
+		  
+	    	}
+	      else if ( face->at_boundary()  && face->boundary_indicator() == 15 )
+	    	{
+	    	  hp_fe_values_face[component]->reinit (cell,face_num);
+	    	  const FEFaceValues<dim>& fe_values_face = hp_fe_values_face[component]->get_present_fe_values ();
+	    	  const Quadrature<dim-1>& face_quadrature_formula = fe_values_face.get_quadrature();
+	    	  const unsigned int n_q_points_face = face_quadrature_formula.size();
+		    
+	    	  const std::vector<double> &JxW_face = fe_values_face.get_JxW_values ();
+	    	  const std::vector<Point<dim> > &normals = fe_values_face.get_normal_vectors ();
+		    
+	    	  for(unsigned int k=0;k<alphadim;k++){
+	    	    prev_soln_alpha_face[k] =  std::vector<double>(n_q_points_face);
+	    	    prev_soln_sigma_face[k] =  std::vector<Tensor<1,dim> >(n_q_points_face);
+	    	  }
+
+	    	  fe_values_face[*(alpha[component])].get_function_values(subdomain_solution[component],
+	    	  							  prev_soln_alpha_face[component]);
+	    	  fe_values_face[*(sigma[component])].get_function_values(subdomain_solution[component],
+	    	  							  prev_soln_sigma_face[component]);
+	    	  fe_values_face[*(alpha[1])].get_function_values(subdomain_solution[1],
+	    							  prev_soln_alpha_face[1]);
+	    	  fe_values_face[*(sigma[1])].get_function_values(subdomain_solution[1],
+	    							  prev_soln_sigma_face[1]);
+
+	    	  std::vector<double> alphas_boundary(n_q_points_face);
+		  std::vector<double> Salphas_boundary(n_q_points_face);
+	    	  /* std::vector<double> alphas_boundary2(n_q_points_face); */
+	    	  /* std::vector< Tensor< 1, dim > > sigmas_boundary(n_q_points_face); */
+	    	  /* std::vector< Tensor< 1, dim > > sigmas_boundary2(n_q_points_face); */
+	    	  unsigned char boundary_index = face->boundary_indicator();
+	    	  const WallBoundaryValues<dim>& wbv = WBV[boundary_index];
+	    	  const std::vector< Point<dim> > &quadrature_points = fe_values_face.get_quadrature_points();
+
+	    	  alphas_boundary = prev_soln_alpha_face[component];
+	    	  /* alphas_boundary2 = prev_soln_alpha_face[1]; */
+	    	  /* sigmas_boundary = prev_soln_sigma_face[component]; */
+	    	  /* sigmas_boundary2 = prev_soln_sigma_face[1]; */
+	    	  wbv.value_list2( quadrature_points, alphas_boundary, component, current_time);
+	    	  /* wbv.value_list( quadrature_points, alphas_boundary2, 2, current_time); */
+	    	  /* wbv.gradient_list( quadrature_points, sigmas_boundary, normals, component, current_time); */
+	    	  /* wbv.gradient_list( quadrature_points, sigmas_boundary2, normals, 2, current_time); */
+
+	    	  //double sigma_penalty = 2.0 * degree*( degree + 1.0 ) * ( face->measure())/(cell->measure() );
+	    	  //double sigma_penalty = 2.0 * std::pow(face->measure(),-3)/(cell->measure() ) ;
+	    	  //pcout<< "sigma_rhs = " << sigma_penalty<< std::endl;
+	    	  /* const unsigned int normal1 = GeometryInfo<dim>::unit_normal_direction[face_num]; */
+	    	  /* double pen1 = cell->extent_in_direction(normal1); */
+
+	    	  /* double sigma_penalty = sigma_prefactor*degree*( degree + 1.0 ) / pen1; */
+
+		  const unsigned int normal1 = GeometryInfo<dim>::unit_normal_direction[face_num];
+		  //const unsigned int normal2 = GeometryInfo<dim>::unit_normal_direction[neighbor2];		
+		  
+		  double pen1 = cell->extent_in_direction(normal1);
+		  //double pen2 = neighbor->extent_in_direction(normal2);
+		  
+		  double sigma_p1 = degree*( degree + 1.0 ) / pen1;
+		  double sigma_p2 = degree*( degree + 1.0 ) / pen1;
+		  
+		  double sigma_penalty = sigma_prefactor*0.5*(sigma_p1+sigma_p2);
+
+	    	  for (unsigned int i=0; i<dofs_per_cell; ++i){
+	    	    for (unsigned int q=0; q<n_q_points_face; ++q){
+
+			cell_rhs_boundary(i) +=  ( - sigma_penalty * ( alphas_boundary[q]- prev_soln_alpha_face[component][q] )
+						   * fe_values_face[*(alpha[component])].value(i,q) ) * JxW_face[q];
+
 	    	      /* cell_rhs_boundary(i) +=  ( - 2.0*sigma_penalty*fe_values_face[*(alpha[component])].value(i,q) */
 	    	      /* 				 *fe_values_face[*(alpha[component])].value(j,q) //\*(prev_soln_alpha_face[component])[q] */
 	    	      /* 				 + normals[q] * (fe_values_face[*(alpha[component])].gradient(i,q))  */

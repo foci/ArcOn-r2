@@ -110,15 +110,15 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 
 
 	      std::vector<double> alphas_boundary(n_q_points_face);
-	      std::vector<double> lap_boundary(n_q_points_face);
+	      //std::vector<double> lap_boundary(n_q_points_face);
 	      unsigned char boundary_index = face->boundary_indicator();
 	      const WallBoundaryValues<dim>& wbv = WBV[boundary_index];
 	      alphas_boundary = soln_alpha_face[component];
-
+	      
 
 	      if (component == 0){
 
-		lap_boundary = soln_alpha_face[1];
+		//lap_boundary = soln_alpha_face[1];
 		wbv.value_list( quadrature_point, alphas_boundary, component, current_time);
 		
 	      }
@@ -130,18 +130,89 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	      
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 	    	for (unsigned int q=0; q<fe_values_face.n_quadrature_points; ++q){
-
+		  
 		  if (component == 0){
+		    
+		      sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
+			* ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
+		      
+		  }
+		    
+		  
+		  
+		  else{
+		    
+		    sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
+		      * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
+		    
+		  }
+	    	}
+	      }
+	    }
+	    else if ( face->at_boundary() && (face->boundary_indicator() == 15) ){
 
-	    	  sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
-	    	    * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
+	      hp_fe_values_face[component]->reinit (cell,face_num);
+	      const FEFaceValues<dim>& fe_values_face =
+	    	hp_fe_values_face[component]->get_present_fe_values ();
+	      const Quadrature<dim-1>& face_quadrature_formula = fe_values_face.get_quadrature();
+	      const unsigned int n_q_points_face = face_quadrature_formula.size();
 
+	      const std::vector<Point<dim> >& quadrature_point =
+	    	fe_values_face.get_quadrature_points();
+
+	      const std::vector<double> &JxW_face = fe_values_face.get_JxW_values ();
+	      const std::vector<Point<dim> > &normals = fe_values_face.get_normal_vectors ();
+
+	      soln_alpha_face[component] =  std::vector<double>(n_q_points_face);
+	      fe_values_face[*(alpha[component])].get_function_values(subdomain_solution[component],
+	    							      soln_alpha_face[component]);
+
+
+	      if (component == 0){
+		soln_alpha_face[1] =  std::vector<double>(n_q_points_face);
+		fe_values_face[*(alpha[2])].get_function_laplacians(subdomain_solution[2],
+								    soln_alpha_face[1]);
+	      }
+
+
+	      std::vector<double> alphas_boundary(n_q_points_face);
+	      //std::vector<double> lap_boundary(n_q_points_face);
+	      unsigned char boundary_index = face->boundary_indicator();
+	      const WallBoundaryValues<dim>& wbv = WBV[boundary_index];
+	      alphas_boundary = soln_alpha_face[component];
+
+	      if (component == 0){
+
+		//alphas_boundary = glob_min_ribbon_density;
+		//alphas_boundary = total_density/ triangulation.n_global_active_cells();
+		//lap_boundary = soln_alpha_face[1];
+		wbv.value_list2( quadrature_point, alphas_boundary, component, glob_min_ribbon_density);
+		//std::cout <<  glob_min_ribbon_density << std::endl;
+		
+	      }
+	      else{
+		
+		wbv.value_list2( quadrature_point, alphas_boundary, component, current_time);
+		
+	      }
+	      
+	      for (unsigned int i=0; i<dofs_per_cell; ++i){
+
+	
+	    	for (unsigned int q=0; q<fe_values_face.n_quadrature_points; ++q){
+		  
+		  if (component == 0){
+		    
+		    sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
+		      * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q]; 
+		    //total_density/ triangulation.n_global_active_cells(); //alphas_boundary[q];
+		    
 		  }
 		  else{
-
-	    	  sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
-	    	    * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
-
+		    
+		    sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
+		      * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
+		    
 		  }
 	    	}
 	      }

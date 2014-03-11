@@ -234,6 +234,7 @@ private:
   std::vector<double>           iprev_soln_alpha[alphadim];
   std::vector<double>           iprev_soln_alpha_face[alphadim];
 
+  double glob_min_ribbon_density;
 
   std::vector<double>           soln_alpha[alphadim];
   std::vector< Tensor<1,dim> >  soln_sigma[alphadim];
