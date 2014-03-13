@@ -90,6 +90,7 @@
 #include <base/index_set.h>
 #include <distributed/tria.h>
 #include <distributed/grid_refinement.h>
+#include <distributed/solution_transfer.h>
 
 
 inline double elapsed(clock_t start_clock,clock_t end_clock)
@@ -286,6 +287,7 @@ bool fast = false;
 #include <Calculate_div_flux.h>
 #include <RK_div_flux_integrator.h>
 #include <Calculate_MassAction.h>
+#include <Revert_density.h>
 #include <Slope_limiter.h>
 #include <Assemble_stiffness.h>
 #include <Calculate_Poisson.h>
