@@ -39,6 +39,10 @@ private:
 				      double delta_t, double current_time,
 				      SolutionVector& mass_action_term);  
 
+  void revert_density( SolutionVector& subdomain_solution, 
+				      double delta_t, double current_time,
+				      SolutionVector& chi_reversion);  
+
   /* void Calculate_MassAction_Implicit( SolutionVector& solution, double delta_t, SolutionVector& mass_action_term) const;  */
   /* void calculate_mass_action_exact(SolutionVector& init_solution, SolutionVector& solution, double delta_t, SolutionVector& mass_action_term_exact) const; */
 
@@ -300,6 +304,7 @@ private:
   SolutionVector       interpolation_error;
   SolutionVector       naive_interpolation_error;
 
+  SolutionVector       revert_output;
   SolutionVector       cont_output1;
 
   SolutionVector div_flux_integrated;

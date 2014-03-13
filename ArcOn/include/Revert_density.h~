@@ -1,7 +1,6 @@
-/* This template function computes all terms with "no derivatives" in the evolution equations.  We might think of these as sources terms (if they do not depend on the primal variables) and reaction terms (if they are functions of the primal variables) .... */
 
 template <int dim>
-void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solution, double delta_t, double current_time, SolutionVector& mass_action_term)
+void arcOn<dim>::revert_density(SolutionVector& subdomain_solution, double delta_t, double current_time, SolutionVector& mass_action_term)
 {
 
   std::vector< FEValues<dim>* > hp_fe_values;
@@ -86,13 +85,12 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 		mass_action(component,i) += ( 3.0*alph*std::exp(-0.5*std::pow(quadrature_point[q][0]-25.0,2.0)/std::pow(sigs,2.0))/(0.2*sqrt2pi) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
 
 		//mass_action(component,i) += ( 3.0*alph*(1.0+std::abs(std::sin(0.08*quadrature_point[q][1]))*std::exp(-0.5*std::pow(quadrature_point[q][0],2.0)/std::pow(sigs,2.0))) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
-		  if ( quadrature_point[q][0] > 200.0 ){
+		  if ( quadrature_point[q][0] > 270.0 && syncopated[0][q] > 1.5*glob_min_ribbon_density){
 		    
-		    mass_action(component,i) -= 2.0 * alph * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
+		    mass_action(component,i) -= (0.0002/250.0) * quadrature_point[q][0] * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
 
 		  }
 
-		  //&& syncopated[0][q] > 2.0*glob_min_ribbon_density
 		//	else{
 		//mass_action(component,i) += 0.0;}
 

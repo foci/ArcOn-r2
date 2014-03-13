@@ -59,7 +59,7 @@ void arcOn<dim>::output_results (const unsigned int cycle_in)
 	  
       DataOut<dim,DoFHandler<dim> >  data_out1;
       data_out1.attach_dof_handler (*(dof_handler[k]));
-      data_out1.add_data_vector (subdomain_solution[k],
+      data_out1.add_data_vector (revert_output[0],
 				 rmhd<dim>::component_names (k),
 				 DataOut<dim >::type_dof_data,
 				 rmhd<dim>::component_interpretation());

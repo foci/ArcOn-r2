@@ -269,7 +269,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 	      if(component == 0){
 		interior_div(component,i) += (difs(component)+eps_smooth(component,q))*(prev_soln_sigma[component][q])* (prev_soln_sigma[component][q])*(fe_values[*(alpha[component])].value(i,q))* JxW[q];
 
-		if ( quadrature_point[q][0] > 175.0 &&  quadrature_point[q][0] < 250.0 && quadrature_point[q][1] > 0.0 && quadrature_point[q][1] < 5.0  ){
+		if ( quadrature_point[q][0] > 225.0 &&  quadrature_point[q][0] <= 260.0  ){
+		  // && quadrature_point[q][1] > 0.0 && quadrature_point[q][1] < 5.0
 		  local_min_ribbon_density = std::min(local_min_ribbon_density, prev_soln_alpha[0][q]);
 		}
 				

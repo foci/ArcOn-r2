@@ -1,18 +1,18 @@
 #Mesh parameters
    subsection Mesh
-	set Number of spatial refinements = 3
+	set Number of spatial refinements = 5
 	set Polynomial Degree = 3
    end 
 #Physical parameters
    subsection Physics
-	set Mass diffusion = 8e-2
-	set Vorticity diffusion = 8e-2
+	set Mass diffusion = 4e-2
+	set Vorticity diffusion = 4e-2
    end 
 #Runtime
    subsection Time
 	set Timestep size dt = 0.00100
-	set Number of timesteps = 12000 #2000000
-	set Hard endtime = 15000.0
+	set Number of timesteps = 3000000 #2000000
+	set Hard endtime = 30000.0
 	set fstep = 0
 	set RK order = 2
 	set RK stage = 2 # >3 for RKC
@@ -36,7 +36,7 @@
 #Loading/Saving
    subsection EllipticSolver	
         set Penalty type = 1 # SIPG=1,NIPG=-1,IIPG=0
-        set Sigma penalty = 50.0 #75.0  #200.0
+        set Sigma penalty = 75.0  # 200.0
    end
 #Loading/Saving
    subsection SavedSolution

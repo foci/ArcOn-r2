@@ -60,26 +60,26 @@ void arcOn<dim>::run()
   	//pcout << "Right boundary face index = " << f << std::endl;
   	cell->face(f)->set_boundary_indicator(2);
       }
-      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 290.0)) {
-  	//set top boundary
-  	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
-  	//pcout << "Right boundary face index = " << f << std::endl;
-  	cell->face(f)->set_boundary_indicator(15);
-      }
-      
-      
-      /* if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == -10.0)) { */
-      /* 	//set left boundary */
-      /* 	//pcout << "Left boundary cell index = " << cell->index() << std::endl; */
-      /* 	//pcout << "Left boundary face index = " << f << std::endl; */
-      /* 	cell->face(f)->set_boundary_indicator(3); */
-      /* } */
-      /* if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 500.0)) { */
-      /* 	//set right boundary */
+      /* if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 290.0)) { */
+      /* 	//set top boundary */
       /* 	//pcout << "Right boundary cell index = " << cell->index() << std::endl; */
       /* 	//pcout << "Right boundary face index = " << f << std::endl; */
-      /* 	cell->face(f)->set_boundary_indicator(4); */
+      /* 	cell->face(f)->set_boundary_indicator(15); */
       /* } */
+      
+      
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 0.0)) {
+      	//set left boundary
+      	//pcout << "Left boundary cell index = " << cell->index() << std::endl;
+      	//pcout << "Left boundary face index = " << f << std::endl;
+      	cell->face(f)->set_boundary_indicator(3);
+      }
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 290.0)) {
+      	//set right boundary
+      	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
+      	//pcout << "Right boundary face index = " << f << std::endl;
+      	cell->face(f)->set_boundary_indicator(4);
+      }
 
 
     }
@@ -96,17 +96,17 @@ void arcOn<dim>::run()
   //X-periodicity
   //std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >
   //  periodicity_vector2 = 
-  /* std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > */
-  /*   periodicity_vector2; */
+  std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >
+    periodicity_vector2;
 
-  /* GridTools::collect_periodic_faces 	( 	triangulation, */
-  /* 						3, //b_id1 */
-  /* 						4, //b_id2 */
-  /* 						0, //direction */
-  /* 						periodicity_vector2 */
-  /* 						); */
+  GridTools::collect_periodic_faces 	( 	triangulation,
+  						3, //b_id1
+  						4, //b_id2
+  						0, //direction
+  						periodicity_vector2
+  						);
 
-  /* triangulation.add_periodicity(periodicity_vector2); */
+  triangulation.add_periodicity(periodicity_vector2);
   
   triangulation.refine_global (refinements);
 
@@ -157,6 +157,7 @@ void arcOn<dim>::run()
   interpolate_base.resize(alphadim);
   interpolate_active.resize(alphadim);
   cont_output1.resize(alphadim);
+  revert_output.resize(alphadim);
   proj_solution.resize(alphadim);
   ilocally_owned_dofs.resize(alphadim);
   ilocally_relevant_dofs.resize(alphadim);
@@ -332,6 +333,7 @@ void arcOn<dim>::run()
 
     interpolate_base[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
     cont_output1[component].reinit(num_blocks3,mpi_communicator,num_blocks3); 
+    revert_output[component].reinit(num_blocks1,mpi_communicator,num_blocks1);
     interpolate_active[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
     proj_solution[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
 
@@ -381,6 +383,9 @@ void arcOn<dim>::run()
 						   fesystem_partitioning[bl] );
       cont_output1[component].block(bl).reinit(mpi_communicator,
                                                    tfesystem_partitioning[bl] );
+      revert_output[component].block(bl).reinit(mpi_communicator, 
+						     fesystem_partitioning[bl], 
+						     fesystem_relevant_partitioning[bl] );
 
       /* cont_output1[component].block(bl).reinit(mpi_communicator, */
       /*                                                tfesystem_partitioning[bl], */
@@ -427,6 +432,7 @@ void arcOn<dim>::run()
 
     interpolate_base[component].collect_sizes();
     cont_output1[component].collect_sizes();
+    revert_output[component].collect_sizes();
     interpolate_active[component].collect_sizes();
     proj_solution[component].collect_sizes();
 
