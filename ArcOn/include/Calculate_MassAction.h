@@ -82,15 +82,15 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 
 		//if(syncopated[component][q]>0.0){
 
-
-		mass_action(component,i) += ( 3.0*alph*std::exp(-0.5*std::pow(quadrature_point[q][0]-25.0,2.0)/std::pow(sigs,2.0))/(0.2*sqrt2pi) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
+		//good one
+		mass_action(component,i) += ( 3.0*alph*std::exp(-std::pow(quadrature_point[q][0]-75.0,2.0)/200.0)/std::exp(syncopated[0][q]) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
 
 		//mass_action(component,i) += ( 3.0*alph*(1.0+std::abs(std::sin(0.08*quadrature_point[q][1]))*std::exp(-0.5*std::pow(quadrature_point[q][0],2.0)/std::pow(sigs,2.0))) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
-		  if ( quadrature_point[q][0] > 200.0 ){
+		  /* if ( quadrature_point[q][0] > 200.0 ){ */
 		    
-		    mass_action(component,i) -= 2.0 * alph * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
+		  /*   mass_action(component,i) -= 2.0 * alph * fe_values[*(alpha[component])].value(i,q)*JxW[q] ; */
 
-		  }
+		  /* } */
 
 		  //&& syncopated[0][q] > 2.0*glob_min_ribbon_density
 		//	else{
@@ -136,45 +136,45 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	      }
 	    }
 	  }
+	  //for speed
+	  /* if (component == 1){ */
+	  /*   fe_values[*(alpha[2])].get_function_values(subdomain_solution[2],syncopated[2]); */
+	  /*   double alph = 1e-4; //5e-4;  */
+	  /*   for (unsigned int q=0; q<n_q_points; ++q){ */
+	  /*     for (unsigned int i=0; i<dofs_per_cell; ++i){ */
+	  /* 	// mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q)  */
 
-	  if (component == 1){
-	    fe_values[*(alpha[2])].get_function_values(subdomain_solution[2],syncopated[2]);
-	    double alph = 1e-4; //5e-4; 
-	    for (unsigned int q=0; q<n_q_points; ++q){
-	      for (unsigned int i=0; i<dofs_per_cell; ++i){
-		// mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) 
-
-		//mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(i,q)          
-		//				  *  (syncopated[2][q]) * JxW[q]);
+	  /* 	//mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(i,q)           */
+	  /* 	//				  *  (syncopated[2][q]) * JxW[q]); */
 		
-		  double xpt = quadrature_point[q][0];
-		  double ypt = quadrature_point[q][1];
+	  /* 	  double xpt = quadrature_point[q][0]; */
+	  /* 	  double ypt = quadrature_point[q][1]; */
 
-		  double ga = 0.1;
-		  double gad = 0.001;
+	  /* 	  double ga = 0.1; */
+	  /* 	  double gad = 0.001; */
 
-		  /* mass_action(component,i) += ( -0.5*(std::pow(xpt,2.0)+std::pow(ypt,2.0))*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))  */
-		  /*   + 0.001*xpt*current_time*std::sin(xpt)*std::cos(ypt)*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))   */
-		  /*   - 0.001*ypt*current_time*std::cos(xpt)*std::sin(ypt)*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))   */
-		  /*   + (current_time-std::pow(current_time,2.0)*std::pow(xpt,2.0))*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 )) */
-		  /* 				*   (fe_values[*(alpha[component])].value(i,q) * JxW[q]) ); */
+	  /* 	  /\* mass_action(component,i) += ( -0.5*(std::pow(xpt,2.0)+std::pow(ypt,2.0))*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))  *\/ */
+	  /* 	  /\*   + 0.001*xpt*current_time*std::sin(xpt)*std::cos(ypt)*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))   *\/ */
+	  /* 	  /\*   - 0.001*ypt*current_time*std::cos(xpt)*std::sin(ypt)*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))   *\/ */
+	  /* 	  /\*   + (current_time-std::pow(current_time,2.0)*std::pow(xpt,2.0))*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 )) *\/ */
+	  /* 	  /\* 				*   (fe_values[*(alpha[component])].value(i,q) * JxW[q]) ); *\/ */
 
-		  //pcout << "current_time = " << current_time << std::endl;
+	  /* 	  //pcout << "current_time = " << current_time << std::endl; */
 
-		  /* mass_action(component,i) += ( ( 1.0 + (current_time)*xpt*std::cos(xpt)*std::sin(ypt)*ga */
-		  /* 				-(current_time)*ypt*std::sin(xpt)*std::cos(ypt)*ga  */
-		  /* 				+ 2.0*gad*current_time - gad*current_time*std::pow(xpt,2.0) - gad * current_time * std::pow(ypt,2.0) ) */
+	  /* 	  /\* mass_action(component,i) += ( ( 1.0 + (current_time)*xpt*std::cos(xpt)*std::sin(ypt)*ga *\/ */
+	  /* 	  /\* 				-(current_time)*ypt*std::sin(xpt)*std::cos(ypt)*ga  *\/ */
+	  /* 	  /\* 				+ 2.0*gad*current_time - gad*current_time*std::pow(xpt,2.0) - gad * current_time * std::pow(ypt,2.0) ) *\/ */
 						
-		  /*   //+ 0.02*current_time - */
-		  /*   //0.01*(current_time+1.0)*std::pow(xpt,2.0)-0.01*(current_time+1.0)*std::pow(ypt,2.0)) */
-		  /* 				*std::exp(-(std::pow(xpt,2.0)+std::pow(ypt,2.0))/2.0 )  */
-		  /* 				- ga*std::pow(std::cosh(xpt),-1.0)*std::pow(std::cosh(ypt),-1.0)*std::tanh(ypt)*std::exp(std::pow(std::cosh(xpt),-1.0) * std::pow(std::cosh(ypt),-1.0)) ) */
-		  /*   *(fe_values[*(alpha[component])].value(i,q) * JxW[q]) ; */
+	  /* 	  /\*   //+ 0.02*current_time - *\/ */
+	  /* 	  /\*   //0.01*(current_time+1.0)*std::pow(xpt,2.0)-0.01*(current_time+1.0)*std::pow(ypt,2.0)) *\/ */
+	  /* 	  /\* 				*std::exp(-(std::pow(xpt,2.0)+std::pow(ypt,2.0))/2.0 )  *\/ */
+	  /* 	  /\* 				- ga*std::pow(std::cosh(xpt),-1.0)*std::pow(std::cosh(ypt),-1.0)*std::tanh(ypt)*std::exp(std::pow(std::cosh(xpt),-1.0) * std::pow(std::cosh(ypt),-1.0)) ) *\/ */
+	  /* 	  /\*   *(fe_values[*(alpha[component])].value(i,q) * JxW[q]) ; *\/ */
 		  
  
-	      }
-	    }
-	  }
+	  /*     } */
+	  /*   } */
+	  /* } */
 
 	  cell->get_dof_indices (local_dof_indices);
 

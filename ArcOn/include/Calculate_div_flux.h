@@ -7,6 +7,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
   std::vector< FEFaceValues<dim>* > hp_fe_values_face;
   std::vector< FEFaceValues<dim>* > hp_fe_values_neigh_face;
 
+  //double sigma_penalty = 5.0
   double max_phi_temp = 0.0;
   double yloc_temp;
 
@@ -29,6 +30,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
   double local_min_ribbon_density = 0.0;
 
   int s_flag = 0;
+
+  double sig_pen_coeff = bpen;
 
   for (unsigned int component=0; component< alphadim; ++component){
     
@@ -1020,7 +1023,10 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		  /* } */
 		  }
 		}
-		double sigma_penalty = 0.0; //max_degree*( max_degree + 1.0 ) * ( face->measure())/(cell->measure() );
+		double sigma_penalty = sig_pen_coeff*( degree + 1.0 )*( degree + 1.0 )*( face->measure())/(cell->measure() );
+		//std::cout << "sig_pen = " << sigma_penalty << std::endl;
+		//std::cout << "area = " << cell->measure() << std::endl;
+		//double sigma_penalty = -(10.0+current_time*0.002)*degree*( degree + 1.0 ) * ( face->measure())/(cell->measure() );
 		for (unsigned int q=0; q<n_q_points_face; ++q){
 		  const Point<dim>& normal = normals[q];
 		  for (unsigned int i=0; i<dofs_per_cell; ++i){
@@ -1034,8 +1040,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		      diffusion_flux(component,i) += ( difs(component)+eps_smooth_face(component,q) ) 
 			* ((0.5 * ( (prev_soln_sigma_face[component][q]) + (grad_drawX[component][CO][q]) )
 			    * fe_values_face[*(alpha[component])].value(i,q) * normals[q]) - sigma_penalty 
-			   * ( prev_soln_alpha_face[component][q] - soln_drawX[component][CO][q]
-			       * fe_values_face[*(alpha[component])].value(i,q) ) ) * JxW_face[q];
+			   * ( ( prev_soln_alpha_face[component][q] - soln_drawX[component][CO][q] )
+			       * fe_values_face[*(alpha[component])].value(i,q)  ) ) * JxW_face[q];
 
 		      //std::cout << "what is going on3? = " <<  difs(component)+eps_smooth_face(component,q) << std::endl;
 
@@ -1232,7 +1238,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		  /* } */
 		  }
 		}
-		double sigma_penalty = 0.0; //max_degree*( max_degree + 1.0 ) * ( face->measure())/(cell->measure() );
+		double sigma_penalty = sig_pen_coeff*( degree + 1.0 )*( degree + 1.0 )*( face->measure())/(cell->measure() );
+		//double sigma_penalty = -(10.0+current_time*0.002)*degree*( degree + 1.0 ) * ( face->measure())/(cell->measure() );
 		for (unsigned int q=0; q<n_q_points_face; ++q){
 		  const Point<dim>& normal = normals[q];
 		  for (unsigned int i=0; i<dofs_per_cell; ++i){
@@ -1243,11 +1250,12 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		    //for(unsigned int l=0; l<dim; ++l){
 		    if (component < 2){
 			
+
 		      diffusion_flux(component,i) += ( difs(component)+eps_smooth_face(component,q) ) 
 			* ((0.5 * ( (prev_soln_sigma_face[component][q]) + (grad_drawY[component][CO][q]) )
 			    * fe_values_face[*(alpha[component])].value(i,q) * normals[q]) - sigma_penalty 
-			   * ( prev_soln_alpha_face[component][q] - soln_drawY[component][CO][q]
-			       * fe_values_face[*(alpha[component])].value(i,q) ) ) * JxW_face[q];
+			   * ( ( prev_soln_alpha_face[component][q] - soln_drawY[component][CO][q] )
+			   * fe_values_face[*(alpha[component])].value(i,q) ) ) * JxW_face[q];
 
 		      //std::cout << "what is going on3? = " <<  difs(component)+eps_smooth_face(component,q) << std::endl;
 
@@ -1496,7 +1504,8 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 /* 		  } */
 /* 		} */
 
-	      double sigma_penalty = 0.0; //max_degree*( max_degree + 1.0 ) * ( face->measure())/(cell->measure() );
+	      double sigma_penalty = sig_pen_coeff*( degree+1.0 )*( degree + 1.0 )*( face->measure())/(cell->measure() );
+	      //double sigma_penalty = -(10.0+current_time*0.002)*degree*( degree + 1.0 ) * ( face->measure())/(cell->measure() );
 	      //std::cout << "penalty = " << sigma_penalty << std::endl;
 	      for (unsigned int q=0; q<n_q_points_face; ++q){
 		const Point<dim>& normal = normals[q];
@@ -1517,7 +1526,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		    diffusion_flux(component,i) += ( difs(component)+eps_smooth_face(component,q) ) 
 			  * ((0.5 * ( (prev_soln_sigma_face[component][q]) + (prev_soln_sigma_neigh_face[component][q]) )
 			    * fe_values_face[*(alpha[component])].value(i,q) * normals[q]) - sigma_penalty 
-			     * ( prev_soln_alpha_face[component][q] - prev_soln_alpha_neigh_face[component][q]
+			     * ( ( prev_soln_alpha_face[component][q] - prev_soln_alpha_neigh_face[component][q] ) 
 				 * fe_values_face[*(alpha[component])].value(i,q) ) ) * JxW_face[q];
 
 		    //std::cout << "what is going on4? = " <<  difs(component)+eps_smooth_face(component,q) << std::endl;
@@ -1674,7 +1683,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
     
   }
 
-  CFL_temp *= 5.0; //h_min_dist; //10.0;
+  CFL_temp *= 16.0; //h_min_dist; //10.0;
   //CFL_temp = std::max(CFL_temp,0.01);
 
   //MPI_Allreduce(&CFL_temp, &CFL_bound, Utilities::MPI::n_mpi_processes(mpi_communicator), MPI_DOUBLE, MPI_MAX, mpi_communicator);

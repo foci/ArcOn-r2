@@ -18,14 +18,14 @@ void arcOn<dim>::run()
   //subdivisions[0] = 15;
   //subdivisions[1] = 15;
 
-  subdivisions[0] = 2; 
-  subdivisions[1] = 5;
+  subdivisions[0] = 4; 
+  subdivisions[1] = 1;
 
   double epspi = 0.0;
   double pi = 1.0 + epspi ; //2.0*3.1415926535897932384626433832795;
 
   const Point<dim> lb = Point<dim>(0.0,0.0);
-  const Point<dim> rt = Point<dim>(290.0,754.0);
+  const Point<dim> rt = Point<dim>(1600.0,377.0);
 
   //const Point<dim> lb = Point<dim>(epspi,epspi);
   //const Point<dim> rt = Point<dim>(pi,pi);
@@ -54,7 +54,7 @@ void arcOn<dim>::run()
   	//pcout << "Left boundary face index = " << f << std::endl;
   	cell->face(f)->set_boundary_indicator(1);
       }
-      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 754.0)) {
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 377.0)) {
   	//set top boundayr
   	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
   	//pcout << "Right boundary face index = " << f << std::endl;
@@ -74,7 +74,7 @@ void arcOn<dim>::run()
       	//pcout << "Left boundary face index = " << f << std::endl;
       	cell->face(f)->set_boundary_indicator(3);
       }
-      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 290.0)) {
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 1600.0)) {
       	//set right boundary
       	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
       	//pcout << "Right boundary face index = " << f << std::endl;

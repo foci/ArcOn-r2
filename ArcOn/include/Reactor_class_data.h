@@ -406,6 +406,7 @@ private:
 
   bool artificial_visc;
   double e1;
+  double bpen;
   double e0; //1e-2*(cell->diameter())/(max_degree);     
   double notes;
   double s0;

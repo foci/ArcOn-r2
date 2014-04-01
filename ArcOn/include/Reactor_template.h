@@ -131,6 +131,7 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
   prm.enter_subsection("Regularity");
   artificial_visc  = prm.get_bool("Artificial diffusion");
   e1  = prm.get_double("epsilon weight");
+  bpen  = prm.get_double("Brezzi_penalty");
   prm.leave_subsection ();
 
   fast_dt = dt/fstep;
