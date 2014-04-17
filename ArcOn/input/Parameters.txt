@@ -1,7 +1,7 @@
 #Mesh parameters
    subsection Mesh
-	set Number of spatial refinements = 3 #8
-	set Polynomial Degree = 3
+	set Number of spatial refinements = 4 #8
+	set Polynomial Degree = 4
    end 
 #Physical parameters
    subsection Physics
@@ -12,24 +12,24 @@
    subsection Time
 	set Timestep size dt = 0.100
 	set Number of timesteps = 3000000 #2000000
-	set Hard endtime = 35000.0
+	set Hard endtime = 25000.0 #10142.15 #35000.0
 	set fstep = 0
 	set RK order = 2
 	set RK stage = 2 # >3 for RKC
 	set Method = 1 # 1 = explicit, 2 = IMEX
 	set RK type = 1 # 1 = RKSSP, 2 = RKC
 	set eps = 0.153846154 # RKC-epsilon
-	set Output_modulus = 1000 #3000
+	set Output_modulus = 200 #3000
    end
 #Regularizating parameters
    subsection Regularity
 	set Artificial diffusion = false
 	set epsilon weight = 1.e-1
-	set Brezzi_penalty = 30.0 #30.0
+	set Brezzi_penalty = 12.0 #30.0
    end 
 #Convergence
    subsection Convergence
-	set Threshold = 1.0e-4
+	set Threshold = 1.0e-5
 	set Iterations = 200
 	set Fast Threshold = 1e-10
 	set Fast Iterations = 50
@@ -41,9 +41,9 @@
    end
 #Loading/Saving
    subsection SavedSolution
-	set Load = false
-	set Save = false
-	set h    = 3
-        set p    = 3
+	set Load = true
+	set Save = true
+	set h    = 10
+        set p    = 10
    end
 

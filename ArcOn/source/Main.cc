@@ -191,6 +191,9 @@ void ParameterReader::declare_parameters()
     prm.declare_entry("epsilon weight", "0",
 		      Patterns::Double(0),
 		      "Artificial diffusion = epsilon_weight*local_entropy");
+    prm.declare_entry("Brezzi_penalty", "0",
+		      Patterns::Double(0),
+		      "Coeff for penalty method");
   }
   prm.leave_subsection ();
 
