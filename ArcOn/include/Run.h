@@ -139,10 +139,10 @@ void arcOn<dim>::run()
 
   pinfo.resize(alphadim);
   mapinfo.resize(alphadim);
+  gmax_val_loc.resize(alphadim);
   for (unsigned int component=0; component< alphadim; ++component){
     // mapinfo[component].resize(triangulation.n_global_active_cells());
     mapinfo[component].resize(1);
-    gmax_val_loc.resize(alphadim-1);
     gmax_val_loc[component] = 0.0;
   }
   
@@ -158,6 +158,7 @@ void arcOn<dim>::run()
   interpolate_active.resize(alphadim);
   cont_output1.resize(alphadim);
   revert_output.resize(alphadim);
+  naive_revert_output.resize(alphadim);
   proj_solution.resize(alphadim);
   ilocally_owned_dofs.resize(alphadim);
   ilocally_relevant_dofs.resize(alphadim);
@@ -303,7 +304,7 @@ void arcOn<dim>::run()
     ifesystem_relevant_partitioning
       .push_back(ilocally_relevant_dofs[component].get_view(n_ialpha,n_ialpha+n_isigma));
     tfesystem_relevant_partitioning
-      .push_back(tlocally_relevant_dofs[component].get_view(0,n_ialpha));
+      .push_back(tlocally_relevant_dofs[component].get_view(0,n_talpha));
     tfesystem_relevant_partitioning
       .push_back(tlocally_relevant_dofs[component].get_view(n_talpha,n_talpha+n_tsigma));
 
@@ -334,6 +335,7 @@ void arcOn<dim>::run()
     interpolate_base[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
     cont_output1[component].reinit(num_blocks3,mpi_communicator,num_blocks3); 
     revert_output[component].reinit(num_blocks1,mpi_communicator,num_blocks1);
+    naive_revert_output[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
     interpolate_active[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
     proj_solution[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
 
@@ -386,6 +388,8 @@ void arcOn<dim>::run()
       revert_output[component].block(bl).reinit(mpi_communicator, 
 						     fesystem_partitioning[bl], 
 						     fesystem_relevant_partitioning[bl] );
+      naive_revert_output[component].block(bl).reinit(mpi_communicator, 
+						      fesystem_partitioning[bl] );
 
       /* cont_output1[component].block(bl).reinit(mpi_communicator, */
       /*                                                tfesystem_partitioning[bl], */
@@ -433,6 +437,7 @@ void arcOn<dim>::run()
     interpolate_base[component].collect_sizes();
     cont_output1[component].collect_sizes();
     revert_output[component].collect_sizes();
+    naive_revert_output[component].collect_sizes();
     interpolate_active[component].collect_sizes();
     proj_solution[component].collect_sizes();
 

@@ -4,7 +4,7 @@ void arcOn<dim>::load_initial_conditions(SolutionVector& subdomain_solution, uns
 {
   std::vector< FEValues<dim>* > hp_fe_values;
   std::vector< double > max_val_loc;
-  max_val_loc.resize(alphadim-1);
+  max_val_loc.resize(alphadim);
 
   //-------------------------------------------------------------------------------------------------------------------
   //Modon stuff

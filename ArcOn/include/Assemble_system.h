@@ -65,7 +65,8 @@ void arcOn<dim>::assemble_system()
 
   if (fstep < 1){ fstep = 0;}
   
-  revert_density(subdomain_solution, 0, 0, revert_output);
+  revert_density(subdomain_solution, 0, 0, naive_revert_output);
+  revert_output=naive_revert_output;
   output_results(0);
   
   pcout << "\n\tThere are " <<  triangulation.n_global_active_cells() << 
@@ -275,9 +276,12 @@ void arcOn<dim>::assemble_system()
 
     if ( (step+1) % modulus == 0){
       
-      revert_density(subdomain_solution, dt, current_time_s, revert_output);
-
+      revert_density(subdomain_solution, dt, current_time_s, naive_revert_output);
+      revert_output=naive_revert_output;
+      
       output_results(step+1);
+      
+      if ( (step+1) % 10*modulus == 0){
 
       for (unsigned int component=0; component< alphadim; ++component){
 
@@ -302,6 +306,7 @@ void arcOn<dim>::assemble_system()
 	  
 	}
 
+      }
       }
 
     }

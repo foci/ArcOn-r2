@@ -57,6 +57,7 @@ void arcOn<dim>::output_results (const unsigned int cycle_in)
 
     if(k==1){
 	  
+      //revert_output[0] = std::exp(subdomain_solution[0]);
       DataOut<dim,DoFHandler<dim> >  data_out1;
       data_out1.attach_dof_handler (*(dof_handler[k]));
       data_out1.add_data_vector (revert_output[0],

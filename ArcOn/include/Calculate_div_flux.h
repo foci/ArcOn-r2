@@ -18,7 +18,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 
   double art_max = 0.0;
   std::vector< double > max_val_loc;
-  max_val_loc.resize(alphadim-1);
+  max_val_loc.resize(alphadim);
 
   double pi = 3.1415926535897932384626433832795;
 

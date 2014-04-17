@@ -1,6 +1,6 @@
 
 template <int dim>
-void arcOn<dim>::revert_density(SolutionVector& subdomain_solution, double delta_t, double current_time, SolutionVector& revert_ouptut)
+void arcOn<dim>::revert_density(SolutionVector& subdomain_solution, double delta_t, double current_time, SolutionVector& naive_revert_output)
 {
 
   std::vector< FEValues<dim>* > hp_fe_values;
@@ -45,7 +45,8 @@ void arcOn<dim>::revert_density(SolutionVector& subdomain_solution, double delta
 	  const unsigned int   n_q_points    = quadrature_formula.size();
 
 	  FullMatrix<double> n_from_chi (alphadim, dofs_per_cell);
-	
+	  FullMatrix<double> exp_MassMatrix (dofs_per_cell, dofs_per_cell);	
+
 	  std::vector<unsigned int> local_dof_indices (dofs_per_cell);
 
 	  for(unsigned int k=0;k<alphadim;k++){
@@ -64,6 +65,7 @@ void arcOn<dim>::revert_density(SolutionVector& subdomain_solution, double delta
 
 	  Tensor<1,alphadim> syncopated_alphas;
 	  n_from_chi = 0.0;
+	  exp_MassMatrix = 0.0;
 
 	
 	  if (component == 0){
@@ -74,12 +76,26 @@ void arcOn<dim>::revert_density(SolutionVector& subdomain_solution, double delta
 	    for (unsigned int q=0; q<n_q_points; ++q){
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 
-		n_from_chi(component,i) += std::exp(syncopated[0][q]) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
+		n_from_chi(component,i) += std::exp(syncopated[0][q]) * std::exp(fe_values[*(alpha[component])].value(i,q)*JxW[q]) ;
 
 
 	      }
 	    }
+
+	    for (unsigned int q=0; q<n_q_points; ++q){
+              for (unsigned int i=0; i<dofs_per_cell; ++i){
+		for (unsigned int j=0; j<dofs_per_cell; ++j){
+		
+		  exp_MassMatrix(i,j) += std::exp(fe_values[*(alpha[component])].value(i,q))*std::exp(fe_values[*(alpha[component])].value(j,q))*JxW[q] ;
+
+		}
+              }
+            }
+
 	  }
+
+	  FullMatrix<double> localInverseExpMassMatrix(dofs_per_cell,dofs_per_cell);
+	  localInverseExpMassMatrix.invert(exp_MassMatrix);
 	  
 	  cell->get_dof_indices (local_dof_indices);
 
@@ -89,15 +105,16 @@ void arcOn<dim>::revert_density(SolutionVector& subdomain_solution, double delta
 	    temp_update[component](i) = n_from_chi(component,i);
 	  }
 	  Vector<double> projected(dofs_per_cell); 
-	  mapinfo[component][0].localInverseMassMatrix.vmult(projected,temp_update[component]);
+
+	  localInverseExpMassMatrix.vmult(projected,temp_update[component]);
 	  projected /= JxWsum;
 	  parahyp_constraints[component].distribute_local_to_global (projected,
 								     local_dof_indices,
-								     revert_output[component]);	  
+								     naive_revert_output[component]);	  
 	  
 	}
 
-	  revert_output[component].compress(VectorOperation::insert);
+	  naive_revert_output[component].compress(VectorOperation::insert);
 
   }
 

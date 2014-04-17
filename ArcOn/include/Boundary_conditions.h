@@ -170,7 +170,7 @@ void WallBoundaryValues<dim>::gradient_list (const std::vector< Point< dim > > &
       for (unsigned int j=0; j<dim; ++j){
 
 	if (component == 0){ result[i][j] = gradients[i][j];}; //gradients[i][j];}; //gradients[i][j];}; //do nothing
-	if (component == 1){ result[i][j] = 0.0;}; //
+	if (component == 1){ result[i][j] = gradients[i][j];}; //
 	if (component == 2){ result[i][j] = 0.0;}; 
 
 	/*       if ( ((int)component)==(bc-1)){ */
