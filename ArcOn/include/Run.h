@@ -18,14 +18,14 @@ void arcOn<dim>::run()
   //subdivisions[0] = 15;
   //subdivisions[1] = 15;
 
-  subdivisions[0] = 4; 
+  subdivisions[0] = 1; 
   subdivisions[1] = 1;
 
   double epspi = 0.0;
   double pi = 1.0 + epspi ; //2.0*3.1415926535897932384626433832795;
 
   const Point<dim> lb = Point<dim>(0.0,0.0);
-  const Point<dim> rt = Point<dim>(1600.0,377.0);
+  const Point<dim> rt = Point<dim>(377.0,377.0);
 
   //const Point<dim> lb = Point<dim>(epspi,epspi);
   //const Point<dim> rt = Point<dim>(pi,pi);
@@ -74,7 +74,7 @@ void arcOn<dim>::run()
       	//pcout << "Left boundary face index = " << f << std::endl;
       	cell->face(f)->set_boundary_indicator(3);
       }
-      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 1600.0)) {
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 377.0)) {
       	//set right boundary
       	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
       	//pcout << "Right boundary face index = " << f << std::endl;
@@ -157,6 +157,7 @@ void arcOn<dim>::run()
   interpolate_base.resize(alphadim);
   interpolate_active.resize(alphadim);
   cont_output1.resize(alphadim);
+  cont_global.resize(alphadim);
   revert_output.resize(alphadim);
   naive_revert_output.resize(alphadim);
   proj_solution.resize(alphadim);
@@ -329,11 +330,13 @@ void arcOn<dim>::run()
     naive_div_flux_integrated[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
     naive_MassAction_integrated[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
     poisson_rhs.reinit(num_blocks1,mpi_communicator,num_blocks2);
+    cont_poisson_rhs.reinit(num_blocks1,mpi_communicator,num_blocks2);
     local_solution[component].reinit(num_blocks1); 
     ilocal_solution[component].reinit(num_blocks1); 
 
     interpolate_base[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
-    cont_output1[component].reinit(num_blocks3,mpi_communicator,num_blocks3); 
+    cont_output1[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
+    cont_global[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
     revert_output[component].reinit(num_blocks1,mpi_communicator,num_blocks1);
     naive_revert_output[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
     interpolate_active[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
@@ -381,10 +384,15 @@ void arcOn<dim>::run()
 							      fesystem_partitioning[bl] );
       poisson_rhs.block(bl).reinit(mpi_communicator, fesystem_partitioning[bl] );
 
+      cont_poisson_rhs.block(bl).reinit(mpi_communicator, tfesystem_partitioning[bl] );
+
       interpolate_base[component].block(bl).reinit(mpi_communicator, 
 						   fesystem_partitioning[bl] );
       cont_output1[component].block(bl).reinit(mpi_communicator,
                                                    tfesystem_partitioning[bl] );
+      cont_global[component].block(bl).reinit(mpi_communicator, 
+						     tfesystem_partitioning[bl], 
+						     tfesystem_relevant_partitioning[bl] );
       revert_output[component].block(bl).reinit(mpi_communicator, 
 						     fesystem_partitioning[bl], 
 						     fesystem_relevant_partitioning[bl] );
@@ -433,9 +441,11 @@ void arcOn<dim>::run()
     naive_div_flux_integrated[component].collect_sizes();
     naive_MassAction_integrated[component].collect_sizes();
     poisson_rhs.collect_sizes();
+    cont_poisson_rhs.collect_sizes();
 
     interpolate_base[component].collect_sizes();
     cont_output1[component].collect_sizes();
+    cont_global[component].collect_sizes();
     revert_output[component].collect_sizes();
     naive_revert_output[component].collect_sizes();
     interpolate_active[component].collect_sizes();
@@ -561,6 +571,8 @@ void arcOn<dim>::run()
     }
     
     poisson_matrix.collect_sizes();
+
+ 
     
     if(component == 2){
       elliptic_constraints.clear ();
@@ -573,15 +585,48 @@ void arcOn<dim>::run()
       elliptic_constraints.close ();
 
       telliptic_constraints.clear ();
-      telliptic_constraints.reinit ( locally_relevant_dofs[2] );
-      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
-      /* 					     /\*b_id*\/ 1, */
-      /* 					     /\*b_id*\/ 2, */
-      /* 					     /\*direction*\/ 1, */
-      /* 					     elliptic_constraints); */
+      telliptic_constraints.reinit ( tlocally_relevant_dofs[2] );
+      DoFTools::make_periodicity_constraints(*tdof_handler[2],
+      					     /*b_id*/ 1,
+      					     /*b_id*/ 2,
+      					     /*direction*/ 1,
+      					     telliptic_constraints);
+      DoFTools::make_periodicity_constraints(*tdof_handler[2],
+      					     /*b_id*/ 3,
+      					     /*b_id*/ 4,
+      					     /*direction*/ 0,
+      					     telliptic_constraints);
       telliptic_constraints.close ();
 
     }
+
+    /* CompressedSimpleSparsityPattern csp (tlocally_relevant_dofs[2]); */
+    /* DoFTools::make_sparsity_pattern (*(tdof_handler[2]), csp, */
+    /* 				     constraints, false); */
+    /* SparsityTools::distribute_sparsity_pattern (csp, */
+    /* 						*(tdof_handler[2]).n_locally_owned_dofs_per_processor(), */
+    /* 						mpi_communicator, */
+    /* 						locally_relevant_dofs); */
+    /* system_matrix.reinit (locally_owned_dofs, */
+    /* 			  locally_owned_dofs, */
+    /* 			  csp, */
+    /* 			  mpi_communicator); */
+    
+    cont_poisson_matrix.reinit(num_blocks,num_blocks); 
+    
+    for (unsigned int bl=0; bl< num_blocks; ++bl){
+      for (unsigned int bl2=0; bl2< num_blocks; ++bl2){
+	cont_poisson_matrix.block(bl,bl2).reinit (mpi_communicator,
+						  tfesystem_partitioning[bl].size(),
+						  tfesystem_partitioning[bl2].size(),
+						  tfesystem_partitioning[bl].n_elements(),
+						  tfesystem_partitioning[bl2].n_elements(),
+						  0,
+						  false);
+      }
+    }
+    
+    cont_poisson_matrix.collect_sizes();
     
   }
 

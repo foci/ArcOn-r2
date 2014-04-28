@@ -32,8 +32,9 @@ private:
   void setup_RK();
 
   void assemble_system();
-  void assemble_sigma(SolutionVector& subdomain_solution, double current_time);
+  void assemble_sigma(SolutionVector& subdomain_solution, double current_time, double delta_t);
   void assemble_stiffness(SolutionVector& subdomain_solution, double delta_t);
+  void assemble_cont_stiffness(SolutionVector& subdomain_solution, double delta_t);
 
   void Calculate_MassAction_Explicit( SolutionVector& subdomain_solution, 
 				      double delta_t, double current_time,
@@ -42,6 +43,9 @@ private:
   void revert_density( SolutionVector& subdomain_solution, 
 				      double delta_t, double current_time,
 				      SolutionVector& naive_revert_output);  
+
+  void revert_vacuum( SolutionVector& subdomain_solution, 
+				      double delta_t, double current_time);
 
   /* void Calculate_MassAction_Implicit( SolutionVector& solution, double delta_t, SolutionVector& mass_action_term) const;  */
   /* void calculate_mass_action_exact(SolutionVector& init_solution, SolutionVector& solution, double delta_t, SolutionVector& mass_action_term_exact) const; */
@@ -60,6 +64,8 @@ private:
 				double current_time, SolutionVector& MassAction_integrated); 
 
   void calc_poisson(SolutionVector& subdomain_solution, double delta_t);
+
+  void calc_poisson_cont(SolutionVector& subdomain_solution, double delta_t);
 
   void compute_l2_error(SolutionVector& subdomain_solution, double current_time);
 
@@ -307,6 +313,7 @@ private:
   SolutionVector       revert_output;
   SolutionVector       naive_revert_output;
   SolutionVector       cont_output1;
+  SolutionVector       cont_global;
 
   SolutionVector div_flux_integrated;
   SolutionVector naive_div_flux_integrated;
@@ -332,6 +339,11 @@ private:
   PETScWrappers::MPI::BlockSparseMatrix poisson_matrix;
   PETScWrappers::MPI::BlockVector poisson_rhs; 
   PETScWrappers::PreconditionBoomerAMG preconditioner;
+
+  PETScWrappers::MPI::BlockSparseMatrix cont_poisson_matrix;
+  PETScWrappers::MPI::BlockVector cont_poisson_rhs; 
+  PETScWrappers::PreconditionBoomerAMG cont_preconditioner;
+
   //PETScWrappers::MPI::Vector poisson_rhs;
 
   //PETScWrappers::MPI::Vector maxf;
@@ -428,6 +440,7 @@ private:
   double enrich_below;
   double unenrich_above;
   double CFL_bound; 
+  double gmax_jump; 
   double gvisc_temp1;
   double gvisc_temp2;
   double gvisc_avg;
@@ -435,6 +448,8 @@ private:
   double gart_max;
   std::vector <double> gmax_val_loc;
   double h_min_dist;
+  double gtotal_volume;
+  double global_Avg;
 
   double cm;
   double cmv;

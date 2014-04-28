@@ -1,6 +1,6 @@
 /* This assembles the "auxiliary variables," which are the ordered gradients of the state vector */
 template <int dim>
-void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double current_time)
+void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double current_time, double delta_t)
 {
 
   std::vector< FEValues<dim>* > hp_fe_values;
@@ -26,6 +26,13 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 
     std::vector<double> transport_alphas(alphadim,0.0);
     Functionals<dim> functionals;
+
+    double beta_pen_coeff;
+    if (current_time>10.0*delta_t){
+      beta_pen_coeff = 0.00;}
+    else{  
+      beta_pen_coeff = 0.0;
+    }
 
     /* Assemble sigma */
     typename DoFHandler<dim>::active_cell_iterator 
@@ -83,8 +90,12 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	    double current_face_jump=0.0;
 	    typename DoFHandler<dim>::face_iterator face=cell->face(face_num);
 	    /* We might be on the domain boundary */
-	    if ( face->at_boundary() && (face->boundary_indicator() == 0) ){
+	    
+	    //Let's add the second penalty
+	    //Point<dim> LDG_beta = Point<dim>(0.0,0.0);
 
+	    if ( face->at_boundary() && (face->boundary_indicator() == 0) ){
+	      
 	      hp_fe_values_face[component]->reinit (cell,face_num);
 	      const FEFaceValues<dim>& fe_values_face =
 	    	hp_fe_values_face[component]->get_present_fe_values ();
@@ -130,11 +141,18 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	      
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 	    	for (unsigned int q=0; q<fe_values_face.n_quadrature_points; ++q){
-		  
-		  if (component == 0){
+
+		  const Point<dim>& normal = normals[q];
+		  /* if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
+		  /* } */
+		  /* else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
+		  /* } */
+		  /* LDG_beta(0)=0.0; LDG_beta(1)=0.0; */
+
+		  if (component == 2){
 		    
 		      sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
-			* ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
+		  	* ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
 		      
 		  }
 		    
@@ -142,10 +160,17 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 		  
 		  else{
 		    
-		    sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
-		      * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
+		  /*   sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q]) */
+		  /*     * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q]; */
 		    
+		  /* } */
+		  
+		    sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + alphas_boundary[q] )
+						  + beta_pen_coeff*(soln_alpha_face[component][q] - alphas_boundary[q]) )
+		      * (  fe_values_face[*(sigma[component])].value(i,q)
+			   * normals[q] ) * JxW_face[q];
 		  }
+
 	    	}
 	      }
 	    }
@@ -200,20 +225,34 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 
 	
 	    	for (unsigned int q=0; q<fe_values_face.n_quadrature_points; ++q){
+
+		  const Point<dim>& normal = normals[q];
+		  /* if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
+		  /* } */
+		  /* else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
+		  /* } */
+		  /* LDG_beta(0)=0.0; LDG_beta(1)=0.0; */
 		  
-		  if (component == 0){
+		  if (component == 2){
 		    
 		    sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
-		      * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q]; 
+		      * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
 		    //total_density/ triangulation.n_global_active_cells(); //alphas_boundary[q];
 		    
 		  }
 		  else{
 		    
-		    sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
-		      * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
+		  /*   sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q]) */
+		  /*     * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q]; */
 		    
-		  }
+		  /* } */
+
+		    sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + alphas_boundary[q] )
+						  + beta_pen_coeff *(soln_alpha_face[component][q] - alphas_boundary[q]) )
+		      * (  fe_values_face[*(sigma[component])].value(i,q)
+			   * normals[q] ) * JxW_face[q];
+		  }		  
+
 	    	}
 	      }
 	    }
@@ -249,13 +288,34 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 		for (unsigned int q=0; q<n_q_points_face; ++q){
 
-		  double add_it = 0.0;
+		  const Point<dim>& normal = normals[q];
+		  /* if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
+		  /* } */
+		  /* else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
+		  /* } */
+		  /* LDG_beta(0)=0.0; LDG_beta(1)=0.0; */
+
+		  //double add_it = 0.0;
 		  //if(component == 0){add_it = 0.1;}
 
-	      	  sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] 
-							+ soln_drawX[component][CO][q] + 2.0*add_it) 
-						* (  fe_values_face[*(sigma[component])].value(i,q) 
-						     * normals[q] ) ) * JxW_face[q];
+	      	  /* sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] */
+		  /* 					+ soln_drawX[component][CO][q] + 2.0*add_it) */
+		  /* 				* (  fe_values_face[*(sigma[component])].value(i,q) */
+		  /* 				     * normals[q] ) ) * JxW_face[q]; */
+
+		  if (component != 2){
+                  sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + soln_drawX[component][CO][q] )
+						+ beta_pen_coeff *(soln_alpha_face[component][q] - soln_drawX[component][CO][q]) )
+		    * (  fe_values_face[*(sigma[component])].value(i,q)
+			 * normals[q] ) * JxW_face[q];}
+		  else{
+		    sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + soln_drawX[component][CO][q])
+		    				* (  fe_values_face[*(sigma[component])].value(i,q)
+		    				     * normals[q] ) ) * JxW_face[q];
+		  }
+
+	      	  /* sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + soln_drawX[component][CO][q] ) */
+		  /* 				+ LDG_beta*normal*(soln_alpha_face[component][q] - soln_drawX[component][CO][q]) ) * JxW_face[q]; */
 	      	}
 	      }
 
@@ -290,13 +350,34 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 		for (unsigned int q=0; q<n_q_points_face; ++q){
 
-		  double add_it = 0.0;
-		  //if(component == 0){add_it = 0.1;}
+		  const Point<dim>& normal = normals[q];
+		  /* if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
+		  /* } */
+		  /* else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
+		  /* } */
+                  /* LDG_beta(0)=0.0; LDG_beta(1)=0.0; */
+
+		  /* double add_it = 0.0; */
+		  /* //if(component == 0){add_it = 0.1;} */
 		  
-	      	  sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] 
-							+ soln_drawY[component][CO][q] + 2.0*add_it) 
-						* (  fe_values_face[*(sigma[component])].value(i,q) 
-						     * normals[q] ) ) * JxW_face[q];
+	      	  /* sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q]  */
+		  /* 					+ soln_drawY[component][CO][q] + 2.0*add_it)  */
+		  /* 				* (  fe_values_face[*(sigma[component])].value(i,q)  */
+		  /* 				     * normals[q] ) ) * JxW_face[q]; */
+		  
+		  if (component != 2){
+		    
+		    sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + soln_drawY[component][CO][q] )
+						  + beta_pen_coeff *(soln_alpha_face[component][q] - soln_drawY[component][CO][q]) )
+		      * (  fe_values_face[*(sigma[component])].value(i,q)
+			   * normals[q] ) * JxW_face[q];}
+		  else{
+		    sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + soln_drawY[component][CO][q])
+						  * (  fe_values_face[*(sigma[component])].value(i,q)
+						       * normals[q] ) ) * JxW_face[q];
+		  }
+		  
+
 	      	}
 	      }
 	      
@@ -330,13 +411,33 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 		for (unsigned int q=0; q<n_q_points_face; ++q){
-		  double add_it = 0.0;
-		  //if(component == 0){add_it = 0.1;}
 
-	      	  sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] 
-							+ soln_alpha_neigh_face[component][q] + 2.0*add_it) 
-						* (  fe_values_face[*(sigma[component])].value(i,q) 
-						     * normals[q] ) ) * JxW_face[q];
+		  const Point<dim>& normal = normals[q];
+		  /* if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
+		  /* } */
+		  /* else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
+		  /* } */
+		  /* LDG_beta(0)=0.0; LDG_beta(1)=0.0; */
+
+		  /* double add_it = 0.0; */
+		  /* //if(component == 0){add_it = 0.1;} */
+
+	      	  /* sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q]  */
+		  /* 					+ soln_alpha_neigh_face[component][q] + 2.0*add_it)  */
+		  /* 				* (  fe_values_face[*(sigma[component])].value(i,q)  */
+		  /* 				     * normals[q] ) ) * JxW_face[q]; */
+		  if (component != 2){
+		    sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + soln_alpha_neigh_face[component][q]  )
+						  + beta_pen_coeff *(soln_alpha_face[component][q] - soln_alpha_neigh_face[component][q]) )
+		      * (  fe_values_face[*(sigma[component])].value(i,q)
+			   * normals[q] ) * JxW_face[q];}
+		  else{
+		    sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] +  soln_alpha_neigh_face[component][q] )
+						  * (  fe_values_face[*(sigma[component])].value(i,q)
+						       * normals[q] ) ) * JxW_face[q];
+		  }
+
+
 	      	}
 	      }
 	    }

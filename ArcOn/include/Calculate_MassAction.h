@@ -66,6 +66,8 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	  Tensor<1,alphadim> syncopated_alphas;
 	  mass_action = 0.0;
 
+	  double ramp = std::tanh(current_time/100.0);
+
 	  //double rseed = Utilities::generate_normal_random_number(0.0,0.25); 	
 	
 	  if (component == 0){
@@ -83,7 +85,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 		//if(ncopated[component][q]>0.0){
 
 		//good one
-		mass_action(component,i) += ( 3.0*alph*std::exp(-std::pow(quadrature_point[q][0]-75.0,2.0)/200.0)/std::exp(syncopated[0][q]) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
+		mass_action(component,i) -= ( 3.0*alph*std::exp(-std::pow(quadrature_point[q][0]-75.0,2.0)/200.0)/std::exp(syncopated[0][q]) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
 
 		//mass_action(component,i) += ( 3.0*alph*(1.0+std::abs(std::sin(0.08*quadrature_point[q][1]))*std::exp(-0.5*std::pow(quadrature_point[q][0],2.0)/std::pow(sigs,2.0))) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
 		  /* if ( quadrature_point[q][0] > 200.0 ){ */
@@ -137,7 +139,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	    }
 	  }
 	  //for speed
-	  if (current_time>delta_t){
+	  //if (current_time>1000.0){
 	  if (component == 1){
 	    fe_values[*(alpha[2])].get_function_values(subdomain_solution[2],syncopated[2]);
 	    double alph = 1e-4; //5e-4;
@@ -145,8 +147,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 	  	// mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q)
 
-	  	//mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(i,q)
-	  	//				  *  (syncopated[2][q]) * JxW[q]);
+		mass_action(component,i) += alph*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q]) *JxW[q];
 		
 	  	  /* double xpt = quadrature_point[q][0]; */
 	  	  /* double ypt = quadrature_point[q][1]; */
@@ -174,7 +175,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 		  
  
 	      }
-	    }
+	      //}
 	  }
 	  }
 

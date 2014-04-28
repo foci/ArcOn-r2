@@ -39,19 +39,30 @@ void arcOn<dim>::assemble_system()
   load_initial_conditions(subdomain_solution,init_flag);
   //init_flag = 2;
   //load_initial_conditions(subdomain_solution,init_flag);
-  load_top(L2_error_interpolant);
+  //load_top(L2_error_interpolant);
   init_solution = subdomain_solution;
+
+  for(unsigned int k=0; k<alphadim; k++){
+    naive_subdomain_solution[k]= subdomain_solution[k];
+    FETools::interpolate (*(dof_handler[k]),  naive_subdomain_solution[k],
+			  *(tdof_handler[k]), cont_output1[k]);
+    
+    cont_global[k] = cont_output1[k];
+  }
+  
+
   }
 
   static_periodicity_map(subdomain_solution,0.0);
   assemble_stiffness(subdomain_solution,0.0);
+  //assemble_cont_stiffness(subdomain_solution,0.0);
 
   //poisson_matrix.block(0,0).vmult(subdomain_solution[1].block(0),subdomain_solution[2].block(0));
 
-  glob_min_ribbon_density = 0.0;
+  //glob_min_ribbon_density = 0.0;
 
   periodicity_map(subdomain_solution,0.0);
-  assemble_sigma(subdomain_solution,0.0);
+  assemble_sigma(subdomain_solution,0.0,0.0);
   periodicity_map(subdomain_solution,0.0);
 
   //calc_poisson(subdomain_solution,0.0);
@@ -65,8 +76,8 @@ void arcOn<dim>::assemble_system()
 
   if (fstep < 1){ fstep = 0;}
   
-  revert_density(subdomain_solution, 0, 0, naive_revert_output);
-  revert_output=naive_revert_output;
+  //revert_density(subdomain_solution, 0, 0, naive_revert_output);
+  //revert_output=naive_revert_output;
   output_results(0);
   
   pcout << "\n\tThere are " <<  triangulation.n_global_active_cells() << 
@@ -94,6 +105,7 @@ void arcOn<dim>::assemble_system()
       dt = h_min_dist / ((2.0*degree+1.0)*(CFL_bound) );
       pcout << "h_min_dist2= " << h_min_dist << ", CFL_bound2 = " << CFL_bound << std::endl;
       pcout << "dt (" << step << " ) = " << h_min_dist / ((2.0*degree+1.0)*(CFL_bound)) << std::endl;
+      pcout << "Max Jump in domain =" << gmax_jump <<std::endl;
     }
 
     current_time_s = current_time_s + dt;
@@ -146,6 +158,7 @@ void arcOn<dim>::assemble_system()
 
       if (fast_react == false){
 
+	//periodicity_map(subdomain_solution,dt);
 	calc_reaction(subdomain_solution,dt,current_time_s);
 
       }      
@@ -185,7 +198,7 @@ void arcOn<dim>::assemble_system()
 	
 	if (fast_dif == false){
 
-	  calc_convdiff(subdomain_solution,dt,current_time_s);
+	  //calc_convdiff(subdomain_solution,dt,current_time_s);
 
 	}
 	
@@ -230,12 +243,18 @@ void arcOn<dim>::assemble_system()
 
     periodicity_map(subdomain_solution,dt);
 
-    assemble_sigma(subdomain_solution,dt*step);
+    calc_poisson(subdomain_solution,dt);
+
+    //calc_poisson_cont(subdomain_solution,dt);
+
+    revert_vacuum(subdomain_solution,dt,current_time_s);
 
     periodicity_map(subdomain_solution,dt);
 
-    calc_poisson(subdomain_solution,dt);
+    assemble_sigma(subdomain_solution,current_time_s,dt);
 
+    periodicity_map(subdomain_solution,dt);
+ 
     /* compute_l2_error(subdomain_solution,current_time_s); */
     /* //compute_l2_interpolation(subdomain_solution); */
 
@@ -276,12 +295,12 @@ void arcOn<dim>::assemble_system()
 
     if ( (step+1) % modulus == 0){
       
-      revert_density(subdomain_solution, dt, current_time_s, naive_revert_output);
-      revert_output=naive_revert_output;
+      //revert_density(subdomain_solution, dt, current_time_s, naive_revert_output);
+      //revert_output=naive_revert_output;
       
       output_results(step+1);
       
-      if ( (step+1) % 10*modulus == 0){
+      if ( (step+1) % 1*modulus == 0){
 
       for (unsigned int component=0; component< alphadim; ++component){
 
