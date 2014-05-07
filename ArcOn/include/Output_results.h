@@ -6,22 +6,23 @@ void arcOn<dim>::output_results (const unsigned int cycle_in)
   (void)cycle_in;
 
   //This is the interpolation info                              
-  for(unsigned int k=0; k<alphadim; k++){
 
-    naive_subdomain_solution[k]= subdomain_solution[k];
-    FETools::interpolate (*(dof_handler[k]),  naive_subdomain_solution[k],
-  			  *(tdof_handler[k]), cont_output1[k]);
+  /* for(unsigned int k=0; k<alphadim; k++){ */
 
-    cont_global[k] = cont_output1[k];
+  /*   naive_subdomain_solution[k]= subdomain_solution[k]; */
+  /*   FETools::interpolate (*(dof_handler[k]),  naive_subdomain_solution[k], */
+  /* 			  *(tdof_handler[k]), cont_output1[k]); */
+
+  /*   cont_global[k] = cont_output1[k]; */
     
-  }
+  /* } */
 
   for(unsigned int k=0; k<alphadim; k++){
     if(k==0){
       
       DataOut<dim,DoFHandler<dim> >  data_out0;
-      data_out0.attach_dof_handler (*(tdof_handler[k]));
-      data_out0.add_data_vector (cont_global[k],
+      data_out0.attach_dof_handler (*(dof_handler[k]));
+      data_out0.add_data_vector (subdomain_solution[k],
 				 rmhd<dim>::component_names (k),
 				 DataOut<dim >::type_dof_data,
 				 rmhd<dim>::component_interpretation());
@@ -60,8 +61,8 @@ void arcOn<dim>::output_results (const unsigned int cycle_in)
 	  
       //revert_output[0] = std::exp(subdomain_solution[0]);
       DataOut<dim,DoFHandler<dim> >  data_out1;
-      data_out1.attach_dof_handler (*(tdof_handler[k]));
-      data_out1.add_data_vector (cont_global[k],
+      data_out1.attach_dof_handler (*(dof_handler[k]));
+      data_out1.add_data_vector (subdomain_solution[k],
 				 rmhd<dim>::component_names (k),
 				 DataOut<dim >::type_dof_data,
 				 rmhd<dim>::component_interpretation());
@@ -99,8 +100,8 @@ void arcOn<dim>::output_results (const unsigned int cycle_in)
     if(k==2){
 	  
       DataOut<dim,DoFHandler<dim> >  data_out2;
-      data_out2.attach_dof_handler (*(tdof_handler[k]));
-      data_out2.add_data_vector (cont_global[k],
+      data_out2.attach_dof_handler (*(dof_handler[k]));
+      data_out2.add_data_vector (subdomain_solution[k],
 				 rmhd<dim>::component_names (k),
 				 DataOut<dim >::type_dof_data,
 				 rmhd<dim>::component_interpretation());

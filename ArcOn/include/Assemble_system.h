@@ -42,13 +42,13 @@ void arcOn<dim>::assemble_system()
   //load_top(L2_error_interpolant);
   init_solution = subdomain_solution;
 
-  for(unsigned int k=0; k<alphadim; k++){
-    naive_subdomain_solution[k]= subdomain_solution[k];
-    FETools::interpolate (*(dof_handler[k]),  naive_subdomain_solution[k],
-			  *(tdof_handler[k]), cont_output1[k]);
+  /* for(unsigned int k=0; k<alphadim; k++){ */
+  /*   naive_subdomain_solution[k]= subdomain_solution[k]; */
+  /*   FETools::interpolate (*(dof_handler[k]),  naive_subdomain_solution[k], */
+  /* 			  *(tdof_handler[k]), cont_output1[k]); */
     
-    cont_global[k] = cont_output1[k];
-  }
+  /*   cont_global[k] = cont_output1[k]; */
+  /* } */
   
 
   }
@@ -300,7 +300,7 @@ void arcOn<dim>::assemble_system()
       
       output_results(step+1);
       
-      if ( (step+1) % 1*modulus == 0){
+      if ( (step+1) % 5*modulus == 0){
 
       for (unsigned int component=0; component< alphadim; ++component){
 

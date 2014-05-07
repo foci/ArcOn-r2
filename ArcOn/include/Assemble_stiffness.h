@@ -26,6 +26,7 @@ void arcOn<dim>::assemble_stiffness(SolutionVector& subdomain_solution, double d
     if (component == 2){
 
       poisson_matrix = 0.0;
+      int it = 0;
       typename DoFHandler<dim>::active_cell_iterator 
 	cell = dof_handler[component]->begin_active(), 
 	endc = dof_handler[component]->end();
@@ -35,6 +36,7 @@ void arcOn<dim>::assemble_stiffness(SolutionVector& subdomain_solution, double d
 	if (cell->is_locally_owned()  )
 	  {
 	    int CO = cell->index();
+	    it = it + 1;
 	    hp_fe_values[component]->reinit (cell);
 	    const FEValues<dim> &fe_values = hp_fe_values[component]->get_present_fe_values ();
 	    const Quadrature<dim>& quadrature_formula = fe_values.get_quadrature();
@@ -77,6 +79,9 @@ void arcOn<dim>::assemble_stiffness(SolutionVector& subdomain_solution, double d
 		for (unsigned int q=0; q<n_q_points; ++q){
 		      
 		  A_matrix(i,j) += (fe_values[*(alpha[component])].gradient(i,q)) * (fe_values[*(alpha[component])].gradient(j,q)) * JxW[q];
+
+		  //if (this_mpi_process == 0 && q==0 && it == 1){ A_matrix(i,j) += 1.0; pcout << "This is not a great idea (fix it)" << std::endl;}
+
 
 		}
 
