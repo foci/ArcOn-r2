@@ -12,6 +12,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
   double yloc_temp;
 
   double CFL_temp = 0.0;
+  double CFL_approx = 100.0;
   double visc_temp1 = -1000.0;
   double visc_temp2 = 1000.0;
   double h_min_loc = 1.0e6;
@@ -173,7 +174,6 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 	  //Vector<double> eps_smooth(alphadim-1);
 	  FullMatrix<double> eps_smooth(alphadim-1, n_q_points);
 	  eps_smooth = 0.0;
-
 
 	  //double kappa = 0.0969; // This is the minor tuning parameter
 
@@ -1694,8 +1694,19 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 	  //						  index_container2,
 	  // 						  div_flux_term[component]);
 	  
+	  h_min_loc = 1.0e6;
 	  h_min_loc = std::min(h_min_loc, cell->extent_in_direction(1));
 	  h_min_loc = std::min(h_min_loc, cell->extent_in_direction(0));
+
+	  CFL_temp *= 16.0;
+	  //std::cout << "h_min = " << h_min_loc << ", degree = " << degree << ", CFL_temp = " << CFL_temp << std::endl;
+	  double casting =  h_min_loc / ((2.0*degree+1.0)*CFL_temp); 
+	  //std::cout << "casting = " << casting << std::endl;
+	  //std::cout << "CFL_approx_before = " << CFL_approx << std::endl;
+	  CFL_approx = std::min(CFL_approx, casting);
+	  //std::cout << "CFL_approx = " << CFL_approx << std::endl;
+	  CFL_temp = 0.0;
+	  
 
 	  cell->get_dof_indices (local_dof_indices);
 
@@ -1731,14 +1742,14 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
     
   }
 
-  CFL_temp *= 16.0; //16.0; //h_min_dist; //10.0;
+  //CFL_temp *= 16.0; //16.0; //h_min_dist; //10.0;
   //CFL_temp = std::max(CFL_temp,0.01);
 
   //MPI_Allreduce(&CFL_temp, &CFL_bound, Utilities::MPI::n_mpi_processes(mpi_communicator), MPI_DOUBLE, MPI_MAX, mpi_communicator);
   //MPI_Allreduce(&local_min_ribbon_density, &glob_min_ribbon_density, 1, MPI_DOUBLE, MPI_MIN, mpi_communicator);
-  MPI_Allreduce(&CFL_temp, &CFL_bound, 1, MPI_DOUBLE, MPI_MAX, mpi_communicator);
-  MPI_Allreduce(&h_min_loc, &h_min_dist, 1, MPI_DOUBLE, MPI_MIN, mpi_communicator);
-  MPI_Allreduce(&max_jump_temp, &gmax_jump, 1, MPI_DOUBLE, MPI_MAX, mpi_communicator);
+  MPI_Allreduce(&CFL_approx, &CFL_bound, 1, MPI_DOUBLE, MPI_MIN, mpi_communicator);
+  //MPI_Allreduce(&h_min_loc, &h_min_dist, 1, MPI_DOUBLE, MPI_MIN, mpi_communicator);
+  //MPI_Allreduce(&max_jump_temp, &gmax_jump, 1, MPI_DOUBLE, MPI_MAX, mpi_communicator);
   if (artificial_visc == true ){
     MPI_Allreduce(&visc_temp1, &gvisc_temp1, 1, MPI_DOUBLE, MPI_MAX, mpi_communicator);
     MPI_Allreduce(&visc_temp2, &gvisc_temp2, 1, MPI_DOUBLE, MPI_MIN, mpi_communicator);

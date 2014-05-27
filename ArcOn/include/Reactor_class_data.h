@@ -11,6 +11,7 @@ public:
   ~arcOn();
 
   void run ();
+  void ullman_mesh ();
   bool init;
   bool fast_dif;
   bool fast_react;
@@ -25,6 +26,8 @@ private:
   void matrixmapper();
   double newton_root(double gamma, double kappa);
   double modon(double x, double y, double kappa, double gamma, double c, double a);
+  double Ullmann_newton_root(double x_in, double y_in, double b, double C, double m);
+  double UllmannMap(double x, double Lx, double y, double Ly, double x_sol, double eps, double m );
   void load_initial_conditions(SolutionVector& subdomain_solution, unsigned int init_flag);
   void load_top(SolutionVector& L2_error_interpolant);
   void periodicity_map(SolutionVector& subdomain_solution, double delta_t);

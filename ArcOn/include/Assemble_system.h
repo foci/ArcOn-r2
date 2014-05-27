@@ -40,6 +40,7 @@ void arcOn<dim>::assemble_system()
   //init_flag = 2;
   //load_initial_conditions(subdomain_solution,init_flag);
   //load_top(L2_error_interpolant);
+
   init_solution = subdomain_solution;
 
   /* for(unsigned int k=0; k<alphadim; k++){ */
@@ -79,6 +80,9 @@ void arcOn<dim>::assemble_system()
   //revert_density(subdomain_solution, 0, 0, naive_revert_output);
   //revert_output=naive_revert_output;
   output_results(0);
+
+  naive_subdomain_solution[2] = 0.0;
+  subdomain_solution[2] = naive_subdomain_solution[2];
   
   pcout << "\n\tThere are " <<  triangulation.n_global_active_cells() << 
     " finite element cells. There are " << n_mpi_processes << 
@@ -102,10 +106,12 @@ void arcOn<dim>::assemble_system()
   for(unsigned int step =0; step<nstep;++step){
     
     if (step > 0){
-      dt = h_min_dist / ((2.0*degree+1.0)*(CFL_bound) );
-      pcout << "h_min_dist2= " << h_min_dist << ", CFL_bound2 = " << CFL_bound << std::endl;
-      pcout << "dt (" << step << " ) = " << h_min_dist / ((2.0*degree+1.0)*(CFL_bound)) << std::endl;
+      //dt = h_min_dist / ((2.0*degree+1.0)*(CFL_bound) );
+      dt = CFL_bound;
+      //pcout << "h_min_dist2= " << h_min_dist << ", CFL_bound2 = " << CFL_bound << std::endl;
+      //pcout << "dt (" << step << " ) = " << h_min_dist / ((2.0*degree+1.0)*(CFL_bound)) << std::endl;
       pcout << "Max Jump in domain =" << gmax_jump <<std::endl;
+      pcout << "Timestep = " << CFL_bound <<std::endl;
     }
 
     current_time_s = current_time_s + dt;

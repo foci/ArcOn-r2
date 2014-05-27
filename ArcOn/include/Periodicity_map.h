@@ -69,8 +69,8 @@ void arcOn<dim>::periodicity_map(SolutionVector& subdomain_solution, double delt
 	      /* } */
 
 
-	      //soln_draw[celli] = soln_face;                                                                                                                                                                                          \
-	      //Face_match[celli] = face_numj;
+	      /* soln_draw[celli] = soln_face;                                                                                                                                                                                          \ */
+	      /* Face_match[celli] = face_numj; */
 	    }
 	  else if ( facei->at_boundary() 
 	       && facei->boundary_indicator() != 0 && facei->boundary_indicator() < 3)
@@ -101,12 +101,14 @@ void arcOn<dim>::periodicity_map(SolutionVector& subdomain_solution, double delt
 	      /* 	//std::cout << "quad point periodic neigh_test[" << Cell_match[1] << "] of cell [" << celli->index() << "] = " <<  quadrature_point[q] << std::endl; */
 	      /* }  */      
 	    
-	      //if (Cell_match[celli->index()] > 0){
-	      //for (unsigned int q=0; q<fe_values_face.n_quadrature_points; ++q){
+	      /* if (Cell_match[celli->index()] > 0){ */
+	      /* for (unsigned int q=0; q<fe_values_face.n_quadrature_points; ++q){ */
+
 		soln_drawY[component][Cell_matchY[celli->index()]] = prev_soln_alpha_face[component];
 		grad_drawY[component][Cell_matchY[celli->index()]] = prev_soln_sigma_face[component];
-		//}
-	      //}
+
+		/* } */
+	      /* //} */
  
 	      /* else{ */
 	      /* 	soln_draw[component][Cell_match[celli->index()]] = 0.0; */
@@ -114,8 +116,8 @@ void arcOn<dim>::periodicity_map(SolutionVector& subdomain_solution, double delt
 	      /* } */
 
 
-	      //soln_draw[celli] = soln_face;                                                                                                                                                                                          \
-	      //Face_match[celli] = face_numj;
+	      /* soln_draw[celli] = soln_face;                                                                                                                                                                                          \ */
+	      /* Face_match[celli] = face_numj; */
 	    }
 	}
       }

@@ -1,7 +1,7 @@
 #Mesh parameters
    subsection Mesh
-	set Number of spatial refinements = 5 #8
-	set Polynomial Degree = 5
+	set Number of spatial refinements = 2 #8
+	set Polynomial Degree = 2
    end 
 #Physical parameters
    subsection Physics
@@ -11,7 +11,7 @@
 #Runtime
    subsection Time
 	set Timestep size dt = 0.0100 #make sure small enough
-	set Number of timesteps = 3000000 #2000000
+	set Number of timesteps = 100 #3000000 #2000000
 	set Hard endtime = 50000.0 #10142.15 #35000.0
 	set fstep = 0
 	set RK order = 2
@@ -19,7 +19,7 @@
 	set Method = 1 # 1 = explicit, 2 = IMEX
 	set RK type = 1 # 1 = RKSSP, 2 = RKC
 	set eps = 0.153846154 # RKC-epsilon
-	set Output_modulus = 200 #3000
+	set Output_modulus = 5 #3000
    end
 #Regularizating parameters
    subsection Regularity
