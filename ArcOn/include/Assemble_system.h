@@ -69,6 +69,47 @@ void arcOn<dim>::assemble_system()
   //calc_poisson(subdomain_solution,0.0);
   //periodicity_map(subdomain_solution,0.0);
 
+  bool dyn_adaptation = true;
+  if (dyn_adaptation){
+
+    //Vector<double> subdomain_solution_holder (dof_handler.size());
+    subdomain_solution_holder = subdomain_solution;
+    
+    Vector<float> alpha_measure(triangulation.n_active_cells());
+
+    unsigned int qud_pts = (unsigned int)std::ceil(3.0*(double)degree/2.0 - 1.0/2.0);
+
+    KellyErrorEstimator<dim>::estimate (*dof_handler[1],
+					QGauss<dim-1>(qud_pts),
+					typename FunctionMap<dim>::type(),
+					subdomain_solution[1].block(0),
+					alpha_measure);    
+    
+
+    parallel::distributed::GridRefinement::
+      refine_and_coarsen_fixed_number (triangulation,
+				       alpha_measure,
+				       0.3, 0.03);
+    
+    triangulation.prepare_coarsening_and_refinement();
+
+   for (unsigned int component=0; component< alphadim; ++component){
+     
+     parallel::distributed::SolutionTransfer<dim,PETScWrappers::MPI::BlockVector> soltrans(*dof_handler[component]);
+     soltrans.prepare_for_coarsening_and_refinement(subdomain_solution_holder[component]);
+     triangulation.execute_coarsening_and_refinement();
+
+     dof_handler[component]->distribute_dofs(*(fe_collection[component]));
+
+     soltrans.interpolate(subdomain_solution_holder[component]);
+          
+     dof_handler[component]->clear();
+     
+   }
+
+   subdomain_solution = subdomain_solution_holder;
+   
+  }
 
   fast_react = false;
   fast_dif = false;

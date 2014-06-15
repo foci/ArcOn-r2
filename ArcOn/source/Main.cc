@@ -47,6 +47,7 @@
 #include <grid/grid_generator.h>
 #include <grid/grid_refinement.h>
 #include <grid/grid_in.h>
+#include <grid/grid_out.h>
 #include <grid/intergrid_map.h>
 #include <grid/grid_tools.h>
 #include <grid/filtered_iterator.h>
@@ -262,7 +263,6 @@ void ParameterReader::read_parameters (const std::string parameter_file)
   prm.read_input (parameter_file);
 }
 
-
 const unsigned int num_boundaries = 2;
 const unsigned int alphadim = 3;
 const unsigned int dimension = 2;
@@ -291,6 +291,7 @@ bool fast = false;
 #include <RK_div_flux_integrator.h>
 #include <Calculate_MassAction.h>
 #include <Revert_density.h>
+#include <Revert_vacuum.h>
 #include <Slope_limiter.h>
 #include <Assemble_stiffness.h>
 #include <Calculate_Poisson.h>
@@ -305,7 +306,8 @@ bool fast = false;
 #include <Generic_functions.h>
 #include <Newton_root.h>
 #include <Modon.h>
-
+#include <Ullmann_Newton_root.h>
+#include <Ullmann_Map.h>
 
 int main (int argc, char *argv[]) 
 {

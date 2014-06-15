@@ -85,7 +85,8 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 		//if(ncopated[component][q]>0.0){
 
 		//good one
-		mass_action(component,i) -= ( -3.0*alph*std::exp(-std::pow(quadrature_point[q][0]-59.0,2.0)/0.10)/std::exp(syncopated[0][q]) + alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
+		mass_action(component,i) -= ( -3.0*alph*std::exp(-std::pow(quadrature_point[q][0]-225.0,2.0)/200.0)/std::exp(syncopated[0][q]) + alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q];
+		  //( -3.0*alph*std::exp(-std::pow(quadrature_point[q][0]-59.0,2.0)/0.10)/std::exp(syncopated[0][q]) + alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
 
 		//mass_action(component,i) += ( 3.0*alph*(1.0+std::abs(std::sin(0.08*quadrature_point[q][1]))*std::exp(-0.5*std::pow(quadrature_point[q][0],2.0)/std::pow(sigs,2.0))) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
 		  /* if ( quadrature_point[q][0] > 200.0 ){ */

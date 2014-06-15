@@ -1,6 +1,6 @@
 #Mesh parameters
    subsection Mesh
-	set Number of spatial refinements = 2 #8
+	set Number of spatial refinements = 0 #8
 	set Polynomial Degree = 2
    end 
 #Physical parameters
@@ -19,7 +19,7 @@
 	set Method = 1 # 1 = explicit, 2 = IMEX
 	set RK type = 1 # 1 = RKSSP, 2 = RKC
 	set eps = 0.153846154 # RKC-epsilon
-	set Output_modulus = 5 #3000
+	set Output_modulus = 10 #3000
    end
 #Regularizating parameters
    subsection Regularity

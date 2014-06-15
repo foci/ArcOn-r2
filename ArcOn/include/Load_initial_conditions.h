@@ -37,8 +37,8 @@ void arcOn<dim>::load_initial_conditions(SolutionVector& subdomain_solution, uns
   //set the radius a to 1                                                                                                                                                                                                                    
   //Ullmann map
   double x_sol = .3;
-  double rho_s = .5;
-  double y_length = 6.7;
+  double rho_s = .2;
+  double y_length = 314.0;
   double mhmm = 2.0;
   double eps = 0.3;
 
@@ -179,7 +179,8 @@ void arcOn<dim>::load_initial_conditions(SolutionVector& subdomain_solution, uns
 	      if (component == 2 && init_flag ==  1){
 	      	//alpha_sum[component](i) += qpvalue( component )
 	      	//*fe_values[*(alpha[component])].value(i,q)*JxW[q];
-	      	alpha_sum[component](i) +=  rho_s * UllmannMap(quadrature_point[q](0),1.0,quadrature_point[q](1),y_length,x_sol,eps,mhmm)
+	      
+		alpha_sum[component](i) +=  rho_s * UllmannMap(quadrature_point[q](0),1.0,quadrature_point[q](1),y_length,x_sol,eps,mhmm)
 	      	  *fe_values[*(alpha[component])].value(i,q)*JxW[q];
 
 	      	//pcout << "modon = " << modon(quadrature_point[q](0)-5.0, quadrature_point[q](1)-5.0, kappa, gamma,c,a)  << std::endl;

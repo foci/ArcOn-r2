@@ -92,28 +92,28 @@ void arcOn<dim>::run()
   /*   } */
   /* } */
   
-  /* //Y-periodicity */
-  /* std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > */
-  /*   periodicity_vector; */
+  //Y-periodicity
+  std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >
+    periodicity_vector;
   
-  /* GridTools::collect_periodic_faces 	 */
-  /*   ( 	triangulation,	1 /\* b_id1 *\/, 2 /\* b_id2 *\/,1 /\* direction *\/,	periodicity_vector ); */
+  GridTools::collect_periodic_faces
+    ( 	triangulation,	1 /* b_id1 */, 2 /* b_id2 */,1 /* direction */,	periodicity_vector );
   
-  /* triangulation.add_periodicity(periodicity_vector); */
-  /* //X-periodicity */
-  /* //std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > */
-  /* //  periodicity_vector2 =  */
-  /* std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > */
-  /*   periodicity_vector2; */
+  triangulation.add_periodicity(periodicity_vector);
+  //X-periodicity
+  //std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >
+  //  periodicity_vector2 =
+  std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >
+    periodicity_vector2;
 
-  /* GridTools::collect_periodic_faces 	( 	triangulation, */
-  /* 						3, //b_id1 */
-  /* 						4, //b_id2 */
-  /* 						0, //direction */
-  /* 						periodicity_vector2 */
-  /* 						); */
+  GridTools::collect_periodic_faces 	( 	triangulation,
+  						3, //b_id1
+  						4, //b_id2
+  						0, //direction
+  						periodicity_vector2
+  						);
 
-  /* triangulation.add_periodicity(periodicity_vector2); */
+  triangulation.add_periodicity(periodicity_vector2);
   
   triangulation.refine_global (refinements);
 
@@ -143,6 +143,9 @@ void arcOn<dim>::run()
   L2_interpolate_active.resize(alphadim);
   interpolation_error.resize(alphadim);
   naive_interpolation_error.resize(alphadim);
+
+  subdomain_solution_holder.resize(alphadim);
+  interpolated_solution_holder.resize(alphadim);
 
   pinfo.resize(alphadim);
   mapinfo.resize(alphadim);
@@ -333,6 +336,9 @@ void arcOn<dim>::run()
     div_flux_integrated[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
     MassAction_integrated[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
 
+    subdomain_solution_holder[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
+    interpolated_solution_holder[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
+
     naive_subdomain_solution[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
     naive_div_flux_integrated[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
     naive_MassAction_integrated[component].reinit(num_blocks1,mpi_communicator,num_blocks2); 
@@ -383,6 +389,13 @@ void arcOn<dim>::run()
 							fesystem_partitioning[bl], 
 							fesystem_relevant_partitioning[bl] );
 
+      subdomain_solution_holder[component].block(bl).reinit(mpi_communicator, 
+							    fesystem_partitioning[bl], 
+							    fesystem_relevant_partitioning[bl] );
+      interpolated_solution_holder[component].block(bl).reinit(mpi_communicator, 
+							       fesystem_partitioning[bl], 
+							       fesystem_relevant_partitioning[bl] );
+      
       naive_subdomain_solution[component].block(bl).reinit(mpi_communicator, 
 							   fesystem_partitioning[bl] );
       naive_div_flux_integrated[component].block(bl).reinit(mpi_communicator, 
@@ -449,6 +462,9 @@ void arcOn<dim>::run()
     naive_MassAction_integrated[component].collect_sizes();
     poisson_rhs.collect_sizes();
     cont_poisson_rhs.collect_sizes();
+
+    subdomain_solution_holder[component].collect_sizes();
+    interpolated_solution_holder[component].collect_sizes();
 
     interpolate_base[component].collect_sizes();
     cont_output1[component].collect_sizes();

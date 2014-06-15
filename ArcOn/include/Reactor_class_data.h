@@ -313,6 +313,9 @@ private:
   SolutionVector       interpolation_error;
   SolutionVector       naive_interpolation_error;
 
+  SolutionVector       subdomain_solution_holder;
+  SolutionVector       interpolated_solution_holder;
+
   SolutionVector       revert_output;
   SolutionVector       naive_revert_output;
   SolutionVector       cont_output1;
