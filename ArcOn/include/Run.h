@@ -41,56 +41,58 @@ void arcOn<dim>::run()
   
   //GridGenerator::hyper_rectangle(triangulation,lb,rt);
 
-  GridIn<dim> grid_in;
-  grid_in.attach_triangulation (triangulation);
-  std::ifstream input_file("../../input/Ullman_mesh.inp");
-  grid_in.read_ucd (input_file);
+  //Good one---------
+  /* GridIn<dim> grid_in; */
+  /* grid_in.attach_triangulation (triangulation); */
+  /* std::ifstream input_file("../../input/Ullman_mesh.inp"); */
+  /* grid_in.read_ucd (input_file); */
+  //Good one---------
   
   //Good one
-  //GridGenerator::subdivided_hyper_rectangle(triangulation,subdivisions,lb,rt);
+  GridGenerator::subdivided_hyper_rectangle(triangulation,subdivisions,lb,rt);
 
  
   // Let's set the periodic conditions
   // Can do this using the colorize flag in GridGen above
-  /* for (typename Triangulation<dim>::cell_iterator cell = triangulation.begin(); */
-  /*      cell != triangulation.end(); ++cell) { */
-  /*   for (unsigned int f=0; f<GeometryInfo<dim>::faces_per_cell; ++f) { */
-  /*     if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 0.0)) { */
-  /* 	//set bottom boundary */
-  /* 	//pcout << "Left boundary cell index = " << cell->index() << std::endl; */
-  /* 	//pcout << "Left boundary face index = " << f << std::endl; */
-  /* 	cell->face(f)->set_boundary_indicator(1); */
-  /*     } */
-  /*     if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 377.0)) { */
-  /* 	//set top boundayr */
-  /* 	//pcout << "Right boundary cell index = " << cell->index() << std::endl; */
-  /* 	//pcout << "Right boundary face index = " << f << std::endl; */
-  /* 	cell->face(f)->set_boundary_indicator(2); */
-  /*     } */
-  /*     /\* if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 290.0)) { *\/ */
-  /*     /\* 	//set top boundary *\/ */
-  /*     /\* 	//pcout << "Right boundary cell index = " << cell->index() << std::endl; *\/ */
-  /*     /\* 	//pcout << "Right boundary face index = " << f << std::endl; *\/ */
-  /*     /\* 	cell->face(f)->set_boundary_indicator(15); *\/ */
-  /*     /\* } *\/ */
+  for (typename Triangulation<dim>::cell_iterator cell = triangulation.begin();
+       cell != triangulation.end(); ++cell) {
+    for (unsigned int f=0; f<GeometryInfo<dim>::faces_per_cell; ++f) {
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 0.0)) {
+  	//set bottom boundary
+  	//pcout << "Left boundary cell index = " << cell->index() << std::endl;
+  	//pcout << "Left boundary face index = " << f << std::endl;
+  	cell->face(f)->set_boundary_indicator(1);
+      }
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[1] == 377.0)) {
+  	//set top boundayr
+  	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
+  	//pcout << "Right boundary face index = " << f << std::endl;
+  	cell->face(f)->set_boundary_indicator(2);
+      }
+      /* if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 290.0)) { */
+      /* 	//set top boundary */
+      /* 	//pcout << "Right boundary cell index = " << cell->index() << std::endl; */
+      /* 	//pcout << "Right boundary face index = " << f << std::endl; */
+      /* 	cell->face(f)->set_boundary_indicator(15); */
+      /* } */
       
       
-  /*     if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 0.0)) { */
-  /*     	//set left boundary */
-  /*     	//pcout << "Left boundary cell index = " << cell->index() << std::endl; */
-  /*     	//pcout << "Left boundary face index = " << f << std::endl; */
-  /*     	cell->face(f)->set_boundary_indicator(3); */
-  /*     } */
-  /*     if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 377.0)) { */
-  /*     	//set right boundary */
-  /*     	//pcout << "Right boundary cell index = " << cell->index() << std::endl; */
-  /*     	//pcout << "Right boundary face index = " << f << std::endl; */
-  /*     	cell->face(f)->set_boundary_indicator(4); */
-  /*     } */
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 0.0)) {
+      	//set left boundary
+      	//pcout << "Left boundary cell index = " << cell->index() << std::endl;
+      	//pcout << "Left boundary face index = " << f << std::endl;
+      	cell->face(f)->set_boundary_indicator(3);
+      }
+      if (cell->face(f)->at_boundary() && (cell->face(f)->center()[0] == 377.0)) {
+      	//set right boundary
+      	//pcout << "Right boundary cell index = " << cell->index() << std::endl;
+      	//pcout << "Right boundary face index = " << f << std::endl;
+      	cell->face(f)->set_boundary_indicator(4);
+      }
 
 
-  /*   } */
-  /* } */
+    }
+  }
   
   //Y-periodicity
   std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >

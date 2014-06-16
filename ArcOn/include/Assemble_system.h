@@ -82,7 +82,7 @@ void arcOn<dim>::assemble_system()
     KellyErrorEstimator<dim>::estimate (*dof_handler[1],
 					QGauss<dim-1>(qud_pts),
 					typename FunctionMap<dim>::type(),
-					subdomain_solution[1].block(0),
+					subdomain_solution[1],
 					alpha_measure);    
     
 
@@ -101,13 +101,15 @@ void arcOn<dim>::assemble_system()
 
      dof_handler[component]->distribute_dofs(*(fe_collection[component]));
 
-     soltrans.interpolate(subdomain_solution_holder[component]);
+     naive_subdomain_solution[component] = subdomain_solution_holder[component];
+
+     soltrans.interpolate(naive_subdomain_solution[component]);
           
-     dof_handler[component]->clear();
+     //dof_handler[component]->clear();
      
    }
 
-   subdomain_solution = subdomain_solution_holder;
+   subdomain_solution = naive_subdomain_solution;
    
   }
 

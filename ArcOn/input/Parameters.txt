@@ -1,6 +1,6 @@
 #Mesh parameters
    subsection Mesh
-	set Number of spatial refinements = 0 #8
+	set Number of spatial refinements = 1 #8
 	set Polynomial Degree = 2
    end 
 #Physical parameters
