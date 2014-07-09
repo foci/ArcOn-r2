@@ -35,7 +35,8 @@ double arcOn<dim>::UllmannMap(double x, double Lx, double y, double Ly, double x
   //has to be consistent with Ullmann map that is expressed in cm and rad in x and y respectively, so rho_s = .2 and Ly = 2pi*50
   double rho_s = .2; 
   y = y*(2.0*M_PI/Ly); //remap to rad for ullmann map
-  x  = x/rho_s; //remap to cm for ullmann amp
+
+  //x  = x/rho_s; //remap to cm for ullmann amp
   //
   //q = q0*pow(x/a,2.0)/(1.0-pow(1.0-x/a,nu+1.0));  
 
@@ -43,12 +44,6 @@ double arcOn<dim>::UllmannMap(double x, double Lx, double y, double Ly, double x
   double y_new;
   double x_new2;
   
- 
-  x_new = x;
-  y_new = y;
-  q = q0;
-  qmax = q0*pow(b/a,2.0); 
-
   while(count < max_orbit and not hit_divert){
     // x_new = x;
     // y_new = y;

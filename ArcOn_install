@@ -17,9 +17,9 @@ sh p4est-setup.sh p4est-0.3.4.2.tar.gz $ArcOn_DIR/p4est
 cd $ArcOn_DIR
 
 # Let's build petsc now, and remember also to add these (PETSC_DIR, PETSC_ARCH, and LD_LIBRARY_PATH) to your bashrc or .bashrc_local for initialization
-tar xzfv petsc-3.4.3.tar.gz
+tar xzfv petsc-3.4.4.tar.gz
 
-export PETSC_DIR=$ArcOn_DIR/petsc-3.4.3
+export PETSC_DIR=$ArcOn_DIR/petsc-3.4.4
 export PETSC_ARCH=intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt
 cd $PETSC_DIR
 
@@ -43,7 +43,9 @@ cd ..
 
 chmod -R g+rwX $PETSC_DIR
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ArcOn_DIR/petsc-3.4.3/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ArcOn_DIR/petsc-3.4.4/intel-13.0.2.146-MVAPICH2-1.9a2-cxx-opt/lib
+
+#Got to here 5/22
 
 # We can use a bundled deal.ii
 # tar xzfv deal.II.tar.gz
@@ -62,7 +64,13 @@ cmake ../deal.II -DP4EST_DIR=$ArcOn_DIR/p4est -DPETSC-DIR=$PETSC_DIR -DCMAKE_INS
 
 #-DDEAL_II_WITH_HDF5=ON -DDEAL_II_WITH_NETCDF=ON
 
-make install
+# make install
+
+chmod -R g+rwX .
+
+make -j16 install
+make -j16 setup_tests
+ctest -j16
 
 cd ..
 

@@ -11,7 +11,6 @@ public:
   ~arcOn();
 
   void run ();
-  void ullman_mesh ();
   bool init;
   bool fast_dif;
   bool fast_react;
@@ -23,7 +22,11 @@ public:
 
 private:
   void initialize_massmatrix();
+  void create_mesh ();
+  void recreate_boundary_data();
+  void setup_system();
   void matrixmapper();
+  void create_dg_periodicity();
   double newton_root(double gamma, double kappa);
   double modon(double x, double y, double kappa, double gamma, double c, double a);
   double Ullmann_newton_root(double x_in, double y_in, double b, double C, double m);

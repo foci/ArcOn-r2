@@ -3,6 +3,11 @@ template <int dim>
 void arcOn<dim>::assemble_system()
 {
 
+  for (unsigned int component=0; component< alphadim; ++component){
+    naive_subdomain_solution[component] = 0.0;
+    subdomain_solution[component] = naive_subdomain_solution[component];
+  }
+  
   if(loading_solution == true){
 
     for (unsigned int component=0; component< alphadim; ++component){
@@ -54,64 +59,104 @@ void arcOn<dim>::assemble_system()
 
   }
 
-  static_periodicity_map(subdomain_solution,0.0);
-  assemble_stiffness(subdomain_solution,0.0);
-  //assemble_cont_stiffness(subdomain_solution,0.0);
 
-  //poisson_matrix.block(0,0).vmult(subdomain_solution[1].block(0),subdomain_solution[2].block(0));
+  bool dyn_adaptation = false;
 
-  //glob_min_ribbon_density = 0.0;
+  if (!dyn_adaptation){
+    
+    static_periodicity_map(subdomain_solution,0.0);
+    assemble_stiffness(subdomain_solution,0.0);
+    //assemble_cont_stiffness(subdomain_solution,0.0);
+    
+    //poisson_matrix.block(0,0).vmult(subdomain_solution[1].block(0),subdomain_solution[2].block(0));
+    
+    //glob_min_ribbon_density = 0.0;
+    
+    periodicity_map(subdomain_solution,0.0);
+    assemble_sigma(subdomain_solution,0.0,0.0);
+    periodicity_map(subdomain_solution,0.0);
+    
+    //calc_poisson(subdomain_solution,0.0);
+    //periodicity_map(subdomain_solution,0.0);
+  }
 
-  periodicity_map(subdomain_solution,0.0);
-  assemble_sigma(subdomain_solution,0.0,0.0);
-  periodicity_map(subdomain_solution,0.0);
+  else {
 
-  //calc_poisson(subdomain_solution,0.0);
-  //periodicity_map(subdomain_solution,0.0);
-
-  bool dyn_adaptation = true;
-  if (dyn_adaptation){
+    static_periodicity_map(subdomain_solution,0.0);
+    periodicity_map(subdomain_solution,0.0);
 
     //Vector<double> subdomain_solution_holder (dof_handler.size());
     subdomain_solution_holder = subdomain_solution;
     
     Vector<float> alpha_measure(triangulation.n_active_cells());
-
+    
     unsigned int qud_pts = (unsigned int)std::ceil(3.0*(double)degree/2.0 - 1.0/2.0);
-
-    KellyErrorEstimator<dim>::estimate (*dof_handler[1],
+    
+    std::vector< bool > mask_component(dim+1);
+    
+    mask_component[0] = true; 
+    mask_component[1] = false; 
+    mask_component[2] = false; 
+      
+    KellyErrorEstimator<dim>::estimate (*dof_handler[0],
 					QGauss<dim-1>(qud_pts),
 					typename FunctionMap<dim>::type(),
-					subdomain_solution[1],
-					alpha_measure);    
-    
-
+					subdomain_solution[0],
+					alpha_measure
+					//mask_component  //Use component mask = 1,0,0 fe_collection[1].
+					);   
+      
+      
     parallel::distributed::GridRefinement::
       refine_and_coarsen_fixed_number (triangulation,
 				       alpha_measure,
 				       0.3, 0.03);
-    
+      
     triangulation.prepare_coarsening_and_refinement();
+      
+    //Vector of soltrans
+      
+    parallel::distributed::SolutionTransfer<dim,PETScWrappers::MPI::BlockVector> soltrans0(*dof_handler[0]);
+    parallel::distributed::SolutionTransfer<dim,PETScWrappers::MPI::BlockVector> soltrans1(*dof_handler[1]);
+    parallel::distributed::SolutionTransfer<dim,PETScWrappers::MPI::BlockVector> soltrans2(*dof_handler[2]);
+      
+    soltrans0.prepare_for_coarsening_and_refinement(subdomain_solution_holder[0]);
+    soltrans1.prepare_for_coarsening_and_refinement(subdomain_solution_holder[1]);
+    soltrans2.prepare_for_coarsening_and_refinement(subdomain_solution_holder[2]);
+      
+    triangulation.execute_coarsening_and_refinement();
+      
+    //dof_handler[component]->distribute_dofs(*(fe_collection[component]));
+    // run setup
 
-   for (unsigned int component=0; component< alphadim; ++component){
-     
-     parallel::distributed::SolutionTransfer<dim,PETScWrappers::MPI::BlockVector> soltrans(*dof_handler[component]);
-     soltrans.prepare_for_coarsening_and_refinement(subdomain_solution_holder[component]);
-     triangulation.execute_coarsening_and_refinement();
+    recreate_boundary_data();
 
-     dof_handler[component]->distribute_dofs(*(fe_collection[component]));
-
-     naive_subdomain_solution[component] = subdomain_solution_holder[component];
-
-     soltrans.interpolate(naive_subdomain_solution[component]);
-          
-     //dof_handler[component]->clear();
-     
-   }
-
-   subdomain_solution = naive_subdomain_solution;
-   
+    setup_system();
+    matrixmapper();
+    create_dg_periodicity();
+      
+    for (unsigned int component=0; component< alphadim; ++component){
+	
+      naive_subdomain_solution[component] = subdomain_solution_holder[component];
+	
+      //dof_handler[component]->clear();
+	
+    }
+      
+    soltrans0.interpolate(naive_subdomain_solution[0]);
+    soltrans1.interpolate(naive_subdomain_solution[1]);
+    soltrans2.interpolate(naive_subdomain_solution[2]);
+      
+    subdomain_solution = naive_subdomain_solution;
+ 
+    static_periodicity_map(subdomain_solution,0.0);
+    assemble_stiffness(subdomain_solution,0.0);
+    periodicity_map(subdomain_solution,0.0);
+    assemble_sigma(subdomain_solution,0.0,0.0);
+    periodicity_map(subdomain_solution,0.0);
+      
   }
+
 
   fast_react = false;
   fast_dif = false;

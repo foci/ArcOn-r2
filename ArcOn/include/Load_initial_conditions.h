@@ -40,7 +40,7 @@ void arcOn<dim>::load_initial_conditions(SolutionVector& subdomain_solution, uns
   double rho_s = .2;
   double y_length = 314.0;
   double mhmm = 2.0;
-  double eps = 0.3;
+  double eps = 0.2;
 
 
 
@@ -176,20 +176,32 @@ void arcOn<dim>::load_initial_conditions(SolutionVector& subdomain_solution, uns
 	      alpha_sum[component](i) += qpvalue( component )
 		*fe_values[*(alpha[component])].value(i,q)*JxW[q];
 
-	      if (component == 2 && init_flag ==  1){
-	      	//alpha_sum[component](i) += qpvalue( component )
-	      	//*fe_values[*(alpha[component])].value(i,q)*JxW[q];
-	      
-		alpha_sum[component](i) +=  rho_s * UllmannMap(quadrature_point[q](0),1.0,quadrature_point[q](1),y_length,x_sol,eps,mhmm)
-	      	  *fe_values[*(alpha[component])].value(i,q)*JxW[q];
-
-	      	//pcout << "modon = " << modon(quadrature_point[q](0)-5.0, quadrature_point[q](1)-5.0, kappa, gamma,c,a)  << std::endl;
+	      /* //Ullmann */
+	      /* if (component == 1 && init_flag ==  1){ */
+	      /* 	//alpha_sum[component](i) += qpvalue( component ) */
+	      /* 	//\*fe_values[*(alpha[component])].value(i,q)*JxW[q]; */
 		
-	      	/* else if  (component == 1){ */
-	      	/*   alpha_sum[component](i) += modon */
-	      	/*     *fe_values[*(alpha[component])].value(i,q)*JxW[q]; */
-	      	/* } */
-	      }
+	      /* 	double x_in = quadrature_point[q](0)/5.0; */
+	      /* 	double y_in =  quadrature_point[q](1); */
+	      
+	      /* 	//pcout << "x_pre = " << x_in << ", y_pre = " << y_in << std::endl; */
+
+	      /* 	double Ulmap = UllmannMap(x_in, 1.0, y_in, y_length, x_sol, eps, mhmm); */
+	      /* 	if ( UllmannMap(x_in, 1.0, y_in, y_length, x_sol, eps, mhmm) < 0.0 ) {Ulmap = 0.0;} */
+
+	      /* 	alpha_sum[component](i) +=  (2.0*rho_s / Ulmap) */
+	      /* 	  *fe_values[*(alpha[component])].value(i,q)*JxW[q]; */
+
+	      /* 	//pcout << "modon = " << modon(quadrature_point[q](0)-5.0, quadrature_point[q](1)-5.0, kappa, gamma,c,a)  << std::endl; */
+		
+	      /* 	/\* else if  (component == 1){ *\/ */
+	      /* 	/\*   alpha_sum[component](i) += modon *\/ */
+	      /* 	/\*     *fe_values[*(alpha[component])].value(i,q)*JxW[q]; *\/ */
+	      /* 	/\* } *\/ */
+	      /* } */
+
+
+
 	      /* else if (component == 0 && init_flag == 2){ */
 
 	      /* 	double phi = prev_soln_alpha[0][q]; */
