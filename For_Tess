@@ -1,0 +1,17 @@
+1) Get access to stampede from Francois
+
+2) login to stampede:
+
+from terminal:
+
+ssh loginname@stampede.tacc.utexas.edu
+
+3) type: cdw (this is your home directory)
+
+4) module load git
+
+5) git clone https://github.com/foci/ArcOn-r2.git
+
+6) cd ArcOn-r2
+
+7) . ArcOn_install (will take about 1 hour or so)

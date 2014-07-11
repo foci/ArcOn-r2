@@ -68,9 +68,11 @@ cmake ../deal.II -DP4EST_DIR=$ArcOn_DIR/p4est -DPETSC-DIR=$PETSC_DIR -DCMAKE_INS
 
 chmod -R g+rwX .
 
-make -j16 install
-make -j16 setup_tests
-ctest -j16
+make install
+
+#make -j16 install
+#make -j16 setup_tests
+#ctest -j16
 
 cd ..
 
