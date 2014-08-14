@@ -18,15 +18,16 @@ PWD = os.getenv('PWD','/tmp')
 WORK = os.getenv('WORK','/work/01523/meyerson/')
 utc = datetime.utcnow()
 
+#These are ancillary included files ... necessary
 sys.path.append(HOME+'/local/python')
-
 cmd_folder = WORK+'/BOUT_sims/blob_py'
+
 if cmd_folder not in sys.path:
      sys.path.insert(0, cmd_folder)
 
 print HOME
 
-import numpy as np
+import numpy as np 
 #from blob_info import blob_info, Blob2D
 from frame import Frame, FrameMovie
 from blob_info import blob_info, Blob2D
@@ -35,7 +36,7 @@ from blob_info import blob_info, Blob2D
 from paraview.simple import *
 from array import *
 
-
+#define a function
 def vtk_to_array(vtk_array):
     at = vtk_array.GetDataType()
     if at == 11:
@@ -49,18 +50,18 @@ def vtk_to_array(vtk_array):
     vtk_array.ExportToVoidPointer(r)
     return r
 
-
-#start reading
+#define a function
+#start reading at pos i 
 def get_pos(i):
-    print base_dir+all_pvtus[i]
+    print base_dir+all_pvtus[i] #this comes from some import from above
     r.FileName = base_dir+all_pvtus[i]
     r.UpdatePipeline()
 
     z = servermanager.Fetch(r)
 
-    pos =  z.GetPoints()
+    pos =  z.GetPoints() #grabs positions in xyz
 
-    xmin,xmax,ymin,ymax,zmin,zmax = np.round(pos.GetBounds())
+    xmin,xmax,ymin,ymax,zmin,zmax = np.round(pos.GetBounds()) 
         
     print xmin,xmax,ymin,ymax,zmin,zmax
     numPoints = pos.GetNumberOfPoints()
@@ -82,31 +83,28 @@ def get_pos(i):
     x,y = flatx,flaty
 
     print (x-np.roll(x,1))[1:-2]
+    #probably depends on regular grid
     dx = np.mean((x-np.roll(x,1))[1:-2])
-
     dy = np.mean((y-np.roll(y,1))[1:-2])
     dy = (y.max() - y.min())/np.round((y.max() - y.min())/dy)
-    
+    #creates linspace in the matlab sense
     y = np.linspace(y.min(),y.max(),1.*np.round((y.max() - y.min())/dy))
-
+    #returns dictionary
     return {'orig':(allx,ally),'new':(x,y)},dx,dy,xmax-xmin,ymax-ymin
-
 
 def read_data(base_dir,all_files,pos,cached=False):
     
-    
-    if cached:
+    if cached: #to save time
         Hist = (np.load('lastX.npy')).item()
         x = Hist['x']
         y = Hist['y']
         out = Hist['n']
         return out
 
-    out = []
+    out = [] #empty list declaration
         
-    for files in all_files:
+    for files in all_files: #passed to read data
         print base_dir+files
-
 
         r.FileName = base_dir+files
         r.UpdatePipeline()
@@ -117,9 +115,9 @@ def read_data(base_dir,all_files,pos,cached=False):
  
         a = pdata.GetArray('alpha_0')
 
-        data = vtk_to_array(a)
+        data = vtk_to_array(a) #send to a standard python array
 
-        x,y = pos
+        x,y = pos #needs to have right dimension (xy)
 
         allx = pos['orig'][0]
         ally = pos['orig'][1]
@@ -127,6 +125,7 @@ def read_data(base_dir,all_files,pos,cached=False):
         x = pos['new'][0]
         y = pos['new'][1]
         
+        #python thing, 
         out.append(griddata((allx, ally),data, (x[None,:], y[:,None]), method='cubic'))
         
     out = np.array(out)   
