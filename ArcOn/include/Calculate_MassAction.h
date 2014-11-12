@@ -158,7 +158,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 
 	    double l_x = 100;    //x domain size
 	    double phi_b;     //bias voltage function defined by bump funtion  (corresponds to 2nd plate in Helimak)
-	    //double volt_b = 0.02 ; //-0.20;    //bias voltage value
+	    double volt_b = 0.02 ; //-0.20;    //bias voltage value
 	    double center = 43.764; //quadrature_point[q_cent][0];    //center of the bias plate ~0.43764*(x_domain)
 
 	    for (unsigned int q=0; q<n_q_points; ++q){
@@ -173,7 +173,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 
 		if(abs(center - quadrature_point[q][0]) < .1*l_x){  //width of plate is 2*.1*l_x
 		  
-		  phi_b = bias_parameter*exp(-0.1/(1-pow(.1*(center - quadrature_point[q][0]),2.0))+0.1);} 
+		  phi_b = volt_b*exp(-0.1/(1-pow(.1*(center - quadrature_point[q][0]),2.0))+0.1);} 
 		
 		else {
 		  
