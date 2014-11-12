@@ -93,6 +93,8 @@ void arcOn<dim>::run()
 
   setup_system();
 
+  //triangulation.refine_global (refinements);
+
   matrixmapper();
 
   create_dg_periodicity();

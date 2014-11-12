@@ -257,7 +257,7 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
 	    }
 	  }
       
-      
+    
       poisson_rhs.compress (VectorOperation::insert);
     
       SolverControl solver_control (n_iters, conv_threshold, true, true);

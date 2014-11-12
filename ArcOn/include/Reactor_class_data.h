@@ -407,6 +407,10 @@ private:
   unsigned int RKtype;
   double eps_const;
   unsigned int modulus;
+  unsigned int output_type;
+  double CFL_scaling;
+  double Time_ramp;
+
 
   FullMatrix<double> RK_alpha;
   FullMatrix<double> RK_beta;
@@ -428,6 +432,7 @@ private:
 
   bool artificial_visc;
   double e1;
+  double e1_density, e1_vorticity, s0_density, s0_vorticity, kappa_density, kappa_vorticity;
   double bpen;
   double e0; //1e-2*(cell->diameter())/(max_degree);     
   double notes;
@@ -437,11 +442,15 @@ private:
   double lnSe;
 
   unsigned int elliptic_type;
+  unsigned int solver_type;
   double sigma_prefactor;
 
   double cell_fraction;
   double Mass_dif;
   double Vort_dif;
+  double alpha_parameter;
+  double beta_parameter;
+  double bias_parameter;
   Vector<double> difs;
 
   double refine_above;

@@ -1,17 +1,20 @@
-#Mesh parameters
+# Mesh parameters
    subsection Mesh
-	set Number of spatial refinements = 5 #8
+	set Number of spatial refinements = 4 #8
 	set Polynomial Degree = 3
    end 
-#Physical parameters
+# Physical parameters
    subsection Physics
-	set Mass diffusion = 1e-2
-	set Vorticity diffusion = 1e-2
+	set Mass diffusion = 1e-8
+	set Vorticity diffusion = 1e-8
+	set alpha = 8e-8
+	set beta = 4e-6 #5e-4
+	set bias = 0.020
    end 
-#Runtime
+# Runtime
    subsection Time
-	set Timestep size dt = 0.0100 #make sure small enough
-	set Number of timesteps = 100 #3000000 #2000000
+	set Timestep size dt = 0.000100 #make sure small enough
+	set Number of timesteps = 2000000 # 30000000 #2000000
 	set Hard endtime = 50000.0 #10142.15 #35000.0
 	set fstep = 0
 	set RK order = 2
@@ -19,30 +22,39 @@
 	set Method = 1 # 1 = explicit, 2 = IMEX
 	set RK type = 1 # 1 = RKSSP, 2 = RKC
 	set eps = 0.153846154 # RKC-epsilon
-	set Output_modulus = 10 #3000
+	set Output_modulus = 1000 #000 #3000
+	set Output type = 1 # discontinuous=0, continuous=1
+	set CFL scaling = 15.0
+	set Ramp = 0
    end
-#Regularizating parameters
+# Regularizating parameters
    subsection Regularity
-	set Artificial diffusion = false
-	set epsilon weight = 1.e-1
+	set Artificial diffusion = true
+	set epsilon weight density = 5e-2
+	set epsilon weight vorticity = 5e-2
+	set s0 for density = 2.0
+	set s0 for vorticity = 0.4
+	set kappa for density = 0.5
+	set kappa for vorticity = 0.1
 	set Brezzi_penalty = 20.0 #30.0
    end 
-#Convergence
+# Convergence
    subsection Convergence
-	set Threshold = 1.0e-4
-	set Iterations = 100000
+	set Threshold = 1.0e-5
+	set Iterations = 10000
 	set Fast Threshold = 1e-10
 	set Fast Iterations = 100
    end
-#Loading/Saving
-   subsection EllipticSolver	
+# Elliptic solver information
+   subsection EllipticSolver
+   	set Continuity type = 0 # DG=0, CG=1	
         set Penalty type = 1 # SIPG=1,NIPG=-1,IIPG=0
-        set Sigma penalty = 150.0 # 200.0
+        set Sigma penalty = 200.0 # 200.0
    end
-#Loading/Saving
+# Loading/Saving
    subsection SavedSolution
 	set Load = false
-	set Save = true
+	set Save = false #true
 	set h    = 10
         set p    = 10
    end

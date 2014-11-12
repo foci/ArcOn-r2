@@ -91,7 +91,7 @@ void arcOn<dim>::revert_vacuum(SolutionVector& subdomain_solution, double delta_
     //global_Avg /=  n_mpi_processes;
     global_Avg /= gtotal_volume;
     
-     pcout << "global_AVG = " << global_Avg << ", global_volume = " << gtotal_volume << std::endl;
+    //pcout << "global_AVG = " << global_Avg << ", global_volume = " << gtotal_volume << std::endl;
     
     // naive_subdomain_solution[2].block(0) = subdomain_solution[2].block(0);
     //if (global_Avg < 0.0){

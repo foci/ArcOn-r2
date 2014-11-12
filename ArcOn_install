@@ -53,12 +53,14 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ArcOn_DIR/petsc-3.4.4/intel-13.0.2.146-
 # tar xzfv deal.II-7.3.0.tar.gz 
 # or just checkout the newest svn
 
-svn checkout https://svn.dealii.org/trunk/deal.II
+git clone https://github.com/dealii/dealii.git
+#svn checkout https://svn.dealii.org/trunk/deal.II
 
 mkdir build
 cd build
 
-cmake ../deal.II -DP4EST_DIR=$ArcOn_DIR/p4est -DPETSC-DIR=$PETSC_DIR -DCMAKE_INSTALL_PREFIX=$ArcOn_DIR/trigger -DDEAL_II_WITH_THREADS=OFF 
+cmake ../dealii -DP4EST_DIR=$ArcOn_DIR/p4est -DPETSC-DIR=$PETSC_DIR -DCMAKE_INSTALL_PREFIX=$ArcOn_DIR/trigger -DDEAL_II_WITH_THREADS=OFF -DDEAL_II_WITH_BOOST=ON -DBOOST_DIR=$TACC_BOOST_DIR
+#cmake ../dealii -DP4EST_DIR=$ArcOn_DIR/p4est -DPETSC-DIR=$PETSC_DIR -DCMAKE_INSTALL_PREFIX=$ArcOn_DIR/trigger -DDEAL_II_WITH_THREADS=OFF 
 
 #-DDEAL_II_WITH_METIS=ON --DMETIS_DIR=$PETSC_DIR
 

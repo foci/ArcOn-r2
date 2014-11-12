@@ -140,6 +140,15 @@ void ParameterReader::declare_parameters()
     prm.declare_entry("Vorticity diffusion", "0",
 		      Patterns::Double(0),
 		      "Diffusion in vorticity transport");
+    prm.declare_entry("alpha", "0",
+		      Patterns::Double(0),
+		      "alpha parameter");
+    prm.declare_entry("beta", "0",
+		      Patterns::Double(0),
+		      "beta parameter");
+    prm.declare_entry("bias", "0",
+		      Patterns::Double(0),
+		      "bias scaling");
   }
   prm.leave_subsection ();
 
@@ -181,6 +190,15 @@ void ParameterReader::declare_parameters()
     prm.declare_entry("Output_modulus", "1",
 		      Patterns::Integer(0),
 		      "Output solution at every 'modulus'");
+    prm.declare_entry("Output type", "0",
+		      Patterns::Integer(0),
+		      "Output continuous or discontinuous data");
+    prm.declare_entry("CFL scaling", "10.0",
+                      Patterns::Double(0),
+                      "nonlinear CFL constant");
+    prm.declare_entry("Ramp", "0.0",
+                      Patterns::Double(0),
+                      "Time ramp");
   }
   prm.leave_subsection ();
 
@@ -189,9 +207,24 @@ void ParameterReader::declare_parameters()
     prm.declare_entry("Artificial diffusion", "false",
 		      Patterns::Bool(),
 		      "Should artificial diffusion be turned on?");
-    prm.declare_entry("epsilon weight", "0",
+    prm.declare_entry("epsilon weight density", "0",
 		      Patterns::Double(0),
 		      "Artificial diffusion = epsilon_weight*local_entropy");
+    prm.declare_entry("epsilon weight vorticity", "0",
+		      Patterns::Double(0),
+		      "Artificial diffusion = epsilon_weight*local_entropy");
+    prm.declare_entry("s0 for density", "0",
+		      Patterns::Double(0),
+		      "Artificial diffusion parameter");
+    prm.declare_entry("s0 for vorticity", "0",
+		      Patterns::Double(0),
+		      "Artificial diffusion parameter");
+   prm.declare_entry("kappa for density", "0",
+		      Patterns::Double(0),
+		      "Artificial diffusion parameter");
+   prm.declare_entry("kappa for vorticity", "0",
+		      Patterns::Double(0),
+		      "Artificial diffusion parameter");
     prm.declare_entry("Brezzi_penalty", "0",
 		      Patterns::Double(0),
 		      "Coeff for penalty method");
@@ -218,6 +251,9 @@ void ParameterReader::declare_parameters()
 
   prm.enter_subsection ("EllipticSolver");
   {
+    prm.declare_entry("Continuity type", "0",
+                      Patterns::Integer(0),
+                      "Continuous Galerkin (1) or discontinuous Galerkin (0)");
     prm.declare_entry("Penalty type", "1",
                       Patterns::Integer(0),
                       "SIPG = 1, NIPG = -1, IIPG = 0");
@@ -282,6 +318,10 @@ bool fast = false;
 #include <Runge_Kutta_integrator.h>
 #include <MassMatrix.h>
 #include <MatrixMapper.h>
+#include <Recreate_boundary_data.h>
+#include <Create_mesh.h>
+#include <Setup_system.h>
+#include <Create_DG_periodicity.h>
 #include <Assemble_system.h>
 #include <Load_initial_conditions.h>
 #include <Load_top.h>
@@ -294,7 +334,9 @@ bool fast = false;
 #include <Revert_vacuum.h>
 #include <Slope_limiter.h>
 #include <Assemble_stiffness.h>
+#include <Assemble_cont_stiffness.h>
 #include <Calculate_Poisson.h>
+#include <Calculate_Poisson_Continuous.h>
 #include <Compute_l2_error.h>
 #include <Compute_cm.h>
 #include <Compute_l2_interpolation.h>

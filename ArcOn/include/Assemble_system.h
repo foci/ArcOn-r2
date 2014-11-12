@@ -6,6 +6,8 @@ void arcOn<dim>::assemble_system()
   for (unsigned int component=0; component< alphadim; ++component){
     naive_subdomain_solution[component] = 0.0;
     subdomain_solution[component] = naive_subdomain_solution[component];
+    cont_output1[component] = 0.0;
+    cont_global[component] = cont_output1[component];
   }
   
   if(loading_solution == true){
@@ -65,8 +67,10 @@ void arcOn<dim>::assemble_system()
   if (!dyn_adaptation){
     
     static_periodicity_map(subdomain_solution,0.0);
-    assemble_stiffness(subdomain_solution,0.0);
-    //assemble_cont_stiffness(subdomain_solution,0.0);
+    if (solver_type == 0)
+      {assemble_stiffness(subdomain_solution,0.0);}
+    else
+      {assemble_cont_stiffness(subdomain_solution,0.0);}
     
     //poisson_matrix.block(0,0).vmult(subdomain_solution[1].block(0),subdomain_solution[2].block(0));
     
@@ -150,7 +154,14 @@ void arcOn<dim>::assemble_system()
     subdomain_solution = naive_subdomain_solution;
  
     static_periodicity_map(subdomain_solution,0.0);
-    assemble_stiffness(subdomain_solution,0.0);
+    if (solver_type == 0)
+      {
+	assemble_stiffness(subdomain_solution,0.0);
+      }
+    else
+      {
+	assemble_cont_stiffness(subdomain_solution,0.0);
+      }
     periodicity_map(subdomain_solution,0.0);
     assemble_sigma(subdomain_solution,0.0,0.0);
     periodicity_map(subdomain_solution,0.0);
@@ -198,8 +209,8 @@ void arcOn<dim>::assemble_system()
       dt = CFL_bound;
       //pcout << "h_min_dist2= " << h_min_dist << ", CFL_bound2 = " << CFL_bound << std::endl;
       //pcout << "dt (" << step << " ) = " << h_min_dist / ((2.0*degree+1.0)*(CFL_bound)) << std::endl;
-      pcout << "Max Jump in domain =" << gmax_jump <<std::endl;
-      pcout << "Timestep = " << CFL_bound <<std::endl;
+      //pcout << "Max Jump in domain =" << gmax_jump <<std::endl;
+      pcout << "Timestep = " << CFL_bound <<  ", Step(" << stepper << ") = " << current_time_s << std::endl;
     }
 
     current_time_s = current_time_s + dt;
@@ -337,10 +348,15 @@ void arcOn<dim>::assemble_system()
 
     periodicity_map(subdomain_solution,dt);
 
-    calc_poisson(subdomain_solution,dt);
-
-    //calc_poisson_cont(subdomain_solution,dt);
-
+    if (solver_type == 0)
+      {
+	calc_poisson(subdomain_solution,dt);
+      }
+    else
+      {
+	calc_poisson_cont(subdomain_solution,dt);
+      }
+    
     revert_vacuum(subdomain_solution,dt,current_time_s);
 
     periodicity_map(subdomain_solution,dt);
@@ -348,7 +364,14 @@ void arcOn<dim>::assemble_system()
     assemble_sigma(subdomain_solution,current_time_s,dt);
 
     periodicity_map(subdomain_solution,dt);
- 
+
+
+    //assemble_sigma(subdomain_solution,current_time_s,dt);
+
+    //periodicity_map(subdomain_solution,dt);
+    //------------------?
+
+
     /* compute_l2_error(subdomain_solution,current_time_s); */
     /* //compute_l2_interpolation(subdomain_solution); */
 

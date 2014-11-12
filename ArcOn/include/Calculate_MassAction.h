@@ -17,15 +17,24 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 						       updateflags | update_normal_vectors ));
   }
   
+
+    /* We can using ramping to avoid shocking the system */
+  double dramp;
+  if (Time_ramp > 1.0e-5){
+    dramp  = std::tanh( 2.0*( current_time/Time_ramp ) );
+  }
+  else{
+    dramp = 1.0;
+  }
+
+  double alph = alpha_parameter*dramp; //1e-4 + dramp*alph_0;
+  
   for (unsigned int component=0; component< alphadim-1; ++component){
 
     std::vector<double> transport_alphas(alphadim,0);
     Functionals<dim> functionals;
 
-    /* We can using ramping to avoid shocking the system */
-    double ramp = 0.5; // ramp time in seconds
-    double dramp  = 1.0; //std::tanh( 2.0*( current_time/ramp ) ); 
-    
+
     typename DoFHandler<dim>::active_cell_iterator 
       cell = dof_handler[component]->begin_active(), 
       endc = dof_handler[component]->end();
@@ -71,7 +80,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	  //double rseed = Utilities::generate_normal_random_number(0.0,0.25); 	
 	
 	  if (component == 0){
-	    double alph = 1e-4; //5e-4;
+	    //double alph = 8e-4; //5e-4;
 	    double gam = 1.0; //2e-2;
 	    double sqrt2pi = 2.506628275;
 	    double sigs = 0.002*290.0;
@@ -85,7 +94,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 		//if(ncopated[component][q]>0.0){
 
 		//good one
-		mass_action(component,i) -= ( -3.0*alph*std::exp(-std::pow(quadrature_point[q][0]-225.0,2.0)/200.0)/std::exp(syncopated[0][q]) + alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q];
+		mass_action(component,i) -= ( -7.0*alph*std::exp(-std::pow(quadrature_point[q][0]-37.0,2.0)/144.0)/std::exp(syncopated[0][q]) + alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q];
 		  //( -3.0*alph*std::exp(-std::pow(quadrature_point[q][0]-59.0,2.0)/0.10)/std::exp(syncopated[0][q]) + alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
 
 		//mass_action(component,i) += ( 3.0*alph*(1.0+std::abs(std::sin(0.08*quadrature_point[q][1]))*std::exp(-0.5*std::pow(quadrature_point[q][0],2.0)/std::pow(sigs,2.0))) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
@@ -143,14 +152,38 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	  //if (current_time>1000.0){
 	  if (component == 1){
 	    fe_values[*(alpha[2])].get_function_values(subdomain_solution[2],syncopated[2]);
-	    double alph = 1e-4; //5e-4;
+	    int q_cent = 0.43764*n_q_points; //Where the bias plate is centered --> center bump function here 
+	    //double alph_0 = 8e-4 - 1e-4; //5e-4;
+	    double some_constant = 0.5;
+
+	    double l_x = 100;    //x domain size
+	    double phi_b;     //bias voltage function defined by bump funtion  (corresponds to 2nd plate in Helimak)
+	    //double volt_b = 0.02 ; //-0.20;    //bias voltage value
+	    double center = 43.764; //quadrature_point[q_cent][0];    //center of the bias plate ~0.43764*(x_domain)
+
 	    for (unsigned int q=0; q<n_q_points; ++q){
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 	  	// mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q)
 
-		mass_action(component,i) += alph*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q]) *JxW[q];
+		//double phi_b = some_constant*quadrature_point[q][0];
+
+
+		//		mass_action(component,i) += alph*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q]/* - phi_b*/ ) *JxW[q];
+
+
+		if(abs(center - quadrature_point[q][0]) < .1*l_x){  //width of plate is 2*.1*l_x
+		  
+		  phi_b = bias_parameter*exp(-0.1/(1-pow(.1*(center - quadrature_point[q][0]),2.0))+0.1);} 
 		
-	  	  /* double xpt = quadrature_point[q][0]; */
+		else {
+		  
+		  phi_b = 0.0;}
+
+		mass_action(component,i) += alph*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q] - phi_b ) *JxW[q];
+
+
+
+		/* double xpt = quadrature_point[q][0]; */
 	  	  /* double ypt = quadrature_point[q][1]; */
 
 	  	  /* double ga = 0.1; */

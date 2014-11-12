@@ -1,0 +1,8 @@
+/scratch/03066/tnb576/ArcOn-r2_recover/ArcOn-r2/trigger/examples/step-01/CMakeFiles/debug.dir
+/scratch/03066/tnb576/ArcOn-r2_recover/ArcOn-r2/trigger/examples/step-01/CMakeFiles/distclean.dir
+/scratch/03066/tnb576/ArcOn-r2_recover/ArcOn-r2/trigger/examples/step-01/CMakeFiles/info.dir
+/scratch/03066/tnb576/ArcOn-r2_recover/ArcOn-r2/trigger/examples/step-01/CMakeFiles/release.dir
+/scratch/03066/tnb576/ArcOn-r2_recover/ArcOn-r2/trigger/examples/step-01/CMakeFiles/run.dir
+/scratch/03066/tnb576/ArcOn-r2_recover/ArcOn-r2/trigger/examples/step-01/CMakeFiles/runclean.dir
+/scratch/03066/tnb576/ArcOn-r2_recover/ArcOn-r2/trigger/examples/step-01/CMakeFiles/step-01.dir
+/scratch/03066/tnb576/ArcOn-r2_recover/ArcOn-r2/trigger/examples/step-01/CMakeFiles/strip_comments.dir

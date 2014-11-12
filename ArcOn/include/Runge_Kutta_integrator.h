@@ -419,7 +419,7 @@ void arcOn<dim>::setup_RK()
 
       RKC_nu(j) = - RKC_b(j)/RKC_b(j-2);
 
-      RKC_gamma(j) = RKC_a(j-1)*RKC_tildemu(j);
+      RKC_gamma(j) = - RKC_a(j-1)*RKC_tildemu(j);
 
       RKC_c(j) = (std::pow(j,2.0)-1.0)/(std::pow(RK_stage,2.0)-1.0);
 

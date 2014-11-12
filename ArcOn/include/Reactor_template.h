@@ -89,8 +89,8 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
     tquadrature_collection.push_back ( new QGauss<dim>(qud_pts));
     line_tquadrature_collection.push_back ( new QGauss<1>(qud_pts));
     tface_quadrature_collection.push_back ( new QGauss<dim-1>(qud_pts));
-
-    //    tfe_collection.push_back ( new FESystem<dim>(FE_DGQArbitraryNodes<dim>( *line_tquadrature_collection[component] ), 1,
+ 
+   //    tfe_collection.push_back ( new FESystem<dim>(FE_DGQArbitraryNodes<dim>( *line_tquadrature_collection[component] ), 1,
     //						 FE_DGQArbitraryNodes<dim>( *line_tquadrature_collection[component] ), dim));
 
     tfe_collection.push_back ( new FESystem<dim>(FE_Q<dim>(top_deg), 1, 
@@ -113,6 +113,9 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
   prm.enter_subsection("Physics");
   Mass_dif  = prm.get_double("Mass diffusion");
   Vort_dif  = prm.get_double("Vorticity diffusion");
+  alpha_parameter  = prm.get_double("alpha");
+  beta_parameter  = prm.get_double("beta");
+  bias_parameter  = -prm.get_double("bias");
   prm.leave_subsection ();
 
   prm.enter_subsection ("Time");
@@ -126,11 +129,19 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
   RKtype = prm.get_integer("RK type");
   eps_const = prm.get_double("eps");
   modulus = prm.get_integer("Output_modulus");
+  output_type = prm.get_integer("Output type");
+  CFL_scaling = prm.get_double("CFL scaling");
+  Time_ramp = prm.get_double("Ramp");
   prm.leave_subsection ();
 
   prm.enter_subsection("Regularity");
   artificial_visc  = prm.get_bool("Artificial diffusion");
-  e1  = prm.get_double("epsilon weight");
+  e1_density  = prm.get_double("epsilon weight density");
+  e1_vorticity  = prm.get_double("epsilon weight vorticity");
+  s0_density =  prm.get_double("s0 for density");
+  s0_vorticity =  prm.get_double("s0 for vorticity");
+  kappa_density =   prm.get_double("kappa for density");
+  kappa_vorticity =   prm.get_double("kappa for vorticity");
   bpen  = prm.get_double("Brezzi_penalty");
   prm.leave_subsection ();
 
@@ -145,6 +156,7 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
   prm.leave_subsection ();
 
   prm.enter_subsection ("EllipticSolver");
+  solver_type = prm.get_integer("Continuity type");
   elliptic_type = prm.get_integer("Penalty type");
   sigma_prefactor  = prm.get_double("Sigma penalty");
   prm.leave_subsection ();

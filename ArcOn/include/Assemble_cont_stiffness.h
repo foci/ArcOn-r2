@@ -5,8 +5,6 @@ void arcOn<dim>::assemble_cont_stiffness(SolutionVector& subdomain_solution, dou
   (void) delta_t;
 
   std::vector< FEValues<dim>* > hp_fe_values;
-  std::vector< FEFaceValues<dim>* > hp_fe_values_face;
-  std::vector< FEFaceValues<dim>* > hp_fe_values_neigh_face;
 
   double current_time = 1.0;
   for (unsigned int component=0; component< alphadim; ++component){
@@ -16,12 +14,7 @@ void arcOn<dim>::assemble_cont_stiffness(SolutionVector& subdomain_solution, dou
     
     hp_fe_values.push_back (new FEValues<dim>(*(tfe_collection[component]), 
 					      *(tquadrature_collection[component]), updateflags));
-    hp_fe_values_face.push_back (new FEFaceValues<dim>(*(tfe_collection[component]), 
-						       *(tface_quadrature_collection[component]),  
-						       updateflags | update_normal_vectors ));
-    hp_fe_values_neigh_face.push_back (new FEFaceValues<dim>(*(tfe_collection[component]), 
-							     *(tface_quadrature_collection[component]),  
-							     updateflags | update_normal_vectors ));
+
 
     if (component == 2){
 
@@ -60,18 +53,21 @@ void arcOn<dim>::assemble_cont_stiffness(SolutionVector& subdomain_solution, dou
 
 		}
 		//		cont_poisson_matrix.add( local_dof_indices[ i ],
-		//		    local_dof_indices[ j ],
-		//		    A_matrix(i,j));
+		//			 local_dof_indices[ j ],
+		//			 A_matrix(i,j));
 	      }
 	    }
+
+
 	    
 	    telliptic_constraints.distribute_local_to_global(A_matrix,
-							     local_dof_indices,
-							     cont_poisson_matrix);
+	    						     local_dof_indices,
+	    						     cont_poisson_matrix);
 
 	  }
 
-      cont_poisson_matrix.compress (VectorOperation::insert);
+      cont_poisson_matrix.compress (VectorOperation::add);
+
       cont_preconditioner.initialize(cont_poisson_matrix.block(0,0),
 				PETScWrappers::PreconditionBoomerAMG::AdditionalData(true));
       
@@ -79,8 +75,6 @@ void arcOn<dim>::assemble_cont_stiffness(SolutionVector& subdomain_solution, dou
   }
   for (unsigned int component=0; component< alphadim; ++component){  
     delete hp_fe_values[component];
-    delete hp_fe_values_face[component];
-    delete hp_fe_values_neigh_face[component];
   }
 }
 

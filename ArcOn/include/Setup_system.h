@@ -244,84 +244,83 @@ void arcOn<dim>::setup_system()
 
     for (unsigned int bl=0; bl< num_blocks; ++bl){
       
-      subdomain_solution[component].block(bl).reinit(mpi_communicator, 
-						     fesystem_partitioning[bl], 
-						     fesystem_relevant_partitioning[bl] );
-      init_solution[component].block(bl).reinit(mpi_communicator, 
-						fesystem_partitioning[bl], 
-						fesystem_relevant_partitioning[bl] );
-      initial_condition[component].block(bl).reinit(mpi_communicator, 
-						    fesystem_partitioning[bl], 
-						    fesystem_relevant_partitioning[bl] );
-      exact_solution[component].block(bl).reinit(mpi_communicator, 
-						 fesystem_partitioning[bl], 
-						 fesystem_relevant_partitioning[bl] );
-      solution_diff[component].block(bl).reinit(mpi_communicator, 
-						fesystem_partitioning[bl], 
-						fesystem_relevant_partitioning[bl] );
-      div_flux_integrated[component].block(bl).reinit(mpi_communicator, 
-						      fesystem_partitioning[bl], 
-						      fesystem_relevant_partitioning[bl] );
-      MassAction_integrated[component].block(bl).reinit(mpi_communicator, 
-							fesystem_partitioning[bl], 
-							fesystem_relevant_partitioning[bl] );
-
-      subdomain_solution_holder[component].block(bl).reinit(mpi_communicator, 
-							    fesystem_partitioning[bl], 
-							    fesystem_relevant_partitioning[bl] );
-      interpolated_solution_holder[component].block(bl).reinit(mpi_communicator, 
-							       fesystem_partitioning[bl], 
-							       fesystem_relevant_partitioning[bl] );
+      subdomain_solution[component].block(bl).reinit(fesystem_partitioning[bl], 
+						     fesystem_relevant_partitioning[bl],
+						     mpi_communicator);
+      init_solution[component].block(bl).reinit(fesystem_partitioning[bl], 
+						fesystem_relevant_partitioning[bl],
+						mpi_communicator );
+      initial_condition[component].block(bl).reinit(fesystem_partitioning[bl], 
+						    fesystem_relevant_partitioning[bl],
+						    mpi_communicator);
+      exact_solution[component].block(bl).reinit(fesystem_partitioning[bl], 
+						 fesystem_relevant_partitioning[bl],
+						 mpi_communicator);
+      solution_diff[component].block(bl).reinit(fesystem_partitioning[bl], 
+						fesystem_relevant_partitioning[bl],
+						mpi_communicator);
+      div_flux_integrated[component].block(bl).reinit(fesystem_partitioning[bl], 
+						      fesystem_relevant_partitioning[bl],
+						      mpi_communicator);
+      MassAction_integrated[component].block(bl).reinit(fesystem_partitioning[bl], 
+							fesystem_relevant_partitioning[bl],
+							mpi_communicator);
+      subdomain_solution_holder[component].block(bl).reinit(fesystem_partitioning[bl], 
+							    fesystem_relevant_partitioning[bl],
+							    mpi_communicator);
+      interpolated_solution_holder[component].block(bl).reinit(fesystem_partitioning[bl], 
+							       fesystem_relevant_partitioning[bl],
+							       mpi_communicator);
       
-      naive_subdomain_solution[component].block(bl).reinit(mpi_communicator, 
-							   fesystem_partitioning[bl] );
-      naive_div_flux_integrated[component].block(bl).reinit(mpi_communicator, 
-							    fesystem_partitioning[bl] );
-      naive_MassAction_integrated[component].block(bl).reinit(mpi_communicator, 
-							      fesystem_partitioning[bl] );
-      poisson_rhs.block(bl).reinit(mpi_communicator, fesystem_partitioning[bl] );
+      naive_subdomain_solution[component].block(bl).reinit(fesystem_partitioning[bl],
+							   mpi_communicator);
+      naive_div_flux_integrated[component].block(bl).reinit(fesystem_partitioning[bl],
+							    mpi_communicator);
+      naive_MassAction_integrated[component].block(bl).reinit(fesystem_partitioning[bl],
+							      mpi_communicator);
+      poisson_rhs.block(bl).reinit(fesystem_partitioning[bl],mpi_communicator);
 
-      cont_poisson_rhs.block(bl).reinit(mpi_communicator, tfesystem_partitioning[bl] );
+      cont_poisson_rhs.block(bl).reinit( tfesystem_partitioning[bl],mpi_communicator );
 
-      interpolate_base[component].block(bl).reinit(mpi_communicator, 
-						   fesystem_partitioning[bl] );
-      cont_output1[component].block(bl).reinit(mpi_communicator,
-                                                   tfesystem_partitioning[bl] );
-      cont_global[component].block(bl).reinit(mpi_communicator, 
-						     tfesystem_partitioning[bl], 
-						     tfesystem_relevant_partitioning[bl] );
-      revert_output[component].block(bl).reinit(mpi_communicator, 
-						     fesystem_partitioning[bl], 
-						     fesystem_relevant_partitioning[bl] );
-      naive_revert_output[component].block(bl).reinit(mpi_communicator, 
-						      fesystem_partitioning[bl] );
+      interpolate_base[component].block(bl).reinit(fesystem_partitioning[bl],
+						   mpi_communicator);
+      cont_output1[component].block(bl).reinit(tfesystem_partitioning[bl],
+					       mpi_communicator);
+      cont_global[component].block(bl).reinit(tfesystem_partitioning[bl], 
+					      tfesystem_relevant_partitioning[bl],
+					      mpi_communicator);
+      revert_output[component].block(bl).reinit(fesystem_partitioning[bl], 
+						fesystem_relevant_partitioning[bl],
+						mpi_communicator);
+      naive_revert_output[component].block(bl).reinit(fesystem_partitioning[bl],
+						      mpi_communicator);
 
       /* cont_output1[component].block(bl).reinit(mpi_communicator, */
       /*                                                tfesystem_partitioning[bl], */
       /*                                                tfesystem_relevant_partitioning[bl] ); */
-      interpolate_active[component].block(bl).reinit(mpi_communicator, 
-						     ifesystem_partitioning[bl] );
-      proj_solution[component].block(bl).reinit(mpi_communicator, 
-						     fesystem_partitioning[bl] );
+      interpolate_active[component].block(bl).reinit(ifesystem_partitioning[bl],
+						     mpi_communicator);
+      proj_solution[component].block(bl).reinit(fesystem_partitioning[bl],
+						mpi_communicator);
       
-      L2_error_interpolant[component].block(bl).reinit(mpi_communicator, 
-						       tfesystem_partitioning[bl], 
-						       tfesystem_relevant_partitioning[bl] );
-      naive_L2_error_interpolant[component].block(bl).reinit(mpi_communicator, 
-							     tfesystem_partitioning[bl] );
-      L2_error_method[component].block(bl).reinit(mpi_communicator, 
-						  tfesystem_partitioning[bl], 
-						  tfesystem_relevant_partitioning[bl] );
-      naive_L2_error_method[component].block(bl).reinit(mpi_communicator, 
-							tfesystem_partitioning[bl] );
-      L2_interpolate_active[component].block(bl).reinit(mpi_communicator,
-                                                        tfesystem_partitioning[bl] );
+      L2_error_interpolant[component].block(bl).reinit(tfesystem_partitioning[bl], 
+						       tfesystem_relevant_partitioning[bl],
+						       mpi_communicator);
+      naive_L2_error_interpolant[component].block(bl).reinit(tfesystem_partitioning[bl],
+							     mpi_communicator);
+      L2_error_method[component].block(bl).reinit(tfesystem_partitioning[bl], 
+						  tfesystem_relevant_partitioning[bl],
+						  mpi_communicator);
+      naive_L2_error_method[component].block(bl).reinit(tfesystem_partitioning[bl],
+							mpi_communicator);
+      L2_interpolate_active[component].block(bl).reinit(tfesystem_partitioning[bl],
+							mpi_communicator);
       
-      interpolation_error[component].block(bl).reinit(mpi_communicator,
-						      fesystem_partitioning[bl],
-						      fesystem_relevant_partitioning[bl] );
-      naive_interpolation_error[component].block(bl).reinit(mpi_communicator,
-							    fesystem_partitioning[bl] );
+      interpolation_error[component].block(bl).reinit(fesystem_partitioning[bl],
+						      fesystem_relevant_partitioning[bl],
+						      mpi_communicator);
+      naive_interpolation_error[component].block(bl).reinit(fesystem_partitioning[bl],
+							    mpi_communicator);
 
 
     }
@@ -376,28 +375,28 @@ void arcOn<dim>::setup_system()
 
       for (unsigned int bl=0; bl< num_blocks; ++bl){
 	
-	RK_solution[s][component].block(bl).reinit(mpi_communicator, 
-						   fesystem_partitioning[bl], 
-						   fesystem_relevant_partitioning[bl] );
-	RK_div_flux[s][component].block(bl).reinit(mpi_communicator, 
-						   fesystem_partitioning[bl], 
-						   fesystem_relevant_partitioning[bl] );
-	RK_MassAction[s][component].block(bl).reinit(mpi_communicator, 
-						     fesystem_partitioning[bl], 
-						     fesystem_relevant_partitioning[bl] );
+	RK_solution[s][component].block(bl).reinit(fesystem_partitioning[bl], 
+						   fesystem_relevant_partitioning[bl],
+						   mpi_communicator);
+	RK_div_flux[s][component].block(bl).reinit(fesystem_partitioning[bl], 
+						   fesystem_relevant_partitioning[bl],
+						   mpi_communicator);
+	RK_MassAction[s][component].block(bl).reinit(fesystem_partitioning[bl], 
+						     fesystem_relevant_partitioning[bl],
+						     mpi_communicator);
 
-	naive_RK_solution[s][component].block(bl).reinit(mpi_communicator, 
-							 fesystem_partitioning[bl] );
-	naive_RK_solution_temp[s][component].block(bl).reinit(mpi_communicator, 
-							 fesystem_partitioning[bl] );
-	naive_RK_div_flux[s][component].block(bl).reinit(mpi_communicator, 
-							 fesystem_partitioning[bl] );
-	naive_RK_div_flux_temp[s][component].block(bl).reinit(mpi_communicator, 
-							 fesystem_partitioning[bl] );
-	naive_RK_MassAction[s][component].block(bl).reinit(mpi_communicator, 
-							   fesystem_partitioning[bl] );
-	naive_RK_MassAction_temp[s][component].block(bl).reinit(mpi_communicator, 
-							   fesystem_partitioning[bl] );
+	naive_RK_solution[s][component].block(bl).reinit(fesystem_partitioning[bl],
+							 mpi_communicator);
+	naive_RK_solution_temp[s][component].block(bl).reinit(fesystem_partitioning[bl],
+							      mpi_communicator);
+	naive_RK_div_flux[s][component].block(bl).reinit(fesystem_partitioning[bl],
+							 mpi_communicator);
+	naive_RK_div_flux_temp[s][component].block(bl).reinit(fesystem_partitioning[bl],
+							      mpi_communicator);
+	naive_RK_MassAction[s][component].block(bl).reinit(fesystem_partitioning[bl],
+							   mpi_communicator);
+	naive_RK_MassAction_temp[s][component].block(bl).reinit(fesystem_partitioning[bl],
+								mpi_communicator);
 	
       }
 
@@ -451,6 +450,8 @@ void arcOn<dim>::setup_system()
     tparahyp_constraints[component].close ();
 
     poisson_matrix.reinit(num_blocks,num_blocks);
+    cont_poisson_matrix.reinit(num_blocks,num_blocks);
+
     std::vector< unsigned int> n_block_dofs;
     n_block_dofs.resize(num_blocks,0);
     n_block_dofs[0] = n_alpha;
@@ -471,46 +472,6 @@ void arcOn<dim>::setup_system()
     }
     
     poisson_matrix.collect_sizes();
-
- 
-    
-    if(component == 2){
-      elliptic_constraints.clear ();
-      elliptic_constraints.reinit ( locally_relevant_dofs[2] );
-      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
-      /* 					     /\*b_id*\/ 1, */
-      /* 					     /\*b_id*\/ 2, */
-      /* 					     /\*direction*\/ 0, */
-      /* 					     elliptic_constraints); */
-      elliptic_constraints.close ();
-
-      telliptic_constraints.clear ();
-      telliptic_constraints.reinit ( tlocally_relevant_dofs[2] );
-      DoFTools::make_periodicity_constraints(*tdof_handler[2],
-      					     /*b_id*/ 1,
-      					     /*b_id*/ 2,
-      					     /*direction*/ 1,
-      					     telliptic_constraints);
-      DoFTools::make_periodicity_constraints(*tdof_handler[2],
-      					     /*b_id*/ 3,
-      					     /*b_id*/ 4,
-      					     /*direction*/ 0,
-      					     telliptic_constraints);
-      telliptic_constraints.close ();
-
-    }
-
-    /* CompressedSimpleSparsityPattern csp (tlocally_relevant_dofs[2]); */
-    /* DoFTools::make_sparsity_pattern (*(tdof_handler[2]), csp, */
-    /* 				     constraints, false); */
-    /* SparsityTools::distribute_sparsity_pattern (csp, */
-    /* 						*(tdof_handler[2]).n_locally_owned_dofs_per_processor(), */
-    /* 						mpi_communicator, */
-    /* 						locally_relevant_dofs); */
-    /* system_matrix.reinit (locally_owned_dofs, */
-    /* 			  locally_owned_dofs, */
-    /* 			  csp, */
-    /* 			  mpi_communicator); */
     
     cont_poisson_matrix.reinit(num_blocks,num_blocks); 
     
@@ -527,6 +488,94 @@ void arcOn<dim>::setup_system()
     }
     
     cont_poisson_matrix.collect_sizes();
+    
+    
+    if(component == 2){
+      elliptic_constraints.clear ();
+      elliptic_constraints.reinit ( locally_relevant_dofs[2] );
+      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
+      /* 					     /\*b_id*\/ 1, */
+      /* 					     /\*b_id*\/ 2, */
+      /* 					     /\*direction*\/ 0, */
+      /* 					     elliptic_constraints); */
+      elliptic_constraints.close ();
+
+
+      //from here tellipt
+      telliptic_constraints.clear ();
+      telliptic_constraints.reinit ( tlocally_relevant_dofs[2] );
+      //Y-periodicity
+      /* std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > */
+      /* 	periodicity_vector; */
+
+      /* GridTools::collect_periodic_faces(    triangulation, */
+      /* 					    1 /\* b_id1 *\/, */
+      /* 					    2 /\* b_id2 *\/, */
+      /* 					    1 /\* direction *\/, */
+      /* 					    periodicity_vector ); */
+      
+      /* triangulation.add_periodicity(periodicity_vector); */
+    
+      /* unsigned char one = 1; */
+      /* unsigned char two = 2; */
+
+      DoFTools::make_periodicity_constraints(*tdof_handler[2],
+      					     /*b_id*/ 1,
+      					     /*b_id*/ 2,
+      					     /*direction*/ 1,
+      					     telliptic_constraints);
+
+
+      /* const std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > periodicity_vector; */
+ 
+      /* triangulation.add_periodicity(periodicity_vector); */
+
+      /* DoFTools::make_periodicity_constraints(periodicity_vector, */
+      /* 					     telliptic_constraints);; */
+    
+      //X-periodicity                                                                                                                                                                                                                             //std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >                                                                                                                              //  periodicity_vector2 =
+      /* std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > */
+      /*   periodicity_vector2; */
+
+      /* GridTools::collect_periodic_faces(    triangulation, */
+      /*                                       3, //b_id1 */
+      /* 					    4, //b_id2 */
+      /*                                       0, //direction */
+      /* 					    periodicity_vector2 */
+      /*                                       ); */
+
+      /* triangulation.add_periodicity(periodicity_vector2); */
+      
+      /* unsigned char three = 3; */
+      /* unsigned char four = 4; */
+
+      DoFTools::make_periodicity_constraints(*tdof_handler[2],
+      					     /*b_id*/ 3,
+      					     /*b_id*/ 4,
+      					     /*direction*/ 0,
+      					     telliptic_constraints);
+
+      /* const std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > periodicity_vector2; */
+      /* triangulation.add_periodicity(periodicity_vector2); */
+      
+      /* DoFTools::make_periodicity_constraints(periodicity_vector2, */
+      /* 					     telliptic_constraints); */
+      telliptic_constraints.close ();
+      //to here tellipt
+      
+    }
+
+    /* CompressedSimpleSparsityPattern csp (tlocally_relevant_dofs[2]); */
+    /* DoFTools::make_sparsity_pattern (*(tdof_handler[2]), csp, */
+    /* 				     constraints, false); */
+    /* SparsityTools::distribute_sparsity_pattern (csp, */
+    /* 						*(tdof_handler[2]).n_locally_owned_dofs_per_processor(), */
+    /* 						mpi_communicator, */
+    /* 						locally_relevant_dofs); */
+    /* system_matrix.reinit (locally_owned_dofs, */
+    /* 			  locally_owned_dofs, */
+    /* 			  csp, */
+    /* 			  mpi_communicator); */
     
   }
 }
