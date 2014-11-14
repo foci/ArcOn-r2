@@ -15,7 +15,7 @@ void arcOn<dim>::calc_poisson_cont(SolutionVector& subdomain_solution, double de
     cont_output1[k] = 0.0;
 
     //naive_subdomain_solution[k]= subdomain_solution[k];
-    FETools::interpolate (*(dof_handler[k]),  naive_subdomain_solution[k],
+    FETools::interpolate (*(dof_handler[k]),  subdomain_solution[k],
 			  *(tdof_handler[k]), cont_output1[k]);
 
     //    cont_global[k].update_ghost_values();
@@ -77,7 +77,7 @@ void arcOn<dim>::calc_poisson_cont(SolutionVector& subdomain_solution, double de
 	    for (unsigned int i=0; i<dofs_per_cell; ++i){
 	      for (unsigned int q=0; q<n_q_points; ++q){
 		
-		cell_rhs(i) += (fe_values[*(alpha[component])].value(i,q))* (prev_soln_alpha[1][q]) * JxW[q] ;
+		cell_rhs(i) -= (fe_values[*(alpha[component])].value(i,q))* (prev_soln_alpha[1][q]) * JxW[q] ;
 		//cell_rhs(i) -= 0.0010*(fe_values[*(alpha[component])].value(i,q)) * JxW[q] ;
 		
 	      }
@@ -109,26 +109,39 @@ void arcOn<dim>::calc_poisson_cont(SolutionVector& subdomain_solution, double de
       pcout << "\033[1;37m   Solved in " << solver_control.last_step()
 	    << " iterations " << std::endl;
 
+      //pcout << "here1?" << std::endl;
 
-      telliptic_constraints.distribute (cont_global[component].block(0));
+      cont_output1[component].block(0) = cont_global[component].block(0);
 
-      cont_output1[2].block(0) = cont_global[2].block(0);
+      telliptic_constraints.distribute (cont_output1[component]);
 
-    }
-  }
-  
-  //for (unsigned int k=0; k< alphadim; ++k){
-    
+      cont_global[component].block(0) = cont_output1[component].block(0);
+
+      //telliptic_constraints.distribute (cont_global[component]);
+
+      //pcout << "here2?" << std::endl;
+
+ //for (unsigned int k=0; k< alphadim; ++k){
+     
     //cont_output1[k] = cont_global[k];
 
   //  cont_global[2].update_ghost_values();
+
+      //pcout << "here3?" << std::endl;
   
-  FETools::interpolate (*(tdof_handler[2]), cont_output1[2],
-			*(dof_handler[2]),  naive_subdomain_solution[2]);
-  
+      FETools::interpolate (*(tdof_handler[component]), cont_global[component],
+			    *(dof_handler[component]),  naive_subdomain_solution[component]);
+      
   //  naive_subdomain_solution[2].update_ghost_values();
+
+      //pcout << "here4?" << std::endl;
   
-  subdomain_solution[2].block(0) = naive_subdomain_solution[2].block(0);
+      subdomain_solution[component].block(0) = naive_subdomain_solution[component].block(0);
+      
+    }
+  }
+  
+ 
   //  }
   
   for (unsigned int component=0; component< alphadim; ++component){  
