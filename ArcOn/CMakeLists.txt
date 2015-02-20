@@ -1,9 +1,9 @@
 # Use make edit_cache for settings
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
+cmake_policy(SET CMP0037 OLD)
 
-
-FIND_PACKAGE(deal.II 8.2 QUIET
+FIND_PACKAGE(deal.II 8.3 QUIET
   HINTS ${deal.II_DIR} ${DEAL_II_DIR} ../trigger/ ../../ $ENV{DEAL_II_DIR}
   )
 IF(NOT ${deal.II_FOUND})

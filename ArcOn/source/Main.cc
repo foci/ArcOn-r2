@@ -1,64 +1,64 @@
-#include <base/table.h>
-#include <base/parameter_handler.h>
-#include <base/parsed_function.h>
-#include <base/quadrature_lib.h>
-#include <base/function.h>
-#include <base/point.h>
-#include <base/tensor.h>
-#include <base/thread_local_storage.h>
-#include <base/utilities.h>
-#include <base/conditional_ostream.h>
-#include <base/index_set.h>
+#include <deal.II/base/table.h>
+#include <deal.II/base/parameter_handler.h>
+#include <deal.II/base/parsed_function.h>
+#include <deal.II/base/quadrature_lib.h>
+#include <deal.II/base/function.h>
+#include <deal.II/base/point.h>
+#include <deal.II/base/tensor.h>
+#include <deal.II/base/thread_local_storage.h>
+#include <deal.II/base/utilities.h>
+#include <deal.II/base/conditional_ostream.h>
+#include <deal.II/base/index_set.h>
 
-#include <lac/vector.h>
-#include <lac/full_matrix.h>
-#include <lac/constraint_matrix.h>
-#include <lac/solver_control.h>
-#include <lac/solver_gmres.h>
-#include <lac/precondition.h>
-#include <lac/solver_cg.h>
-#include <lac/compressed_simple_sparsity_pattern.h>
-#include <lac/sparsity_tools.h>
-#include <lac/full_matrix.h>
+#include <deal.II/lac/vector.h>
+#include <deal.II/lac/full_matrix.h>
+#include <deal.II/lac/constraint_matrix.h>
+#include <deal.II/lac/solver_control.h>
+#include <deal.II/lac/solver_gmres.h>
+#include <deal.II/lac/precondition.h>
+#include <deal.II/lac/solver_cg.h>
+#include <deal.II/lac/compressed_simple_sparsity_pattern.h>
+#include <deal.II/lac/sparsity_tools.h>
+#include <deal.II/lac/full_matrix.h>
 
-#include <lac/sparse_matrix.h>
-#include <lac/solver_cg.h>
+#include <deal.II/lac/sparse_matrix.h>
+#include <deal.II/lac/solver_cg.h>
 
-#include <fe/fe_dgq.h>
-#include <fe/fe_dgp.h>
-#include <fe/fe_dgp_monomial.h>
-#include <fe/fe_q.h>
-#include <fe/fe_bdm.h>
-#include <fe/fe_dg_vector.h>
-#include <fe/fe_system.h>
-#include <fe/fe_values.h>
-#include <fe/fe_tools.h>
-#include <fe/mapping_q1.h>
+#include <deal.II/fe/fe_dgq.h>
+#include <deal.II/fe/fe_dgp.h>
+#include <deal.II/fe/fe_dgp_monomial.h>
+#include <deal.II/fe/fe_q.h>
+#include <deal.II/fe/fe_bdm.h>
+#include <deal.II/fe/fe_dg_vector.h>
+#include <deal.II/fe/fe_system.h>
+#include <deal.II/fe/fe_values.h>
+#include <deal.II/fe/fe_tools.h>
+#include <deal.II/fe/mapping_q1.h>
 
-#include <dofs/dof_handler.h>
-#include <dofs/dof_renumbering.h>
-#include <dofs/dof_accessor.h>
-#include <dofs/dof_tools.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_renumbering.h>
+#include <deal.II/dofs/dof_accessor.h>
+#include <deal.II/dofs/dof_tools.h>
 
-#include <grid/tria.h>
-#include <grid/tria_accessor.h>
-#include <grid/tria_iterator.h>
-#include <grid/tria_boundary_lib.h>
-#include <grid/grid_generator.h>
-#include <grid/grid_refinement.h>
-#include <grid/grid_in.h>
-#include <grid/grid_out.h>
-#include <grid/intergrid_map.h>
-#include <grid/grid_tools.h>
-#include <grid/filtered_iterator.h>
+#include <deal.II/grid/tria.h>
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
+#include <deal.II/grid/tria_boundary_lib.h>
+#include <deal.II/grid/grid_generator.h>
+#include <deal.II/grid/grid_refinement.h>
+#include <deal.II/grid/grid_in.h>
+#include <deal.II/grid/grid_out.h>
+#include <deal.II/grid/intergrid_map.h>
+#include <deal.II/grid/grid_tools.h>
+#include <deal.II/grid/filtered_iterator.h>
 
-#include <numerics/data_out.h>
-#include <numerics/error_estimator.h>
-#include <numerics/solution_transfer.h>
-#include <numerics/fe_field_function.h>
-#include <numerics/matrix_tools.h>
-#include <numerics/fe_field_function.h>
-#include <numerics/vector_tools.h>
+#include <deal.II/numerics/data_out.h>
+#include <deal.II/numerics/error_estimator.h>
+#include <deal.II/numerics/solution_transfer.h>
+#include <deal.II/numerics/fe_field_function.h>
+#include <deal.II/numerics/matrix_tools.h>
+#include <deal.II/numerics/fe_field_function.h>
+#include <deal.II/numerics/vector_tools.h>
 
 #include <fstream>
 #include <sstream>
@@ -72,26 +72,26 @@
 #include <math.h>
 #include <stdio.h>
 
-#include <lac/petsc_parallel_vector.h>
-#include <lac/petsc_block_vector.h>
-#include <lac/petsc_vector.h>
-#include <lac/petsc_parallel_sparse_matrix.h>
-#include <lac/petsc_block_sparse_matrix.h>
-#include <lac/petsc_parallel_block_sparse_matrix.h>
-#include <lac/petsc_solver.h>
-#include <lac/petsc_precondition.h>
-#include <lac/parallel_vector.h>
-#include <lac/sparsity_tools.h>
-#include <lac/compressed_simple_sparsity_pattern.h>
-#include <lac/block_sparsity_pattern.h>
+#include <deal.II/lac/petsc_parallel_vector.h>
+#include <deal.II/lac/petsc_block_vector.h>
+#include <deal.II/lac/petsc_vector.h>
+#include <deal.II/lac/petsc_parallel_sparse_matrix.h>
+#include <deal.II/lac/petsc_block_sparse_matrix.h>
+#include <deal.II/lac/petsc_parallel_block_sparse_matrix.h>
+#include <deal.II/lac/petsc_solver.h>
+#include <deal.II/lac/petsc_precondition.h>
+#include <deal.II/lac/parallel_vector.h>
+#include <deal.II/lac/sparsity_tools.h>
+#include <deal.II/lac/compressed_simple_sparsity_pattern.h>
+#include <deal.II/lac/block_sparsity_pattern.h>
 
 
-#include <base/utilities.h>
-#include <base/conditional_ostream.h>
-#include <base/index_set.h>
-#include <distributed/tria.h>
-#include <distributed/grid_refinement.h>
-#include <distributed/solution_transfer.h>
+#include <deal.II/base/utilities.h>
+#include <deal.II/base/conditional_ostream.h>
+#include <deal.II/base/index_set.h>
+#include <deal.II/distributed/tria.h>
+#include <deal.II/distributed/grid_refinement.h>
+#include <deal.II/distributed/solution_transfer.h>
 
 
 inline double elapsed(clock_t start_clock,clock_t end_clock)
@@ -357,7 +357,7 @@ int main (int argc, char *argv[])
     {
 
       //PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL);
-      Utilities::System::MPI_InitFinalize mpi_initialization(argc, argv);
+      Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv);
       deallog.depth_console (0);
       
       ParameterHandler  prm;
