@@ -94,7 +94,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 		//if(ncopated[component][q]>0.0){
 
 		//good one
-		mass_action(component,i) -= ( -7.0*alph*std::exp(-std::pow(quadrature_point[q][0]-37.0,2.0)/144.0)/std::exp(syncopated[0][q]) + alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q];
+		mass_action(component,i) -= ( -7.0*alph*(0.6 + 0.01*quadrature_point[q][0])*std::exp(-std::pow(quadrature_point[q][0]-37.0,2.0)/144.0)/std::exp(syncopated[0][q]) + alph*(0.6 + 0.01*quadrature_point[q][0]))* fe_values[*(alpha[component])].value(i,q)*JxW[q];
 		  //( -3.0*alph*std::exp(-std::pow(quadrature_point[q][0]-59.0,2.0)/0.10)/std::exp(syncopated[0][q]) + alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
 
 		//mass_action(component,i) += ( 3.0*alph*(1.0+std::abs(std::sin(0.08*quadrature_point[q][1]))*std::exp(-0.5*std::pow(quadrature_point[q][0],2.0)/std::pow(sigs,2.0))) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
@@ -171,15 +171,15 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 		//		mass_action(component,i) += alph*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q]/* - phi_b*/ ) *JxW[q];
 
 
-		if(abs(center - quadrature_point[q][0]) < .1*l_x){  //width of plate is 2*.1*l_x
+		/*if(abs(center - quadrature_point[q][0]) < .1*l_x){  //width of plate is 2*.1*l_x
 		  
 		  phi_b = volt_b*exp(-0.1/(1-pow(.1*(center - quadrature_point[q][0]),2.0))+0.1);} 
 		
 		else {
 		  
-		  phi_b = 0.0;}
+		phi_b = 0.0;}*/
 
-		mass_action(component,i) += alph*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q] - phi_b ) *JxW[q];
+		mass_action(component,i) += alph*(0.6 + 0.01*quadrature_point[q][0])*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q]/* - phi_b*/ ) *JxW[q];
 
 
 
