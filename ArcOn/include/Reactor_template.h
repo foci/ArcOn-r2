@@ -116,6 +116,7 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
   alpha_parameter  = prm.get_double("alpha");
   beta_parameter  = prm.get_double("beta");
   bias_parameter  = -prm.get_double("bias");
+  temp_parameter  = prm.get_double("temp");
   prm.leave_subsection ();
 
   prm.enter_subsection ("Time");

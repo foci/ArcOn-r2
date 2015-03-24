@@ -10,6 +10,7 @@
 	set alpha = 8e-8
 	set beta = 4e-6 #5e-4
 	set bias = 0.020
+	set temp = 10
    end 
 # Runtime
    subsection Time
@@ -22,7 +23,7 @@
 	set Method = 1 # 1 = explicit, 2 = IMEX
 	set RK type = 1 # 1 = RKSSP, 2 = RKC
 	set eps = 0.153846154 # RKC-epsilon
-	set Output_modulus = 1000 #000 #3000
+	set Output_modulus = 10 #000 #3000
 	set Output type = 1 # discontinuous=0, continuous=1
 	set CFL scaling = 15.0
 	set Ramp = 0
