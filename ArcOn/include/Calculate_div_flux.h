@@ -358,7 +358,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		  					   - (fe_values[*(alpha[component])].gradient(i,q))[1]
 		  					   * ( (prev_soln_sigma[component][q])[0] *  prev_soln_alpha[2][q]) * JxW[q] );
 
-		  convection_int(component,i) +=  2 * temp * (fe_values[*(alpha[component])].gradient(i,q))[1] * prev_soln_alpha[0][q] * JxW[q];
+		  convection_int(component,i) +=  2 * temperature * (fe_values[*(alpha[component])].gradient(i,q))[1] * prev_soln_alpha[0][q] * JxW[q];
 
 		  convection_int(component,i) -=  2*(prev_soln_sigma[2][q])[1] * fe_values[*(alpha[component])].value(i,q)  * JxW[q];
 
