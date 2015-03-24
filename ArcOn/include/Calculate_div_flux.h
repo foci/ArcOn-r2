@@ -40,7 +40,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
   }
 
   double beta = beta_parameter*dramp; //5e-4 + dramp*beta_0;
-  double temp = temp_parameter; 
+  double temperature = temperature_parameter; 
  
   //double local_min_ribbon_density = 0.0;
 
@@ -339,7 +339,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 		    ( ( ( - prev_soln_sigma[2][q])[0] *  (prev_soln_sigma[component][q])[1]
 			+  (prev_soln_sigma[2][q])[1] *  (prev_soln_sigma[component][q])[0] )) * JxW[q];
 		
-		  convection_int(component,i) -=  2*temp*(prev_soln_sigma[0][q])[1] * fe_values[*(alpha[component])].value(i,q)  * JxW[q];
+		  convection_int(component,i) -=  2*temperature*(prev_soln_sigma[0][q])[1] * fe_values[*(alpha[component])].value(i,q)  * JxW[q];
 
 		  convection_int(component,i) -=  2*(prev_soln_sigma[2][q])[1] * fe_values[*(alpha[component])].value(i,q)  * JxW[q]; 
                 //convection_int(component,i) +=  (fe_values[*(alpha[component])].value(i,q)) *

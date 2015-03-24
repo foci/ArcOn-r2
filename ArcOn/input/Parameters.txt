@@ -10,7 +10,7 @@
 	set alpha = 8e-8
 	set beta = 4e-6 #5e-4
 	set bias = 0.020
-	set temp = 10
+	set temperature = 1.0
    end 
 # Runtime
    subsection Time

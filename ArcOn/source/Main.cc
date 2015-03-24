@@ -149,9 +149,9 @@ void ParameterReader::declare_parameters()
     prm.declare_entry("bias", "0",
 		      Patterns::Double(0),
 		      "bias scaling");
-    prm.declare_entry("temp","0",
+    prm.declare_entry("temperature","0",
 		      Patterns::Double(0),
-		      "temp parameter");
+		      "temperature parameter");
   }
   prm.leave_subsection ();
 

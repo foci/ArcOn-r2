@@ -451,7 +451,7 @@ private:
   double alpha_parameter;
   double beta_parameter;
   double bias_parameter;
-  double temp_parameter;
+  double temperature_parameter;
   Vector<double> difs;
 
   double refine_above;
