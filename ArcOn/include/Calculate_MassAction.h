@@ -28,6 +28,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
   }
 
   double alph = alpha_parameter*dramp; //1e-4 + dramp*alph_0;
+  double volt_b = -bias_parameter ;
   
   for (unsigned int component=0; component< alphadim-1; ++component){
 
@@ -156,10 +157,10 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	    //double alph_0 = 8e-4 - 1e-4; //5e-4;
 	    double some_constant = 0.5;
 
-	    double l_x = 100;    //x domain size
-	    double phi_b;     //bias voltage function defined by bump funtion  (corresponds to 2nd plate in Helimak)
-	    double volt_b = 0.02 ; //-0.20;    //bias voltage value
-	    double center = 43.764; //quadrature_point[q_cent][0];    //center of the bias plate ~0.43764*(x_domain)
+	    // double l_x = 100;    //x domain size
+	    double phi_b;     //bias voltage function defined by tanh funtion  (corresponds to 2nd plate in Helimak)
+	    // double volt_b = bias_parameter ; //-0.20;    //bias voltage value
+	    //double center = 43.764; //quadrature_point[q_cent][0];    //center of the bias plate ~0.43764*(x_domain)
 
 	    for (unsigned int q=0; q<n_q_points; ++q){
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
@@ -179,9 +180,13 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 		  
 		phi_b = 0.0;}*/
 
-		mass_action(component,i) += alph*(0.6 + 0.01*quadrature_point[q][0])*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q]/* - phi_b*/ ) *JxW[q];
+		phi_b = dramp*volt_b*(std::tanh(quadrature_point[q][0] - 20.0) + std::tanh(40.0 - quadrature_point[q][0]))/2;
 
+		mass_action(component,i) += alph*(0.6 + 0.01*quadrature_point[q][0])*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q] - phi_b ) *JxW[q];
 
+		/* pcout << "bias =" << phi_b << std::endl; */
+		/* pcout << "dramp =" << dramp << std::endl; */
+		/* pcout << "bias_param =" << volt_b << std::endl; */
 
 		/* double xpt = quadrature_point[q][0]; */
 	  	  /* double ypt = quadrature_point[q][1]; */

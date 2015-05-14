@@ -115,7 +115,8 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
   Vort_dif  = prm.get_double("Vorticity diffusion");
   alpha_parameter  = prm.get_double("alpha");
   beta_parameter  = prm.get_double("beta");
-  bias_parameter  = -prm.get_double("bias");
+  bias_parameter  = prm.get_double("bias");
+  pcout << "bias_param_load =" << bias_parameter << std::endl;
   temperature_parameter  = prm.get_double("temperature");
   prm.leave_subsection ();
 
