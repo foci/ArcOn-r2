@@ -1,16 +1,16 @@
 # Mesh parameters
    subsection Mesh
-	set Number of spatial refinements = 4 #8
+	set Number of spatial refinements = 5 #8
 	set Polynomial Degree = 3
    end 
 # Physical parameters
    subsection Physics
-	set Mass diffusion = 1e-8
-	set Vorticity diffusion = 1e-8
-	set alpha = 8e-8
-	set beta = 4e-6 #5e-4
-	set bias = 0.020
-	set temperature = 1.0
+	set Mass diffusion = 1e-5 #1e-2
+	set Vorticity diffusion = 1e-5 #1e-2
+	set alpha = 12.2e-7 #e-4 #corresponds to R = 2.7 ohms #3.65e-4 #corresponds to R = 10 ohms 8e-8
+	set beta = 4e-5 #e-2 #5e-4
+	set bias = 0.001 #-0.01
+	set temperature = 0 #0.0202 #factor of coefficients = T_e/(B_0*R_0*c_s)
    end 
 # Runtime
    subsection Time
@@ -23,21 +23,21 @@
 	set Method = 1 # 1 = explicit, 2 = IMEX
 	set RK type = 1 # 1 = RKSSP, 2 = RKC
 	set eps = 0.153846154 # RKC-epsilon
-	set Output_modulus = 10 #000 #3000
+	set Output_modulus = 5000 #3000
 	set Output type = 1 # discontinuous=0, continuous=1
-	set CFL scaling = 15.0
-	set Ramp = 0
+	set CFL scaling = 18.0
+	set Ramp = 50
    end
 # Regularizating parameters
    subsection Regularity
-	set Artificial diffusion = true
+	set Artificial diffusion = false
 	set epsilon weight density = 5e-2
 	set epsilon weight vorticity = 5e-2
 	set s0 for density = 2.0
 	set s0 for vorticity = 0.4
-	set kappa for density = 0.5
-	set kappa for vorticity = 0.1
-	set Brezzi_penalty = 20.0 #30.0
+	set kappa for density = 0.5 #10.0  #0.5
+	set kappa for vorticity = 0.1 #10.0 #0.5 #0.1
+	set Brezzi_penalty = 50.0 #30.0 #30.0
    end 
 # Convergence
    subsection Convergence
@@ -48,14 +48,14 @@
    end
 # Elliptic solver information
    subsection EllipticSolver
-   	set Continuity type = 0 # DG=0, CG=1	
+   	set Continuity type = 1 # DG=0, CG=1	
         set Penalty type = 1 # SIPG=1,NIPG=-1,IIPG=0
         set Sigma penalty = 200.0 # 200.0
    end
 # Loading/Saving
    subsection SavedSolution
-	set Load = false
-	set Save = false #true
+	set Load = true
+	set Save = true
 	set h    = 10
         set p    = 10
    end
