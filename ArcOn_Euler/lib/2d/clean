@@ -1,0 +1,13 @@
+#! /bin/bash  
+
+rm ITER.*
+
+cd density_output
+rm density*
+cd ..
+cd potential_output
+rm potential*
+cd ..
+cd vorticity_output
+rm vorticity* 
+cd ..

@@ -5,56 +5,56 @@
    end 
 # Physical parameters
    subsection Physics
-	set Mass diffusion = 1e-8
-	set Vorticity diffusion = 1e-8
-	set alpha = 8e-8
-	set beta = 4e-6 #5e-4
-	set bias = 0.020
+	set Mass diffusion = 1e-3
+	set Vorticity diffusion = 1e-3
+	set alpha = 1.228e-2 #this is alph coeff for R = 2.7 ohms # 4e-4
+	set beta = 1e-14 #4e-3 #5e-4
+	set bias = 0.0  #1e-1
    end 
 # Runtime
    subsection Time
 	set Timestep size dt = 0.000100 #make sure small enough
-	set Number of timesteps = 2000000 # 30000000 #2000000
-	set Hard endtime = 50000.0 #10142.15 #35000.0
+	set Number of timesteps = 50 # 2000 # 30000000 #2000000
+	set Hard endtime = 20000 #50000.0 #10142.15 #35000.0
 	set fstep = 0
 	set RK order = 2
-	set RK stage = 2 # >3 for RKC
+	set RK stage = 3 # >3 for RKC
 	set Method = 1 # 1 = explicit, 2 = IMEX
 	set RK type = 1 # 1 = RKSSP, 2 = RKC
 	set eps = 0.153846154 # RKC-epsilon
-	set Output_modulus = 1000 #000 #3000
-	set Output type = 1 # discontinuous=0, continuous=1
-	set CFL scaling = 15.0
+	set Output_modulus = 1 #000 #3000
+	set Output type = 0 # discontinuous=0, continuous=1
+	set CFL scaling = 10.0
 	set Ramp = 0
    end
 # Regularizating parameters
    subsection Regularity
-	set Artificial diffusion = true
+	set Artificial diffusion = false
 	set epsilon weight density = 5e-2
 	set epsilon weight vorticity = 5e-2
-	set s0 for density = 2.0
-	set s0 for vorticity = 0.4
+	set s0 for density = 0.90
+	set s0 for vorticity = 0.9
 	set kappa for density = 0.5
-	set kappa for vorticity = 0.1
-	set Brezzi_penalty = 20.0 #30.0
+	set kappa for vorticity = 0.5
+	set Brezzi_penalty = 50.0 #30.0
    end 
 # Convergence
    subsection Convergence
-	set Threshold = 1.0e-5
+	set Threshold = 1.0e-4
 	set Iterations = 10000
 	set Fast Threshold = 1e-10
 	set Fast Iterations = 100
    end
 # Elliptic solver information
    subsection EllipticSolver
-   	set Continuity type = 0 # DG=0, CG=1	
+   	set Continuity type = 1 # DG=0, CG=1	
         set Penalty type = 1 # SIPG=1,NIPG=-1,IIPG=0
         set Sigma penalty = 200.0 # 200.0
    end
 # Loading/Saving
    subsection SavedSolution
 	set Load = false
-	set Save = false #true
+	set Save = false
 	set h    = 10
         set p    = 10
    end

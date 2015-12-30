@@ -1,0 +1,309 @@
+// ---------------------------------------------------------------------
+//
+// Copyright (C) 2011 - 2013 by the deal.II authors
+//
+// This file is part of the deal.II library.
+//
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
+
+// check FETools::interpolate on parallel vector
+
+#include "tests.h"
+#include <deal.II/base/utilities.h>
+#include <deal.II/base/index_set.h>
+#include <deal.II/lac/parallel_vector.h>
+#include <deal.II/distributed/tria.h>
+#include <deal.II/grid/grid_generator.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_tools.h>
+#include <deal.II/dofs/dof_renumbering.h>
+#include <deal.II/base/quadrature_lib.h>
+#include <deal.II/fe/fe_dgq.h>
+#include <deal.II/fe/fe_q.h>
+#include <deal.II/fe/fe_tools.h>
+#include <deal.II/numerics/vector_tools.h>
+#include <deal.II/base/function.h>
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <deal.II/lac/petsc_vector.h>
+#include <deal.II/distributed/tria.h>
+#include <deal.II/lac/petsc_parallel_vector.h>
+#include <deal.II/lac/petsc_parallel_block_vector.h>
+#include <deal.II/lac/constraint_matrix.h> 
+#include <deal.II/fe/fe_system.h>
+
+
+
+void test ()
+{
+
+  MPI_Comm mpi_communicator (MPI_COMM_WORLD);
+
+  const unsigned int myid = Utilities::MPI::this_mpi_process (MPI_COMM_WORLD);
+  const unsigned int n_processes = Utilities::MPI::n_mpi_processes (MPI_COMM_WORLD);
+
+  const unsigned int dim = 2;
+  const unsigned int num_blocks = 2;
+  const unsigned int deg = 2;
+
+  parallel::distributed::Triangulation<dim> tria(MPI_COMM_WORLD);
+  GridGenerator::hyper_cube(tria);
+  tria.refine_global(3);
+
+  typedef std::vector < PETScWrappers::MPI::BlockVector > SolutionVector;
+
+  SolutionVector       subdomain_solution;
+
+
+  for (unsigned int component=0; component< alphadim; ++component){
+    dof_handler.push_back (new DoFHandler<dim>(triangulation));
+    alpha.push_back (new FEValuesExtractors::Scalar(0));
+    sigma.push_back (new FEValuesExtractors::Vector(1));
+
+    quadrature_collection.push_back ( new QGauss<dim>(qud_pts));
+    face_quadrature_collection.push_back ( new QGauss<dim-1>(qud_pts));
+    line_quadrature_collection.push_back ( new QGauss<1>(qud_pts));
+
+    fe_collection.push_back ( new FESystem<dim>(FE_DGQArbitraryNodes<dim>( *(line_quadrature_collection[component]) ), 1,
+    						FE_DGQArbitraryNodes<dim>( *(line_quadrature_collection[component]) ), dim) );
+   
+   }
+
+
+  num_blocks = 2;
+  
+  subdomain_solution.resize(alphadim);
+
+  
+  for (unsigned int component=0; component< alphadim; ++component){
+ 
+    /* Do this for each component */
+ 
+    std::vector<unsigned int> fesystem_sub_blocks (dim+1,0);
+    fesystem_sub_blocks[dim-1] = 1;
+    fesystem_sub_blocks[dim]   = 1;
+
+    /////////////////////////////////////
+    l_soln.resize(num_blocks);
+    i_soln.resize(num_blocks); 
+    r_soln.resize(num_blocks); 
+    //ll_soln.resize(num_blocks); 
+    ////////////////////////////////////
+
+    dof_handler[component]->distribute_dofs(*(fe_collection[component]));
+    DoFRenumbering::component_wise (*(dof_handler[component]), fesystem_sub_blocks );
+
+    std::vector<unsigned int> fesystem_dofs_per_block (num_blocks);
+    DoFTools::count_dofs_per_block (*(dof_handler[component]), fesystem_dofs_per_block,
+				    fesystem_sub_blocks);
+    
+    const unsigned int n_alpha = fesystem_dofs_per_block[0],
+      n_sigma = fesystem_dofs_per_block[1];
+
+    std::vector<IndexSet> fesystem_partitioning, fesystem_relevant_partitioning;
+
+    locally_owned_dofs[component] = dof_handler[component]->locally_owned_dofs();
+
+    fesystem_partitioning.push_back(locally_owned_dofs[component]
+				    .get_view(0,n_alpha));
+    fesystem_partitioning.push_back(locally_owned_dofs[component]
+				    .get_view(n_alpha,n_alpha+n_sigma));
+
+    DoFTools::extract_locally_relevant_dofs (*(dof_handler[component]),
+					     locally_relevant_dofs[component]);
+    
+    fesystem_relevant_partitioning
+      .push_back(locally_relevant_dofs[component].get_view(0,n_alpha));
+    fesystem_relevant_partitioning
+      .push_back(locally_relevant_dofs[component].get_view(n_alpha,n_alpha+n_sigma));
+
+
+    std::vector< unsigned int > num_blocks1;
+    std::vector< unsigned int > num_blocks2;
+    std::vector< unsigned int > num_blocks3;
+    
+    num_blocks1.resize(num_blocks,0);
+    num_blocks2.resize(num_blocks,0);
+    num_blocks3.resize(num_blocks,0);
+
+    subdomain_solution[component].reinit(num_blocks1,mpi_communicator,num_blocks2);
+
+    for (unsigned int bl=0; bl< num_blocks; ++bl){
+      
+      subdomain_solution[component].block(bl).reinit(mpi_communicator, 
+						     fesystem_partitioning[bl], 
+						     fesystem_relevant_partitioning[bl] );
+    }
+
+    subdomain_solution[component].collect_sizes();
+      
+
+  // PETScWrappers::MPI::BlockVector SolutionVectorDG;
+  // PETScWrappers::MPI::BlockVector Local_SolutionVectorDG;
+
+  // PETScWrappers::MPI::BlockVector SolutionVectorCG;
+  // PETScWrappers::MPI::BlockVector Local_SolutionVectorCG;
+  
+
+  // QGauss<1> quad_pts(deg+1);
+  // FESystem<dim> fe1(FE_DGQArbitraryNodes<dim>(quad_pts), 1,
+  // 		    FE_DGQArbitraryNodes<dim>(quad_pts), dim);
+
+  // FESystem<dim> fe3(FE_Q<dim>(deg), 1, 
+  // 		    FE_Q<dim>(deg), dim);
+ 
+  // DoFHandler<dim> dof1(tria), dof3(tria);
+ 
+  // std::vector<unsigned int> fesystem_sub_blocks (dim+1,0);
+  // fesystem_sub_blocks[dim-1] = 1;
+  // fesystem_sub_blocks[dim]   = 1;
+
+  // std::vector<unsigned int> tfesystem_sub_blocks (dim+1,0);
+  // tfesystem_sub_blocks[dim-1] = 1;
+  // tfesystem_sub_blocks[dim]   = 1;
+
+  // dof1.distribute_dofs(fe1);
+  // dof3.distribute_dofs(fe3);
+
+  // DoFRenumbering::component_wise (dof1, fesystem_sub_blocks );
+  // DoFRenumbering::component_wise (dof3, tfesystem_sub_blocks );
+
+  // std::vector<unsigned int> fesystem_dofs_per_block (num_blocks);
+  // DoFTools::count_dofs_per_block (dof1, fesystem_dofs_per_block,
+  // 				  fesystem_sub_blocks);
+
+  // std::vector<unsigned int> tfesystem_dofs_per_block (num_blocks);
+  // DoFTools::count_dofs_per_block (dof3, tfesystem_dofs_per_block,
+  // 				  tfesystem_sub_blocks);
+
+
+  // const unsigned int n_alpha = fesystem_dofs_per_block[0],
+  //   n_sigma = fesystem_dofs_per_block[1];
+  
+  // const unsigned int n_talpha = tfesystem_dofs_per_block[0],
+  //   n_tsigma = tfesystem_dofs_per_block[1];
+
+  // std::vector<IndexSet> fesystem_partitioning, fesystem_relevant_partitioning;
+  // std::vector<IndexSet> tfesystem_partitioning, tfesystem_relevant_partitioning;
+  
+  // IndexSet           locally_owned_dofs;
+  // IndexSet           locally_relevant_dofs;
+
+  // IndexSet           tlocally_owned_dofs;
+  // IndexSet           tlocally_relevant_dofs;
+
+  // locally_owned_dofs = dof1.locally_owned_dofs();
+  // tlocally_owned_dofs = dof3.locally_owned_dofs();
+
+  // fesystem_partitioning.push_back(locally_owned_dofs
+  // 				  .get_view(0,n_alpha));
+  // fesystem_partitioning.push_back(locally_owned_dofs
+  // 				  .get_view(n_alpha,n_alpha+n_sigma));
+
+  // tfesystem_partitioning.push_back(tlocally_owned_dofs
+  // 				   .get_view(0,n_talpha));
+  // tfesystem_partitioning.push_back(tlocally_owned_dofs
+  // 				   .get_view(n_talpha,n_talpha+n_tsigma));
+  
+
+  // DoFTools::extract_locally_relevant_dofs (dof1,
+  // 					   locally_relevant_dofs);
+  
+  // DoFTools::extract_locally_relevant_dofs (dof3,
+  // 					   tlocally_relevant_dofs);
+
+  // fesystem_relevant_partitioning
+  //   .push_back(locally_relevant_dofs.get_view(0,n_alpha));
+  // fesystem_relevant_partitioning
+  //   .push_back(locally_relevant_dofs.get_view(n_alpha,n_alpha+n_sigma));
+
+  // tfesystem_relevant_partitioning
+  //   .push_back(tlocally_relevant_dofs.get_view(0,n_talpha));
+  // tfesystem_relevant_partitioning
+  //   .push_back(tlocally_relevant_dofs.get_view(n_talpha,n_talpha+n_tsigma));
+
+  // std::vector< unsigned int > num_blocks1;
+  // std::vector< unsigned int > num_blocks2;
+    
+  // num_blocks1.resize(num_blocks,0);
+  // num_blocks2.resize(num_blocks,0);
+  
+  // SolutionVectorDG.reinit(num_blocks1,mpi_communicator,num_blocks2);
+  // Local_SolutionVectorDG.reinit(num_blocks1,mpi_communicator,num_blocks2);
+
+  // SolutionVectorCG.reinit(num_blocks1,mpi_communicator,num_blocks2);
+  // Local_SolutionVectorCG.reinit(num_blocks1,mpi_communicator,num_blocks2);
+
+  // for (unsigned int bl=0; bl< num_blocks; ++bl){
+    
+  //   SolutionVectorDG.block(bl).reinit(mpi_communicator, 
+  // 				      fesystem_partitioning[bl], 
+  // 				      fesystem_relevant_partitioning[bl] );
+    
+  //   Local_SolutionVectorDG.block(bl).reinit(mpi_communicator, 
+  // 					    fesystem_partitioning[bl] );
+
+  //   SolutionVectorCG.block(bl).reinit(mpi_communicator, 
+  // 				      tfesystem_partitioning[bl], 
+  // 				      tfesystem_relevant_partitioning[bl] );
+
+  //   Local_SolutionVectorCG.block(bl).reinit(mpi_communicator, 
+  // 					    tfesystem_partitioning[bl] );
+    
+  // }
+  
+  // SolutionVectorDG.collect_sizes();
+  // Local_SolutionVectorDG.collect_sizes();
+
+  // SolutionVectorCG.collect_sizes();
+  // Local_SolutionVectorCG.collect_sizes();
+
+  // Local_SolutionVectorDG = 1.0;
+  // Local_SolutionVectorCG = -1.0;
+
+  // SolutionVectorDG = Local_SolutionVectorDG;
+  // SolutionVectorCG = Local_SolutionVectorCG;
+  
+  // FETools::interpolate(dof1, SolutionVectorDG, dof3, Local_SolutionVectorCG);
+  // std::cout << "The first direction passes!" << std::endl;
+
+  // // Local_SolutionVectorCG = -1.0;
+  // // SolutionVectorCG = Local_SolutionVectorCG;
+
+  // //Does this direction also pass!?
+  // //FETools::interpolate(dof3, SolutionVectorCG, dof1, Local_SolutionVectorDG);
+  // //std::cout << "The second direction passes!" << std::endl;
+ 
+}
+
+
+int main (int argc, char **argv)
+{
+  Utilities::System::MPI_InitFinalize mpi_initialization(argc, argv);
+
+  unsigned int myid = Utilities::MPI::this_mpi_process (MPI_COMM_WORLD);
+  deallog.push(Utilities::int_to_string(myid));
+
+  if (myid == 0)
+    {
+      std::ofstream logfile("output");
+      deallog.attach(logfile);
+      deallog << std::setprecision(4);
+      deallog.depth_console(0);
+      deallog.threshold_double(1.e-10);
+
+      test();
+    }
+  else
+    test();
+
+}

@@ -1,0 +1,61 @@
+# Mesh parameters
+   subsection Mesh
+	set Number of spatial refinements = 5 #8
+	set Polynomial Degree = 3
+   end 
+# Physical parameters
+   subsection Physics
+	set Mass diffusion = 0.0 #1e-3
+	set Vorticity diffusion = 0.0 #1e-4
+	set alpha = 0.0 #1.228e-2 #this is alph coeff for R = 2.7 ohms # 4e-4
+	set beta = 0.0 #1e-14 #4e-3 #5e-4
+	set bias = 0.0  #1e-1
+   end 
+# Runtime
+   subsection Time
+	set Timestep size dt = 0.000100 #make sure small enough
+	set Number of timesteps = 100000 # 2000 # 30000000 #2000000
+	set Hard endtime = 100 #50000.0 #10142.15 #35000.0
+	set fstep = 0
+	set RK order = 2
+	set RK stage = 3 # >3 for RKC
+	set Method = 1 # 1 = explicit, 2 = IMEX
+	set RK type = 1 # 1 = RKSSP, 2 = RKC
+	set eps = 0.153846154 # RKC-epsilon
+	set Output_modulus = 10 #000 #3000
+	set Output type = 1 # discontinuous=0, continuous=1
+	set CFL scaling = 20.0
+	set Ramp = 0
+   end
+# Regularizating parameters
+   subsection Regularity
+	set Artificial diffusion = false
+	set epsilon weight density = 0.0 #5e-2
+	set epsilon weight vorticity = 5e-3
+	set s0 for density = 0.90
+	set s0 for vorticity = 0.9
+	set kappa for density = 0.5
+	set kappa for vorticity = 0.5
+	set Brezzi_penalty = 10.0 #30.0
+   end 
+# Convergence
+   subsection Convergence
+	set Threshold = 1.0e-4
+	set Iterations = 10000
+	set Fast Threshold = 1e-10
+	set Fast Iterations = 100
+   end
+# Elliptic solver information
+   subsection EllipticSolver
+   	set Continuity type = 1 # DG=0, CG=1	
+        set Penalty type = 1 # SIPG=1.0,NIPG=-1.0,IIPG=0.0
+        set Sigma penalty = 10.0 # 200.0
+   end
+# Loading/Saving
+   subsection SavedSolution
+	set Load = false
+	set Save = false
+	set h    = 10
+        set p    = 10
+   end
+

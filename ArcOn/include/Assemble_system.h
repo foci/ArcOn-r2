@@ -44,20 +44,8 @@ void arcOn<dim>::assemble_system()
 
   init_flag = 1;
   load_initial_conditions(subdomain_solution,init_flag);
-  //init_flag = 2;
-  //load_initial_conditions(subdomain_solution,init_flag);
-  //load_top(L2_error_interpolant);
 
   init_solution = subdomain_solution;
-
-  /* for(unsigned int k=0; k<alphadim; k++){ */
-  /*   naive_subdomain_solution[k]= subdomain_solution[k]; */
-  /*   FETools::interpolate (*(dof_handler[k]),  naive_subdomain_solution[k], */
-  /* 			  *(tdof_handler[k]), cont_output1[k]); */
-    
-  /*   cont_global[k] = cont_output1[k]; */
-  /* } */
-  
 
   }
 
@@ -71,17 +59,10 @@ void arcOn<dim>::assemble_system()
       {assemble_stiffness(subdomain_solution,0.0);}
     else
       {assemble_cont_stiffness(subdomain_solution,0.0);}
-    
-    //poisson_matrix.block(0,0).vmult(subdomain_solution[1].block(0),subdomain_solution[2].block(0));
-    
-    //glob_min_ribbon_density = 0.0;
-    
     periodicity_map(subdomain_solution,0.0);
     assemble_sigma(subdomain_solution,0.0,0.0);
     periodicity_map(subdomain_solution,0.0);
-    
-    //calc_poisson(subdomain_solution,0.0);
-    //periodicity_map(subdomain_solution,0.0);
+
   }
 
   else {
@@ -89,7 +70,6 @@ void arcOn<dim>::assemble_system()
     static_periodicity_map(subdomain_solution,0.0);
     periodicity_map(subdomain_solution,0.0);
 
-    //Vector<double> subdomain_solution_holder (dof_handler.size());
     subdomain_solution_holder = subdomain_solution;
     
     Vector<float> alpha_measure(triangulation.n_active_cells());
@@ -205,7 +185,6 @@ void arcOn<dim>::assemble_system()
   for(unsigned int step =0; step<nstep;++step){
     
     if (step > 0){
-      //dt = h_min_dist / ((2.0*degree+1.0)*(CFL_bound) );
       dt = CFL_bound;
       //pcout << "h_min_dist2= " << h_min_dist << ", CFL_bound2 = " << CFL_bound << std::endl;
       //pcout << "dt (" << step << " ) = " << h_min_dist / ((2.0*degree+1.0)*(CFL_bound)) << std::endl;
@@ -265,11 +244,8 @@ void arcOn<dim>::assemble_system()
 
 	//periodicity_map(subdomain_solution,dt);
 	calc_reaction(subdomain_solution,dt,current_time_s);
-
       }      
-
     }
-    
 
     /*Step over reaction/convdiff modes if super-linear*/
     if (RK_order > 2){
@@ -348,6 +324,44 @@ void arcOn<dim>::assemble_system()
 
     periodicity_map(subdomain_solution,dt);
 
+    pcout << "1" << std::endl; 
+    
+    int smoother = 0;
+
+     if (smoother == 2){
+ 	
+	naive_subdomain_solution[1]= subdomain_solution[1];
+	FETools::interpolate (*(dof_handler[1]),  naive_subdomain_solution[1],
+			      *(tdof_handler[1]), cont_output1[1]);
+	
+	cont_global[1] = cont_output1[1];
+     }
+    
+    if (smoother == 1){
+      
+      for(unsigned int k=0; k<alphadim-1; k++){
+	
+	naive_subdomain_solution[k]= subdomain_solution[k];
+	FETools::interpolate (*(dof_handler[k]),  naive_subdomain_solution[k],
+			      *(tdof_handler[k]), cont_output1[k]);
+	
+	cont_global[k] = cont_output1[k];
+	naive_subdomain_solution[k] = 0.0;
+	
+	FETools::interpolate (*(tdof_handler[k]), cont_global[k],
+			      *(dof_handler[k]),  naive_subdomain_solution[k]);
+	
+	
+	subdomain_solution[k] = naive_subdomain_solution[k];
+	
+	//periodicity_map(subdomain_solution,dt);
+	
+	pcout << "smoother on" << std::endl; 
+	
+      }
+      periodicity_map(subdomain_solution,dt);
+    }
+ 
     if (solver_type == 0)
       {
 	calc_poisson(subdomain_solution,dt);
@@ -356,64 +370,50 @@ void arcOn<dim>::assemble_system()
       {
 	calc_poisson_cont(subdomain_solution,dt);
       }
+
+    pcout << "2" << std::endl; 
     
     revert_vacuum(subdomain_solution,dt,current_time_s);
 
+    pcout << "3" << std::endl; 
+    
     periodicity_map(subdomain_solution,dt);
 
+    pcout << "4" << std::endl; 
+    
     assemble_sigma(subdomain_solution,current_time_s,dt);
 
+    pcout << "5" << std::endl; 
+    
     periodicity_map(subdomain_solution,dt);
 
+    pcout << "6" << std::endl; 
+    
+    if (smoother == 1){
+      
+      for(unsigned int k=0; k<alphadim; k++){
+	
+	naive_subdomain_solution[k]= subdomain_solution[k];
+	FETools::interpolate (*(dof_handler[k]),  naive_subdomain_solution[k],
+			      *(tdof_handler[k]), cont_output1[k]);
 
-    //assemble_sigma(subdomain_solution,current_time_s,dt);
-
-    //periodicity_map(subdomain_solution,dt);
-    //------------------?
-
-
-    /* compute_l2_error(subdomain_solution,current_time_s); */
-    /* //compute_l2_interpolation(subdomain_solution); */
-
-    /* double l2_err = 0.0; */
-    /* double linf_err = 0.0; */
-    /* //double l2_interp = 0.0; */
-    /* l2_err = L2_error_method[1].block(0).l2_norm(); */
-    /* linf_err = L2_error_method[1].block(0).linfty_norm(); */
-    /* //l2_interp = interpolation_error[2].block(0).l2_norm(); */
-    /* if (l2_err != 0.0){ */
-    /*   pcout <<  "L2-error of component[" << 1 << "] = "  << std::setw(5) << std::setprecision(15)  << l2_err << std::endl; */
-    /*   pcout <<  "Linf-error of component[" << 1 << "] = "  << std::setw(5) << std::setprecision(15)  << linf_err << std::endl; */
-    /*   //pcout <<  "L2 interpolation error of component[" << 2 << "] = "  << std::setw(5) << std::setprecision(15)  << l2_interp << std::endl; */
-    /* } */
-
-    //cmcmv(subdomain_solution);
-
-    //cm = dt;
-    //cmv = cm /dt;
-
-    //solid
-    //pcout << std::setprecision(9) << "cm(" << stepper+1 << ") = " << cm << "; t(" << stepper+1 << ") = " << current_time_s << ";" << std::endl;
-    //old
-    //pcout << "cmv(" << stepper+1 << ") = " << cmv << "; tt(" << stepper+1 << ") = " << current_time_s << ";" << std::endl;
+	naive_subdomain_solution[k] = 0.0;
+	cont_global[k] = cont_output1[k];
+	
+	FETools::interpolate (*(tdof_handler[k]), cont_global[k],
+			      *(dof_handler[k]),  naive_subdomain_solution[k]);
+	
+	subdomain_solution[k] = naive_subdomain_solution[k];
+	pcout << "smoother on" << std::endl; 
+	
+      }
+      periodicity_map(subdomain_solution,dt);
+    }
 
     cm = 0.0;
     cmv = 0.0;
-    
-    /* std::ofstream cmfile; */
-    /* cmfile.open ("cm.txt", std::ios::out | std::ios::app ); */
-    /* cmfile << "cm(" << stepper << ") = " << cm << "; dt(" << stepper << ") = " << dt << ";\r\n"; */
-    /* cmfile.close(); */ 
-    /* std::ofstream cmvfile; */
-    /* cmfile.open ("cmv.txt", std::ios::out | std::ios::app ); */
-    /* cmfile << "cmv(" << stepper << ") = " << cmv << "; dt(" << stepper << ") = " << dt << ";\r\n"; */
-    /* cmvfile.close(); */
-
 
     if ( (step+1) % modulus == 0){
-      
-      //revert_density(subdomain_solution, dt, current_time_s, naive_revert_output);
-      //revert_output=naive_revert_output;
       
       output_results(step+1);
       
