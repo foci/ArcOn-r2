@@ -96,7 +96,7 @@ void arcOn<dim>::calc_poisson_cont(SolutionVector& subdomain_solution, double de
       
       SolverControl solver_control (n_iters, conv_threshold, true, true);
 
-      //pcout << "here5?" << std::endl;
+      //      pcout << "here5?" << std::endl;
       
       PETScWrappers::SolverGMRES solver(solver_control, mpi_communicator);
       //PETScWrappers::SolverCG solver(solver_control, mpi_communicator);

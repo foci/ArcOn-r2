@@ -141,13 +141,30 @@ void arcOn<dim>::compute_l2_error(SolutionVector& subdomain_solution, double cur
 	  //mapinfo[component][0].localInverseMassMatrix.vmult(projected,alpha_sum[component]);
 	  //projected /= JxWsum;
 
-	  tparahyp_constraints[component].distribute_local_to_global (projected,
-	  							     local_dof_indices,
-	  							     naive_L2_error_method[component]);
+
+          if (component == 0){
+            density_constraints.distribute_local_to_global (projected,
+                                                            local_dof_indices,
+                                                            naive_L2_error_method[component]);
+          }
+          else if (component == 1) {
+            vorticity_constraints.distribute_local_to_global (projected,
+                                                              local_dof_indices,
+                                                              naive_L2_error_method[component]);
+          }
+          else if (component == 2) {
+            potential_constraints.distribute_local_to_global (projected,
+                                                              local_dof_indices,
+                                                              naive_L2_error_method[component]);
+          }
+
+	  /* tparahyp_constraints[component].distribute_local_to_global (projected, */
+	  /* 							     local_dof_indices, */
+	  /* 							     naive_L2_error_method[component]); */
 	  
 	}
     
-    naive_L2_error_method[component].compress(VectorOperation::insert);
+    naive_L2_error_method[component].compress(VectorOperation::add);
     L2_error_method[component].block(0) = naive_L2_error_method[component].block(0);
 
   }

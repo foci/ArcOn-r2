@@ -1,16 +1,11 @@
-
 # Listing of Parameters
 # ---------------------
 subsection Alphas
   # Any constant used inside the function which is not a variable name.
   set Function constants  = 
-
   # Separate vector valued expressions by ';' as ',' is used internally by the
   # function parser.
   set Function expression = 0.1+(1.0*exp( -((x - 37.0)^2.0) / 144.0))*sin(0.2*y)*sin(0.2*y); 0.0 ; 0.0  
-
-  #*sin(0.050*y)
-  #exp( -(x^2.0 + y^2.0) / 100.0)
 
   # The name of the variables as they will be used in the function, separated
   set Variable names      = x,y,t

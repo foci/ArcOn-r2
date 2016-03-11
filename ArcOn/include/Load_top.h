@@ -93,13 +93,30 @@ void arcOn<dim>::load_top(SolutionVector& L2_error_interpolant)
 	  Vector<double> projected(dofs_per_cell);
 	  InverseMassMatrix.vmult(projected,alpha_sum[component]);
 	  projected /= JxWsum;
-	  tparahyp_constraints[component].distribute_local_to_global (projected,
-	  							     local_dof_indices,
-	  							     naive_L2_error_interpolant[component]);
+
+	  if (component == 0){
+            density_constraints.distribute_local_to_global (projected,
+                                                            local_dof_indices,
+                                                            naive_L2_error_interpolant[component]);
+          }
+          else if (component == 1) {
+            vorticity_constraints.distribute_local_to_global (projected,
+                                                              local_dof_indices,
+                                                              naive_L2_error_interpolant[component]);
+          }
+          else if (component == 2) {
+            potential_constraints.distribute_local_to_global (projected,
+                                                              local_dof_indices,
+                                                              naive_L2_error_interpolant[component]);
+          }
+
+	  /* tparahyp_constraints[component].distribute_local_to_global (projected, */
+	  /* 							     local_dof_indices, */
+	  /* 							     naive_L2_error_interpolant[component]); */
 	  
 	}
     
-    naive_L2_error_interpolant[component].compress(VectorOperation::insert);
+    naive_L2_error_interpolant[component].compress(VectorOperation::add);
     L2_error_interpolant[component].block(0) = naive_L2_error_interpolant[component].block(0);
 
   }

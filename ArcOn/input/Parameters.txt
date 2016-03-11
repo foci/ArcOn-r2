@@ -1,6 +1,6 @@
 # Mesh parameters
    subsection Mesh
-	set Number of spatial refinements = 4 #8
+	set Number of spatial refinements = 5 #8
 	set Polynomial Degree = 3
    end 
 # Physical parameters
@@ -14,7 +14,7 @@
 # Runtime
    subsection Time
 	set Timestep size dt = 0.000100 #make sure small enough
-	set Number of timesteps = 2000000 # 30000000 #2000000
+	set Number of timesteps = 2000 # 30000000 #2000000
 	set Hard endtime = 50000.0 #10142.15 #35000.0
 	set fstep = 0
 	set RK order = 2
@@ -22,7 +22,7 @@
 	set Method = 1 # 1 = explicit, 2 = IMEX
 	set RK type = 1 # 1 = RKSSP, 2 = RKC
 	set eps = 0.153846154 # RKC-epsilon
-	set Output_modulus = 1000 #000 #3000
+	set Output_modulus = 100 #000 #3000
 	set Output type = 1 # discontinuous=0, continuous=1
 	set CFL scaling = 15.0
 	set Ramp = 0
@@ -47,7 +47,7 @@
    end
 # Elliptic solver information
    subsection EllipticSolver
-   	set Continuity type = 0 # DG=0, CG=1	
+   	set Continuity type = 1 # DG=0, CG=1	
         set Penalty type = 1 # SIPG=1,NIPG=-1,IIPG=0
         set Sigma penalty = 200.0 # 200.0
    end

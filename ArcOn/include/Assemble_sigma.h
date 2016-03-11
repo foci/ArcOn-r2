@@ -455,10 +455,27 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	  Vector<double> projected(dofs_per_cell);
 	  mapinfo[component][0].localInverseMassMatrix.vmult(projected,temp_update[component]);
 	  projected /= JxWsum;
-	  parahyp_constraints[component].distribute_local_to_global (projected,
-								     local_dof_indices,
-								     naive_subdomain_solution[component]);
-       	}
+
+	  if (component == 0){
+            density_constraints.distribute_local_to_global (projected,
+                                                            local_dof_indices,
+                                                            naive_subdomain_solution[component]);
+          }
+          else if (component == 1) {
+            vorticity_constraints.distribute_local_to_global (projected,
+                                                              local_dof_indices,
+                                                              naive_subdomain_solution[component]);
+          }
+	  else if (component == 2) {
+            potential_constraints.distribute_local_to_global (projected,
+                                                              local_dof_indices,
+                                                              naive_subdomain_solution[component]);
+	  }
+	}	  
+	  /* parahyp_constraints[component].distribute_local_to_global (projected, */
+	/* 							     local_dof_indices, */
+	/* 							     naive_subdomain_solution[component]); */
+       	/* } */
     
     naive_subdomain_solution[component].compress(VectorOperation::add);
     subdomain_solution[component].block(1) = naive_subdomain_solution[component].block(1);

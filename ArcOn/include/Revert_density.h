@@ -114,7 +114,7 @@ void arcOn<dim>::revert_density(SolutionVector& subdomain_solution, double delta
 	  
 	}
 
-	  naive_revert_output[component].compress(VectorOperation::insert);
+	  naive_revert_output[component].compress(VectorOperation::add);
 
   }
 

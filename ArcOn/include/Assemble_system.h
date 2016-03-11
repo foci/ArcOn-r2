@@ -43,6 +43,8 @@ void arcOn<dim>::assemble_system()
   else{
 
   init_flag = 1;
+
+  pcout << "\n\t\033[1;34mLoading initial conditions ... " << std::endl;
   load_initial_conditions(subdomain_solution,init_flag);
   //init_flag = 2;
   //load_initial_conditions(subdomain_solution,init_flag);
@@ -66,6 +68,8 @@ void arcOn<dim>::assemble_system()
 
   if (!dyn_adaptation){
     
+    pcout << "\n\tAssemble the stiffness matrix ... " << std::endl;
+
     static_periodicity_map(subdomain_solution,0.0);
     if (solver_type == 0)
       {assemble_stiffness(subdomain_solution,0.0);}
@@ -75,6 +79,8 @@ void arcOn<dim>::assemble_system()
     //poisson_matrix.block(0,0).vmult(subdomain_solution[1].block(0),subdomain_solution[2].block(0));
     
     //glob_min_ribbon_density = 0.0;
+
+    pcout << "\n\t\033[1;35mMaking DG periodicity mappings ... " << std::endl;
     
     periodicity_map(subdomain_solution,0.0);
     assemble_sigma(subdomain_solution,0.0,0.0);
@@ -178,12 +184,15 @@ void arcOn<dim>::assemble_system()
   
   //revert_density(subdomain_solution, 0, 0, naive_revert_output);
   //revert_output=naive_revert_output;
+
+  pcout << "\n\t\033[1;31mOutput Initial Conditions" << std::endl;
+
   output_results(0);
 
   naive_subdomain_solution[2] = 0.0;
   subdomain_solution[2] = naive_subdomain_solution[2];
   
-  pcout << "\n\tThere are " <<  triangulation.n_global_active_cells() << 
+  pcout << "\n\t\033[1;37m There are " <<  triangulation.n_global_active_cells() << 
     " finite element cells. There are " << n_mpi_processes << 
     " processors in use." << std::endl;
   pcout << "\n\tThere are " << alphadim << 

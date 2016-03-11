@@ -365,10 +365,18 @@ private:
   std::vector < PETScWrappers::BlockVector > llocal_solution;
 
   ConstraintMatrix elliptic_constraints;
-  std::vector < ConstraintMatrix > parahyp_constraints;
+  // ConstraintMatrix parahyp_temp;
+  // std::vector < ConstraintMatrix > parahyp_constraints = std::vector<ConstraintMatrix>(3);
+  ConstraintMatrix density_constraints;
+  ConstraintMatrix potential_constraints;
+  ConstraintMatrix vorticity_constraints;
+
+  ConstraintMatrix tdensity_constraints;
+  ConstraintMatrix tpotential_constraints;
+  ConstraintMatrix tvorticity_constraints;
 
   ConstraintMatrix telliptic_constraints;
-  std::vector < ConstraintMatrix > tparahyp_constraints;
+  // std::vector < ConstraintMatrix > tparahyp_constraints = std::vector<ConstraintMatrix>(3);
 
   std::vector  < SolutionVector >   RK_solution;
   std::vector  < SolutionVector >   naive_RK_solution;

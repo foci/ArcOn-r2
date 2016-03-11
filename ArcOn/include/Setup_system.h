@@ -76,9 +76,11 @@ void arcOn<dim>::setup_system()
   MassAction_integrated.resize(alphadim);
   naive_MassAction_integrated.resize(alphadim);
 
-  parahyp_constraints.resize(alphadim);
-  tparahyp_constraints.resize(alphadim);
-  
+  /* parahyp_constraints.reserve(alphadim); */
+  /* std::vector < ConstraintMatrix >::iterator it1 = parahyp_constraints.begin();  */
+  /* tparahyp_constraints.reserve(alphadim); */
+  /* std::vector < ConstraintMatrix >::iterator it2 = tparahyp_constraints.begin();   */
+
   //alpha_mask.resize(alphadim);
   
   for(unsigned int s=0; s<RK_stage+1; s++){
@@ -95,6 +97,7 @@ void arcOn<dim>::setup_system()
     naive_RK_MassAction[s].resize(alphadim);
     naive_RK_MassAction_temp[s].resize(alphadim);
   }
+
   
   for (unsigned int component=0; component< alphadim; ++component){
  
@@ -431,23 +434,27 @@ void arcOn<dim>::setup_system()
 
     //*alpha_mask[component] = fe_collection[component]->component_mask(*alpha[component]);
 
-    parahyp_constraints[component].clear ();
-    parahyp_constraints[component].reinit ( locally_relevant_dofs[component]);
-    /* DoFTools::make_periodicity_constraints(*dof_handler[component], */
-    /* 					   /\*b_id*\/ 1, */
-    /* 					   /\*b_id*\/ 2, */
-    /* 					   /\*direction*\/ 0, */
-    /* 					   parahyp_constraints[component]); */
-    parahyp_constraints[component].close ();
+    //ConstraintMatrix parahyp_temp(locally_relevant_dofs[component]);
+    //it1->reinit(locally_relevant_dofs[component]);
+    /* parahyp_constraints[component].clear(); */
+    /* parahyp_constraints[component].reinit ( locally_relevant_dofs[component]); */
+    /* /\* DoFTools::make_periodicity_constraints(*dof_handler[component], *\/ */
+    /* /\* 					   /\\*b_id*\\/ 1, *\/ */
+    /* /\* 					   /\\*b_id*\\/ 2, *\/ */
+    /* /\* 					   /\\*direction*\\/ 0, *\/ */
+    /* /\* 					   parahyp_constraints[component]); *\/ */
+    /* parahyp_constraints[component].close(); */
 
-    tparahyp_constraints[component].clear ();
-    tparahyp_constraints[component].reinit ( tlocally_relevant_dofs[component] );
-    /* DoFTools::make_periodicity_constraints(*dof_handler[component], */
-    /* 					   /\*b_id*\/ 1, */
-    /* 					   /\*b_id*\/ 2, */
-    /* 					   /\*direction*\/ 1, */
-    /* 					   parahyp_constraints[component]); */
-    tparahyp_constraints[component].close ();
+    /* //it2->reinit(tlocally_relevant_dofs[component]); */
+    /* //ConstraintMatrix tparahyp_temp(tlocally_relevant_dofs[component]); */
+    /* tparahyp_constraints[component].clear(); */
+    /* tparahyp_constraints[component].reinit ( tlocally_relevant_dofs[component] ); */
+    /* /\* DoFTools::make_periodicity_constraints(*dof_handler[component], *\/ */
+    /* /\* 					   /\\*b_id*\\/ 1, *\/ */
+    /* /\* 					   /\\*b_id*\\/ 2, *\/ */
+    /* /\* 					   /\\*direction*\\/ 1, *\/ */
+    /* /\* 					   parahyp_constraints[component]); *\/ */
+    /* tparahyp_constraints[component].close();     */
 
     poisson_matrix.reinit(num_blocks,num_blocks);
     cont_poisson_matrix.reinit(num_blocks,num_blocks);
@@ -489,7 +496,67 @@ void arcOn<dim>::setup_system()
     
     cont_poisson_matrix.collect_sizes();
     
-    
+    if(component == 0){
+      density_constraints.clear ();
+      density_constraints.reinit ( locally_relevant_dofs[0] );
+      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
+      /* 					     /\*b_id*\/ 1, */
+      /* 					     /\*b_id*\/ 2, */
+      /* 					     /\*direction*\/ 0, */
+      /* 					     elliptic_constraints); */
+      density_constraints.close ();
+    }
+    if(component == 1){
+      vorticity_constraints.clear ();
+      vorticity_constraints.reinit ( locally_relevant_dofs[1] );
+      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
+      /*                                             /\*b_id*\/ 1, */
+      /*                                             /\*b_id*\/ 2, */
+      /*                                             /\*direction*\/ 0, */
+      /*                                             elliptic_constraints); */
+      vorticity_constraints.close ();
+    }
+    if(component == 2){
+      potential_constraints.clear ();
+      potential_constraints.reinit ( locally_relevant_dofs[2] );
+      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
+      /*                                             /\*b_id*\/ 1, */
+      /*                                             /\*b_id*\/ 2, */
+      /*                                             /\*direction*\/ 0, */
+      /*                                             elliptic_constraints); */
+      potential_constraints.close ();
+    }
+    if(component == 0){
+      tdensity_constraints.clear ();
+      tdensity_constraints.reinit ( locally_relevant_dofs[0] );
+      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
+      /* 					     /\*b_id*\/ 1, */
+      /* 					     /\*b_id*\/ 2, */
+      /* 					     /\*direction*\/ 0, */
+      /* 					     elliptic_constraints); */
+      tdensity_constraints.close ();
+    }
+    if(component == 1){
+      tvorticity_constraints.clear ();
+      tvorticity_constraints.reinit ( locally_relevant_dofs[1] );
+      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
+      /*                                             /\*b_id*\/ 1, */
+      /*                                             /\*b_id*\/ 2, */
+      /*                                             /\*direction*\/ 0, */
+      /*                                             elliptic_constraints); */
+      tvorticity_constraints.close ();
+    }
+    if(component == 2){
+      tpotential_constraints.clear ();
+      tpotential_constraints.reinit ( locally_relevant_dofs[2] );
+      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
+      /*                                             /\*b_id*\/ 1, */
+      /*                                             /\*b_id*\/ 2, */
+      /*                                             /\*direction*\/ 0, */
+      /*                                             elliptic_constraints); */
+      tpotential_constraints.close ();
+    }
+
     if(component == 2){
       elliptic_constraints.clear ();
       elliptic_constraints.reinit ( locally_relevant_dofs[2] );

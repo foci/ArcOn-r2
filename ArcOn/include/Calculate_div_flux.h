@@ -1916,9 +1916,20 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 	  Vector<double> projected(dofs_per_cell); 
 	  mapinfo[component][0].localInverseMassMatrix.vmult(projected,temp_update[component]);
 	  projected /= JxWsum;
-	  parahyp_constraints[component].distribute_local_to_global (projected,
-								     local_dof_indices,
-								     div_flux_term[component]);
+	  if (component ==0){
+	    density_constraints.distribute_local_to_global (projected,
+							    local_dof_indices,
+							    div_flux_term[component]); 
+	  }
+	  else if (component == 1) {
+	    vorticity_constraints.distribute_local_to_global (projected,
+							      local_dof_indices,
+							      div_flux_term[component]);
+	  }
+	  /* parahyp_constraints[component].distribute_local_to_global (projected, */
+	  /* 							     local_dof_indices, */
+	  /* 							     div_flux_term[component]); */
+	  
 	  /* if(pinfo[component].alphaProject){  */
 	  /*   pinfo[component].InverseAlphaMassMatrix.vmult(projected,temp_update[component]);  */
 	  /* } else {  */
@@ -1932,7 +1943,7 @@ void arcOn<dim>::calculate_div_flux(SolutionVector& substep_solution, double del
 	  /* }  */
 	}
 
-    div_flux_term[component].compress(VectorOperation::insert);
+    div_flux_term[component].compress(VectorOperation::add);
     
   }
 

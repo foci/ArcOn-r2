@@ -100,7 +100,7 @@ void arcOn<dim>::revert_vacuum(SolutionVector& subdomain_solution, double delta_
       //else{
       //naive_subdomain_solution[2].block(0).add(global_Avg);
       //}
-    naive_subdomain_solution[2].compress(VectorOperation::insert);
+    naive_subdomain_solution[2].compress(VectorOperation::add);
     subdomain_solution[2].block(0) = naive_subdomain_solution[2].block(0);
     
     delete hp_fe_values[0];

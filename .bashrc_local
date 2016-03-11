@@ -1,13 +1,13 @@
 #! /bin/bash
 
-#module load boost qt cmake git valgrind hdf5 netcdf #metis
+module load boost cmake git valgrind hdf5 netcdf petsc #metis
 
 export CC=mpicc
 export CXX=mpicxx
 export FC=mpif90
 export ArcOn_DIR=`pwd`
-export PETSC_DIR=$ArcOn_DIR/petsc-3.4.4
-export PETSC_ARCH=clang-openmp-cxx-opt
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ArcOn_DIR/petsc-3.4.4/$PETSC_ARCH/lib
-export DEAL_II_DIR=$ArcOn_DIR/trigger/lib/cmake/dealii
+#export PETSC_DIR=$ArcOn_DIR/petsc-3.4.4
+#export PETSC_ARCH=clang-openmp-cxx-opt
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ArcOn_DIR/petsc-3.4.4/$PETSC_ARCH/lib
+export DEAL_II_DIR=$ArcOn_DIR/trigger/lib/cmake/dealii-8.3.0
 export ArcOn_dimension=2d

@@ -10,7 +10,10 @@ public:
 
     // Declare a section for the function we need
     prm.enter_subsection("Alphas");
-    Functions::ParsedFunction<dim>::declare_parameters(prm, alphadim);
+    {
+      Functions::ParsedFunction<dim>::declare_parameters(prm, alphadim);
+      prm.set("Function expression", "1; 1; 1");
+    }
     prm.leave_subsection();
 
 

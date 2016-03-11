@@ -128,13 +128,29 @@ void arcOn<dim>::compute_l2_interpolation(SolutionVector& subdomain_solution)
 	  //projected /= JxWsum;
 	  //alpha_sum[component] /= JxWsum;
 
-	  parahyp_constraints[component].distribute_local_to_global (alpha_sum[component],
-	  							     local_dof_indices,
-	  							     naive_interpolation_error[component]);
+	  if (component == 0){
+            density_constraints.distribute_local_to_global (projected,
+                                                            local_dof_indices,
+                                                            naive_interpolation_error[component]);
+          }
+          else if (component == 1) {
+            vorticity_constraints.distribute_local_to_global (projected,
+                                                              local_dof_indices,
+                                                              naive_interpolation_error[component]);
+          }
+          else if (component == 2) {
+            potential_constraints.distribute_local_to_global (projected,
+                                                              local_dof_indices,
+                                                              naive_interpolation_error[component]);
+          }
+
+	  /* parahyp_constraints[component].distribute_local_to_global (alpha_sum[component], */
+	  /* 							     local_dof_indices, */
+	  /* 							     naive_interpolation_error[component]); */
 	  
 	}
     
-    naive_interpolation_error[component].compress(VectorOperation::insert);
+    naive_interpolation_error[component].compress(VectorOperation::add);
     interpolation_error[component].block(0) = naive_interpolation_error[component].block(0);
 
   }

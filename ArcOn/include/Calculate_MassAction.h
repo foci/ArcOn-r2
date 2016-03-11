@@ -223,13 +223,24 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	  Vector<double> projected(dofs_per_cell); 
 	  mapinfo[component][0].localInverseMassMatrix.vmult(projected,temp_update[component]);
 	  projected /= JxWsum;
-	  parahyp_constraints[component].distribute_local_to_global (projected,
-								     local_dof_indices,
-								     mass_action_term[component]);	  
+	  
+	  if (component == 0){
+            density_constraints.distribute_local_to_global (projected,
+                                                            local_dof_indices,
+                                                            mass_action_term[component]);
+          }
+          else if (component == 1) {
+            vorticity_constraints.distribute_local_to_global (projected,
+                                                              local_dof_indices,
+                                                              mass_action_term[component]);
+	  }
+	  /* parahyp_constraints[component].distribute_local_to_global (projected, */
+	  /* 							     local_dof_indices, */
+	  /* 							     mass_action_term[component]);}	   */
 	  
 	}
 
-    mass_action_term[component].compress(VectorOperation::insert);
+    mass_action_term[component].compress(VectorOperation::add);
 
   }
 
