@@ -40,40 +40,8 @@ void arcOn<dim>::create_dg_periodicity()
 		   && facei->center()[1] == facej->center()[1] 
 		   && facei->boundary_indicator() != facej->boundary_indicator())
 		{
-		  //   && celli != cellj ) {
-
-
-		  // fe_vals_face->reinit(cell, face_num);
-		  // const FEFaceValues<dim>& fe_values_face =
-		  //   fe_vals_face->get_present_fe_values ();
-		  // const Quadrature<dim-1>& face_quadrature_formula = fe_values_face.get_quadrature();
-		  // const unsigned int n_q_points_face = face_quadrature_formula.size();
-		  // soln_draw[cell] = std::vector<double>(n_q_points_face);
-		  // soln_face =  std::vector<double>(n_q_points_face);
-		  // fe_values_face.get_function_values(completely_distributed_solution,
-		  //                                 soln_face);
-
-
-		  //pcout << "face_iterj = " << facej << ", cell_noj = " << cellj->index() << std::endl;
-		  //pcout << "cellj = " << cellj << ", face_noj = " << face_numj << std::endl;
-		  //pcout << "centeri = " << facei->center()[1] << ", centerj = " << facej->center()[1] << std::endl;
-		  //pcout << "boundaryi = " << std::static_cast<void *>(facei->boundary_indicator()) << ", boundaryj = " << std::static_cast<void *>(facej->boundary_indicator()) << std::endl;
-
-		  //std::cout << "face_iteri = " << facei << ", cell_noi = " << celli->index() << std::endl;
-
-		  //std::cout << "centeri = " << facei->center()[1] << ", centerj = " << facej->center()[1] << std::endl;
-		  //pcout << "boundaryi = " << std::static_cast<void *>(facej->boundary_indicator()) << ", boundaryj = " << std::static_cast<void *>(facej->boundary_indicator()) << std::endl;
-
-		  //pcout << "face_iteri = " << facei << ", cell_noi = " << celli->index() << std::endl;
-		  //pcout << "celli = " << celli << ", face_noi = " << face_numi << std::endl;
-		  //pcout << std::endl;
-
 		  Cell_matchX[celli->index()] = cellj->index();
-		  //soln_draw[celli] = soln_face;
-		  //Face_match[celli] = face_numj;
 		}
-	      //else{ 
-		//Cell_match[celli->index()] = -2;}
 	    }
 	  }
 	}
@@ -118,40 +86,8 @@ void arcOn<dim>::create_dg_periodicity()
 		   && facek->center()[1] != facel->center()[1] 
 		   && facek->boundary_indicator() != facel->boundary_indicator())
 		{
-		  //   && celli != cellj ) {
-
-
-		  // fe_vals_face->reinit(cell, face_num);
-		  // const FEFaceValues<dim>& fe_values_face =
-		  //   fe_vals_face->get_present_fe_values ();
-		  // const Quadrature<dim-1>& face_quadrature_formula = fe_values_face.get_quadrature();
-		  // const unsigned int n_q_points_face = face_quadrature_formula.size();
-		  // soln_draw[cell] = std::vector<double>(n_q_points_face);
-		  // soln_face =  std::vector<double>(n_q_points_face);
-		  // fe_values_face.get_function_values(completely_distributed_solution,
-		  //                                 soln_face);
-
-
-		  //pcout << "face_iterj = " << facej << ", cell_noj = " << cellj->index() << std::endl;
-		  //pcout << "cellj = " << cellj << ", face_noj = " << face_numj << std::endl;
-		  //pcout << "centeri = " << facei->center()[1] << ", centerj = " << facej->center()[1] << std::endl;
-		  //pcout << "boundaryi = " << std::static_cast<void *>(facei->boundary_indicator()) << ", boundaryj = " << std::static_cast<void *>(facej->boundary_indicator()) << std::endl;
-
-		  //std::cout << "face_iteri = " << facei << ", cell_noi = " << celli->index() << std::endl;
-
-		  //std::cout << "centeri = " << facei->center()[1] << ", centerj = " << facej->center()[1] << std::endl;
-		  //pcout << "boundaryi = " << std::static_cast<void *>(facej->boundary_indicator()) << ", boundaryj = " << std::static_cast<void *>(facej->boundary_indicator()) << std::endl;
-
-		  //pcout << "face_iteri = " << facei << ", cell_noi = " << celli->index() << std::endl;
-		  //pcout << "celli = " << celli << ", face_noi = " << face_numi << std::endl;
-		  //pcout << std::endl;
-
 		  Cell_matchY[cellk->index()] = celll->index();
-		  //soln_draw[celli] = soln_face;
-		  //Face_match[celli] = face_numj;
 		}
-	      //else{ 
-		//Cell_match[celli->index()] = -2;}
 	    }
 	  }
 	}

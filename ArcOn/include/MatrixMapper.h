@@ -68,47 +68,8 @@ void arcOn<dim>::matrixmapper()
 	  } else {
 	    mapinfo[component][0].MapProject=true;
 	  }
-	  //pcout << "Local inverse mass matrix";
-	  //if(!mapinfo[component][CO].MapProject) std::cout << " is close to the Identity. ";
-	  //std::cout << std::endl;
-	  //std::cout << "Local mass matrix" << std::endl;
-	  //mapinfo[component][CO].localMassMatrix.print_formatted(std::cout);
-	  //std::cout << "Local Inverse mass matrix" << std::endl;
-	  //mapinfo[component][CO].localInverseMassMatrix.print_formatted(std::cout);
-	  //std::cout << "Local mass matrix minus identity" << std::endl;
-	  //MassMatrix.print_formatted(std::cout);
-     
-
-	  //Let's compute LDG_beta for the second penalty type.
-	  /* for(unsigned int face_num=0; face_num < GeometryInfo<dim>::faces_per_cell; ++face_num){ */
-
-	  /*   typename DoFHandler<dim>::face_iterator face=cell->face(face_num); */
-	  /*   hp_fe_values_face[component]->reinit (cell,face_num); */
-
-	  /*   const FEFaceValues<dim>& fe_values_face = */
-	  /*     hp_fe_values_face[component]->get_present_fe_values (); */
-
-	  /*   const Quadrature<dim-1>& face_quadrature_formula = fe_values_face.get_quadrature(); */
-
-	  /*   const unsigned int n_q_points_face = face_quadrature_formula.size(); */
-	    
-	  /*   const std::vector<Point<dim> > &normals = fe_values_face.get_normal_vectors (); */
-
-	  /*   for (unsigned int i=0; i<dofs_per_cell; ++i){ */
-	  /*     for (unsigned int q=0; q<fe_values_face.n_quadrature_points; ++q){ */
-
-	  /* 	const Point<dim>& normal = normals[q]; */
-	  /* 	if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
-	  /* 	} */
-	  /* 	else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
-	  /* 	} */
-
-	  /*     } */
-	  /*   } */
-	  /* } */
-
+	  
 	}
-
   }
-
+  
 }

@@ -6,19 +6,15 @@ void arcOn<dim>::calc_poisson_cont(SolutionVector& subdomain_solution, double de
 
   std::vector< FEValues<dim>* > hp_fe_values;
   double current_time = 1.0;
-
-  //pcout << "here1?" << std::endl;
     
   for (unsigned int k=0; k< alphadim; ++k){
 
     cont_global[k] = 0.0;
     cont_output1[k] = 0.0;
 
-    //naive_subdomain_solution[k]= subdomain_solution[k];
     FETools::interpolate (*(dof_handler[k]),  subdomain_solution[k],
 			  *(tdof_handler[k]), cont_output1[k]);
 
-    //    cont_global[k].update_ghost_values();
     cont_global[k] = cont_output1[k];
 
   }
@@ -57,8 +53,6 @@ void arcOn<dim>::calc_poisson_cont(SolutionVector& subdomain_solution, double de
 	    std::vector<unsigned int> neigh_local_dof_indices (dofs_per_cell);
 
 	    cell_rhs = 0.0;
-	     
-	    //pcout << "here2?" << std::endl;
 
 	    for(unsigned int k=0;k<alphadim;k++){
 	      prev_soln_alpha[k] =  std::vector<double>(n_q_points);
@@ -78,12 +72,9 @@ void arcOn<dim>::calc_poisson_cont(SolutionVector& subdomain_solution, double de
 	      for (unsigned int q=0; q<n_q_points; ++q){
 		
 		cell_rhs(i) -= (fe_values[*(alpha[component])].value(i,q))* (prev_soln_alpha[1][q]) * JxW[q] ;
-		//cell_rhs(i) -= 0.0010*(fe_values[*(alpha[component])].value(i,q)) * JxW[q] ;
 		
 	      }
 	    }
-
-	    //cell_rhs = -0.0010;
 
 	    telliptic_constraints.distribute_local_to_global(cell_rhs,
 							     local_dof_indices,
@@ -91,15 +82,10 @@ void arcOn<dim>::calc_poisson_cont(SolutionVector& subdomain_solution, double de
 	  }
     
       cont_poisson_rhs.compress (VectorOperation::add);
-      //cont_poisson_matrix.compress (VectorOperation::insert); 
-      //pcout << "here4?" << std::endl;
       
       SolverControl solver_control (n_iters, conv_threshold, true, true);
 
-      //      pcout << "here5?" << std::endl;
-      
       PETScWrappers::SolverGMRES solver(solver_control, mpi_communicator);
-      //PETScWrappers::SolverCG solver(solver_control, mpi_communicator);
 
       solver.solve (cont_poisson_matrix.block(0,0), 
 		    cont_global[component].block(0), 
@@ -109,40 +95,19 @@ void arcOn<dim>::calc_poisson_cont(SolutionVector& subdomain_solution, double de
       pcout << "\033[1;37m   Solved in " << solver_control.last_step()
 	    << " iterations " << std::endl;
 
-      //pcout << "here1?" << std::endl;
-
       cont_output1[component].block(0) = cont_global[component].block(0);
 
       telliptic_constraints.distribute (cont_output1[component]);
 
       cont_global[component].block(0) = cont_output1[component].block(0);
 
-      //telliptic_constraints.distribute (cont_global[component]);
-
-      //pcout << "here2?" << std::endl;
-
- //for (unsigned int k=0; k< alphadim; ++k){
-     
-    //cont_output1[k] = cont_global[k];
-
-  //  cont_global[2].update_ghost_values();
-
-      //pcout << "here3?" << std::endl;
-  
       FETools::interpolate (*(tdof_handler[component]), cont_global[component],
 			    *(dof_handler[component]),  naive_subdomain_solution[component]);
       
-  //  naive_subdomain_solution[2].update_ghost_values();
-
-      //pcout << "here4?" << std::endl;
-  
       subdomain_solution[component].block(0) = naive_subdomain_solution[component].block(0);
       
     }
   }
-  
- 
-  //  }
   
   for (unsigned int component=0; component< alphadim; ++component){  
     delete hp_fe_values[component];

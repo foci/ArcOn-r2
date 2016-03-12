@@ -53,9 +53,6 @@ private:
   void revert_vacuum( SolutionVector& subdomain_solution, 
 				      double delta_t, double current_time);
 
-  /* void Calculate_MassAction_Implicit( SolutionVector& solution, double delta_t, SolutionVector& mass_action_term) const;  */
-  /* void calculate_mass_action_exact(SolutionVector& init_solution, SolutionVector& solution, double delta_t, SolutionVector& mass_action_term_exact) const; */
-
   void calc_convdiff(SolutionVector& subdomain_solution,  double delta_t, double current_time); 
   void calc_reaction(SolutionVector& subdomain_solution, double delta_t, double current_time); 
 
@@ -111,8 +108,6 @@ private:
   std::vector< QGauss<1> * >              line_quadrature_collection;
   std::vector< QGauss<dim-1> * >          face_quadrature_collection;
 
-  /* std::vector< QGaussLobatto<dim> * >            quadrature_collection; */
-  /* std::vector< QGaussLobatto<dim-1> * >          face_quadrature_collection;  */
 
   std::vector< DoFHandler<dim> * >        idof_handler;
   std::vector< FESystem<dim> * >          ife_collection;
@@ -120,34 +115,17 @@ private:
   std::vector< QGauss<1> * >              line_iquadrature_collection;
   std::vector< QGauss<dim-1> * >          iface_quadrature_collection;
 
-  /* std::vector< QGaussLobatto<dim> * >            iquadrature_collection;          */
-  /* std::vector< QGaussLobatto<dim-1> * >          iface_quadrature_collection;   */
-
   std::vector< DoFHandler<dim> * >        ldof_handler;
   std::vector< FESystem<dim> * >          lfe_collection;
   std::vector< QGauss<dim> * >            lquadrature_collection;
   std::vector< QGauss<1> * >              line_lquadrature_collection;
   std::vector< QGauss<dim-1> * >          lface_quadrature_collection;
 
-  /* std::vector< QGaussLobatto<dim> * >            lquadrature_collection; */
-  /* std::vector< QGaussLobatto<dim-1> * >          lface_quadrature_collection;   */
-
-  //DoFHandler<dim>                        scalar_dof_handler;
-  //FE_DGQ<dim>                            scalar_fe;
-
   std::vector< DoFHandler<dim> * >        tdof_handler;
   std::vector< FESystem<dim> * >          tfe_collection;
   std::vector< QGauss<dim> * >            tquadrature_collection;
   std::vector< QGauss<1> * >              line_tquadrature_collection;
   std::vector< QGauss<dim-1> * >          tface_quadrature_collection;
-
-  /* std::vector< QGaussLobatto<dim> * >            tquadrature_collection; */
-  /* std::vector< QGaussLobatto<dim-1> * >          tface_quadrature_collection;   */
-
-  //std::vector< DoFHandler<dim> * >        trapz_dof_handler;
-  //std::vector< FESystem<dim> * >          trapz_fe_collection;
-  //std::vector< QTrapez<dim> * >           trapz_quad_collection;
-  //std::vector< QTrapez<dim-1> * >         trapz_face_quad_collection;
 
   Vector<double>        cell_L2_error;
   Vector<double>        cell_L2_error_init;
@@ -284,7 +262,6 @@ private:
   std::vector< FEValuesExtractors::Scalar * > alpha;
   std::vector< FEValuesExtractors::Vector * > sigma;
 
-  //std:: vector< ComponentMask * > alpha_mask;
   ComponentMask  alpha_mask;
 
   std::vector< FEValuesExtractors::Scalar * > ialpha;
@@ -329,10 +306,6 @@ private:
   SolutionVector MassAction_integrated;
   SolutionVector naive_MassAction_integrated;
 
-  //PETScWrappers::MPI::SparseMatrix temp_poisson_matrix;
-  //PETScWrappers::MPI::Vector temp_poisson_rhs;
-  //PETScWrappers::MPI::Vector redistributed_solution;
-
   std::map<int, double> newmax;
   std::map<int, double> newmin;
   std::map<int, double> oldval;
@@ -353,10 +326,6 @@ private:
   PETScWrappers::MPI::BlockVector cont_poisson_rhs; 
   PETScWrappers::PreconditionBoomerAMG cont_preconditioner;
 
-  //PETScWrappers::MPI::Vector poisson_rhs;
-
-  //PETScWrappers::MPI::Vector maxf;
-  //PETScWrappers::MPI::Vector minf;
   PETScWrappers::MPI::SparseMatrix maxf;
   PETScWrappers::MPI::SparseMatrix minf;
 
@@ -365,8 +334,6 @@ private:
   std::vector < PETScWrappers::BlockVector > llocal_solution;
 
   ConstraintMatrix elliptic_constraints;
-  // ConstraintMatrix parahyp_temp;
-  // std::vector < ConstraintMatrix > parahyp_constraints = std::vector<ConstraintMatrix>(3);
   ConstraintMatrix density_constraints;
   ConstraintMatrix potential_constraints;
   ConstraintMatrix vorticity_constraints;
@@ -376,7 +343,6 @@ private:
   ConstraintMatrix tvorticity_constraints;
 
   ConstraintMatrix telliptic_constraints;
-  // std::vector < ConstraintMatrix > tparahyp_constraints = std::vector<ConstraintMatrix>(3);
 
   std::vector  < SolutionVector >   RK_solution;
   std::vector  < SolutionVector >   naive_RK_solution;

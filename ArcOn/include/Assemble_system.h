@@ -46,23 +46,9 @@ void arcOn<dim>::assemble_system()
 
   pcout << "\n\t\033[1;34mLoading initial conditions ... " << std::endl;
   load_initial_conditions(subdomain_solution,init_flag);
-  //init_flag = 2;
-  //load_initial_conditions(subdomain_solution,init_flag);
-  //load_top(L2_error_interpolant);
-
   init_solution = subdomain_solution;
 
-  /* for(unsigned int k=0; k<alphadim; k++){ */
-  /*   naive_subdomain_solution[k]= subdomain_solution[k]; */
-  /*   FETools::interpolate (*(dof_handler[k]),  naive_subdomain_solution[k], */
-  /* 			  *(tdof_handler[k]), cont_output1[k]); */
-    
-  /*   cont_global[k] = cont_output1[k]; */
-  /* } */
-  
-
   }
-
 
   bool dyn_adaptation = false;
 
@@ -76,18 +62,12 @@ void arcOn<dim>::assemble_system()
     else
       {assemble_cont_stiffness(subdomain_solution,0.0);}
     
-    //poisson_matrix.block(0,0).vmult(subdomain_solution[1].block(0),subdomain_solution[2].block(0));
-    
-    //glob_min_ribbon_density = 0.0;
-
     pcout << "\n\t\033[1;35mMaking DG periodicity mappings ... " << std::endl;
     
     periodicity_map(subdomain_solution,0.0);
     assemble_sigma(subdomain_solution,0.0,0.0);
     periodicity_map(subdomain_solution,0.0);
     
-    //calc_poisson(subdomain_solution,0.0);
-    //periodicity_map(subdomain_solution,0.0);
   }
 
   else {
@@ -95,7 +75,6 @@ void arcOn<dim>::assemble_system()
     static_periodicity_map(subdomain_solution,0.0);
     periodicity_map(subdomain_solution,0.0);
 
-    //Vector<double> subdomain_solution_holder (dof_handler.size());
     subdomain_solution_holder = subdomain_solution;
     
     Vector<float> alpha_measure(triangulation.n_active_cells());
@@ -192,7 +171,7 @@ void arcOn<dim>::assemble_system()
   naive_subdomain_solution[2] = 0.0;
   subdomain_solution[2] = naive_subdomain_solution[2];
   
-  pcout << "\n\t\033[1;37m There are " <<  triangulation.n_global_active_cells() << 
+  pcout << "\n\t\033[1;37mThere are " <<  triangulation.n_global_active_cells() << 
     " finite element cells. There are " << n_mpi_processes << 
     " processors in use." << std::endl;
   pcout << "\n\tThere are " << alphadim << 
@@ -234,11 +213,6 @@ void arcOn<dim>::assemble_system()
       pcout << "\033[1;34m ___________________________\n" << std::endl;
     }
 
-    //out_count = out_count + 1;
-    //pcout << "timestep = " << out_count << std::endl;
-
-    //clock_t start_clock = clock();
-    
     /*Step over reaction/conv-convdiff modes if linear*/
     if (RK_order < 3){
 
@@ -312,8 +286,6 @@ void arcOn<dim>::assemble_system()
 	
 	if (fast_dif == false){
 
-	  //calc_convdiff(subdomain_solution,dt,current_time_s);
-
 	}
 	
 	if (fast_react == false){
@@ -375,54 +347,10 @@ void arcOn<dim>::assemble_system()
     periodicity_map(subdomain_solution,dt);
 
 
-    //assemble_sigma(subdomain_solution,current_time_s,dt);
-
-    //periodicity_map(subdomain_solution,dt);
-    //------------------?
-
-
-    /* compute_l2_error(subdomain_solution,current_time_s); */
-    /* //compute_l2_interpolation(subdomain_solution); */
-
-    /* double l2_err = 0.0; */
-    /* double linf_err = 0.0; */
-    /* //double l2_interp = 0.0; */
-    /* l2_err = L2_error_method[1].block(0).l2_norm(); */
-    /* linf_err = L2_error_method[1].block(0).linfty_norm(); */
-    /* //l2_interp = interpolation_error[2].block(0).l2_norm(); */
-    /* if (l2_err != 0.0){ */
-    /*   pcout <<  "L2-error of component[" << 1 << "] = "  << std::setw(5) << std::setprecision(15)  << l2_err << std::endl; */
-    /*   pcout <<  "Linf-error of component[" << 1 << "] = "  << std::setw(5) << std::setprecision(15)  << linf_err << std::endl; */
-    /*   //pcout <<  "L2 interpolation error of component[" << 2 << "] = "  << std::setw(5) << std::setprecision(15)  << l2_interp << std::endl; */
-    /* } */
-
-    //cmcmv(subdomain_solution);
-
-    //cm = dt;
-    //cmv = cm /dt;
-
-    //solid
-    //pcout << std::setprecision(9) << "cm(" << stepper+1 << ") = " << cm << "; t(" << stepper+1 << ") = " << current_time_s << ";" << std::endl;
-    //old
-    //pcout << "cmv(" << stepper+1 << ") = " << cmv << "; tt(" << stepper+1 << ") = " << current_time_s << ";" << std::endl;
-
     cm = 0.0;
     cmv = 0.0;
     
-    /* std::ofstream cmfile; */
-    /* cmfile.open ("cm.txt", std::ios::out | std::ios::app ); */
-    /* cmfile << "cm(" << stepper << ") = " << cm << "; dt(" << stepper << ") = " << dt << ";\r\n"; */
-    /* cmfile.close(); */ 
-    /* std::ofstream cmvfile; */
-    /* cmfile.open ("cmv.txt", std::ios::out | std::ios::app ); */
-    /* cmfile << "cmv(" << stepper << ") = " << cmv << "; dt(" << stepper << ") = " << dt << ";\r\n"; */
-    /* cmvfile.close(); */
-
-
     if ( (step+1) % modulus == 0){
-      
-      //revert_density(subdomain_solution, dt, current_time_s, naive_revert_output);
-      //revert_output=naive_revert_output;
       
       output_results(step+1);
       

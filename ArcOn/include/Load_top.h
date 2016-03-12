@@ -110,10 +110,6 @@ void arcOn<dim>::load_top(SolutionVector& L2_error_interpolant)
                                                               naive_L2_error_interpolant[component]);
           }
 
-	  /* tparahyp_constraints[component].distribute_local_to_global (projected, */
-	  /* 							     local_dof_indices, */
-	  /* 							     naive_L2_error_interpolant[component]); */
-	  
 	}
     
     naive_L2_error_interpolant[component].compress(VectorOperation::add);

@@ -128,19 +128,6 @@ Functionals<dim>::Functionals() {
 
   }
 
-  // double scalfact = 1;
-  // note that the first half are forward rxn rates, second half backward rxn rates
-  // kf1, kf2, kf3, kf4, kf5,
-  // double scal = 314.0;
-
-  /* double Reactor_size [num_reactions] = { 3}; */
-
-  /* for(unsigned int i=0;i<num_reactions;i++) { */
-
-  /*   Rc.push_back(Reactor_size[i]); */
-
-  /* } */
-
   double Stoichdiff [alphadim] = { 1.0,1.0};
 
   for(unsigned int i=0;i<alphadim;i++) {
@@ -150,8 +137,7 @@ Functionals<dim>::Functionals() {
   }
 
   /* Set the stoichiometric coefficients */		
-  /* WARNING!!! Decide which is better here */		
-							
+ 							
   //double Stoich [alphadim] = {1.0,1.0};			
 							
   for(unsigned int i=0;i<num_reactions;i++) {		
@@ -168,8 +154,7 @@ Functionals<dim>::Functionals() {
   nu_b(0,0) = 0.0;
   nu_f(0,1) = 0.0;
   nu_b(0,1) = 1.0;
-    
-
+ 
   /* Set the reaction activation energies */
 
   double ActivationEnergy [2*alphadim] = { 1,2,3,4}; // these are not used yet
@@ -185,8 +170,6 @@ Functionals<dim>::Functionals() {
   for(unsigned int i=0;i<num_reactions;i++) {
 
     Keq.push_back(ReactionRates[2*i]/ReactionRates[(2*i)+1]); //we use experimental values here at constant Temp
-
-    //std::cout << "Keq[i] = " << Keq[i] << ", i= "<< i << std::endl;
 
   }
 
@@ -213,14 +196,11 @@ Functionals<dim>::Functionals() {
     }
   }
 
-
   /* Set the species independent constants kappa_circ for entropy calc*/
 
   for(unsigned int j=0;j<alphadim;j++) {
 
     kappa_circ(j) = 1.0;
-
-    //std::cout << "kappa_circ(j) = " << kappa_circ(j) << std::endl;
 
   }
  
@@ -230,8 +210,6 @@ Functionals<dim>::Functionals() {
 
       kappa_circ(j) *=  std::pow( (double) Keq[i],(double)(-1.0/((alphadim*(nu_b(i,j)-nu_f(i,j))))));
 
-      //std::cout << "Keq[i] = " << Keq[i] << ", alphadim = " << alphadim << ", nu_b(i,j) = " << nu_b(i,j) << ", nu_f(i,j) = " << nu_f(i,j) << ", kappa_circ[j] = " << kappa_circ(j) << ", i = " << i << ", j = " << j << ", temp = " << temp << ", temp2 = " << temp2 << std::endl;
-
     }
   }
 
@@ -240,18 +218,6 @@ Functionals<dim>::Functionals() {
   for(unsigned int i=0;i<alphadim;i++) {
     kappa_sum = kappa_sum + kappa_circ(i);
   }
-
-  /* Set the adiabtic indices */
-
-  /* double Gammas [alphadim] = { 5/3,5/3}; //Using helium bath reference */
-
-  /* std::vector<double> gamma; */
-
-  /* for(unsigned int i=0;i<2*alphadim;i++) { */
-
-  /*   gamma.push_back(Gammas[i]); */
-
-  /* } */
 
 }
 
@@ -329,8 +295,6 @@ void Functionals<dim>::CE_Transport(double P, std::vector<double>& A) {
       } else {   // For functional coefficients
 	_BinaryConstants( i,j ) = 2.628e-3 / ( sigmaij(i,j)*sigmaij(i,j)*reducedtemp(i,j) );
 
-	//if (A[1] > .08){
-	//std::cout << "_BC(i,j)=" << _BinaryConstants( i,j ) << "   sigmaij=" << sigmaij(i,j) << "    reducedtemp(i,j) " << reducedtemp(i,j) << " A[i]=" << A[i] << " A[j]=" << A[j] << " sumAs=" << sumAs <<  " " << i << "," << j <<  std::endl;}
       }
     }
   }
@@ -385,16 +349,6 @@ void Functionals<dim>::CE_Transport(double P, std::vector<double>& A) {
       }
     }
 
-    /*
-      std::cout << "A=" << A << std::endl;
-      std::cout << "n=" << n << " sum=" << nSum << std::endl;
-      std::cout << "x=" << x << std::endl;
-      std::cout << "BMD matrix" << std::endl;
-      BMD.print_formatted(std::cout);
-      std::cout << "K matrix" << std::endl;
-      K.print_formatted(std::cout);
-    */
-
     FullMatrix<double> Kinv(alphadim,alphadim);
     Kinv.invert(K);
 
@@ -414,12 +368,6 @@ void Functionals<dim>::CE_Transport(double P, std::vector<double>& A) {
       }
     }
 
-    /*
-      std::cout << "Kinv matrix" << std::endl;
-      Kinv.print_formatted(std::cout);
-      std::cout << "MMD matrix" << std::endl;
-      MMD.print_formatted(std::cout);
-    */
     double Dmin=std::numeric_limits<double>::max();
     double Dmax=-std::numeric_limits<double>::max();
     double Dsum=0;
@@ -428,7 +376,6 @@ void Functionals<dim>::CE_Transport(double P, std::vector<double>& A) {
       if (Dmin>MMDsum(i)) Dmin=MMDsum(i);
       if (Dmax<MMDsum(i)) Dmax=MMDsum(i);
     }
-    //std::cout << "D=" << MMDsum << " min=" << Dmin << " max=" << Dmax << " avg=" << Dsum/alphadim << std::endl;
 
   }
 }		

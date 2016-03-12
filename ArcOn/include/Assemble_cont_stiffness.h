@@ -52,18 +52,12 @@ void arcOn<dim>::assemble_cont_stiffness(SolutionVector& subdomain_solution, dou
 		  A_matrix(i,j) += (fe_values[*(alpha[component])].gradient(i,q)) * (fe_values[*(alpha[component])].gradient(j,q)) * JxW[q];
 
 		}
-		//		cont_poisson_matrix.add( local_dof_indices[ i ],
-		//			 local_dof_indices[ j ],
-		//			 A_matrix(i,j));
 	      }
 	    }
-
-
 	    
 	    telliptic_constraints.distribute_local_to_global(A_matrix,
 	    						     local_dof_indices,
 	    						     cont_poisson_matrix);
-
 	  }
 
       cont_poisson_matrix.compress (VectorOperation::add);

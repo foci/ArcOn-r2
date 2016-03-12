@@ -57,10 +57,6 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
 
 	    const std::vector<double> &JxW = fe_values.get_JxW_values ();
 	      
-	    /* fe_values[*(alpha[component])].get_function_values(subdomain_solution[component], */
-	    /* 						       prev_soln_alpha[component]); */
-	    /* fe_values[*(sigma[component])].get_function_values(subdomain_solution[component], */
-	    /* 						       prev_soln_sigma[component]); */
 	    fe_values[*(alpha[1])].get_function_values(subdomain_solution[1],prev_soln_alpha[1]);
 	    fe_values[*(sigma[1])].get_function_values(subdomain_solution[1],prev_soln_sigma[1]);
 
@@ -73,10 +69,6 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
 		
 	      }
 	    }
-
-	    /* elliptic_constraints.distribute_local_to_global (cell_rhs, */
-	    /* 						     local_dof_indices, */
-	    /* 						     poisson_rhs); */
 
 	    //This is for nonperiodic stuff
 	    cell_rhs_boundary = 0.0;
@@ -109,35 +101,16 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
 
 	    	  std::vector<double> alphas_boundary(n_q_points_face);
 		  std::vector<double> Salphas_boundary(n_q_points_face);
-	    	  /* std::vector<double> alphas_boundary2(n_q_points_face); */
-	    	  /* std::vector< Tensor< 1, dim > > sigmas_boundary(n_q_points_face); */
-	    	  /* std::vector< Tensor< 1, dim > > sigmas_boundary2(n_q_points_face); */
 	    	  unsigned char boundary_index = face->boundary_indicator();
 	    	  const WallBoundaryValues<dim>& wbv = WBV[boundary_index];
 	    	  const std::vector< Point<dim> > &quadrature_points = fe_values_face.get_quadrature_points();
 
 	    	  alphas_boundary = prev_soln_alpha_face[component];
-	    	  /* alphas_boundary2 = prev_soln_alpha_face[1]; */
-	    	  /* sigmas_boundary = prev_soln_sigma_face[component]; */
-	    	  /* sigmas_boundary2 = prev_soln_sigma_face[1]; */
 	    	  wbv.value_list( quadrature_points, alphas_boundary, component, current_time);
-	    	  /* wbv.value_list( quadrature_points, alphas_boundary2, 2, current_time); */
-	    	  /* wbv.gradient_list( quadrature_points, sigmas_boundary, normals, component, current_time); */
-	    	  /* wbv.gradient_list( quadrature_points, sigmas_boundary2, normals, 2, current_time); */
-
-	    	  //double sigma_penalty = 2.0 * degree*( degree + 1.0 ) * ( face->measure())/(cell->measure() );
-	    	  //double sigma_penalty = 2.0 * std::pow(face->measure(),-3)/(cell->measure() ) ;
-	    	  //pcout<< "sigma_rhs = " << sigma_penalty<< std::endl;
-	    	  /* const unsigned int normal1 = GeometryInfo<dim>::unit_normal_direction[face_num]; */
-	    	  /* double pen1 = cell->extent_in_direction(normal1); */
-
-	    	  /* double sigma_penalty = sigma_prefactor*degree*( degree + 1.0 ) / pen1; */
 
 		  const unsigned int normal1 = GeometryInfo<dim>::unit_normal_direction[face_num];
-		  //const unsigned int normal2 = GeometryInfo<dim>::unit_normal_direction[neighbor2];		
 		  
 		  double pen1 = cell->extent_in_direction(normal1);
-		  //double pen2 = neighbor->extent_in_direction(normal2);
 		  
 		  double sigma_p1 = degree*( degree + 1.0 ) / pen1;
 		  double sigma_p2 = degree*( degree + 1.0 ) / pen1;
@@ -147,17 +120,9 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
 	    	  for (unsigned int i=0; i<dofs_per_cell; ++i){
 	    	    for (unsigned int q=0; q<n_q_points_face; ++q){
 
-			cell_rhs_boundary(i) +=  ( - sigma_penalty * ( alphas_boundary[q]- prev_soln_alpha_face[component][q] )
-						   * fe_values_face[*(alpha[component])].value(i,q) ) * JxW_face[q];
+		      cell_rhs_boundary(i) +=  ( - sigma_penalty * ( alphas_boundary[q]- prev_soln_alpha_face[component][q] )
+						 * fe_values_face[*(alpha[component])].value(i,q) ) * JxW_face[q];
 
-	    	      /* cell_rhs_boundary(i) +=  ( - 2.0*sigma_penalty*fe_values_face[*(alpha[component])].value(i,q) */
-	    	      /* 				 *fe_values_face[*(alpha[component])].value(j,q) //\*(prev_soln_alpha_face[component])[q] */
-	    	      /* 				 + normals[q] * (fe_values_face[*(alpha[component])].gradient(i,q))  */
-	    	      /* 				 *fe_values_face[*(alpha[component])].value(j,q) //(prev_soln_alpha_face[component])[q] */
-	    	      /* 				 + normals[q] * (fe_values_face[*(alpha[component])].gradient(j,q)) */
-                      /*                            *fe_values_face[*(alpha[component])].value(i,q) ) * JxW_face[q]; */
-			
-			
 	    	    }
 	    	  }
 		  
@@ -190,35 +155,17 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
 
 	    	  std::vector<double> alphas_boundary(n_q_points_face);
 		  std::vector<double> Salphas_boundary(n_q_points_face);
-	    	  /* std::vector<double> alphas_boundary2(n_q_points_face); */
-	    	  /* std::vector< Tensor< 1, dim > > sigmas_boundary(n_q_points_face); */
-	    	  /* std::vector< Tensor< 1, dim > > sigmas_boundary2(n_q_points_face); */
+
 	    	  unsigned char boundary_index = face->boundary_indicator();
 	    	  const WallBoundaryValues<dim>& wbv = WBV[boundary_index];
 	    	  const std::vector< Point<dim> > &quadrature_points = fe_values_face.get_quadrature_points();
 
 	    	  alphas_boundary = prev_soln_alpha_face[component];
-	    	  /* alphas_boundary2 = prev_soln_alpha_face[1]; */
-	    	  /* sigmas_boundary = prev_soln_sigma_face[component]; */
-	    	  /* sigmas_boundary2 = prev_soln_sigma_face[1]; */
 	    	  wbv.value_list2( quadrature_points, alphas_boundary, component, current_time);
-	    	  /* wbv.value_list( quadrature_points, alphas_boundary2, 2, current_time); */
-	    	  /* wbv.gradient_list( quadrature_points, sigmas_boundary, normals, component, current_time); */
-	    	  /* wbv.gradient_list( quadrature_points, sigmas_boundary2, normals, 2, current_time); */
-
-	    	  //double sigma_penalty = 2.0 * degree*( degree + 1.0 ) * ( face->measure())/(cell->measure() );
-	    	  //double sigma_penalty = 2.0 * std::pow(face->measure(),-3)/(cell->measure() ) ;
-	    	  //pcout<< "sigma_rhs = " << sigma_penalty<< std::endl;
-	    	  /* const unsigned int normal1 = GeometryInfo<dim>::unit_normal_direction[face_num]; */
-	    	  /* double pen1 = cell->extent_in_direction(normal1); */
-
-	    	  /* double sigma_penalty = sigma_prefactor*degree*( degree + 1.0 ) / pen1; */
 
 		  const unsigned int normal1 = GeometryInfo<dim>::unit_normal_direction[face_num];
-		  //const unsigned int normal2 = GeometryInfo<dim>::unit_normal_direction[neighbor2];		
 		  
 		  double pen1 = cell->extent_in_direction(normal1);
-		  //double pen2 = neighbor->extent_in_direction(normal2);
 		  
 		  double sigma_p1 = degree*( degree + 1.0 ) / pen1;
 		  double sigma_p2 = degree*( degree + 1.0 ) / pen1;
@@ -228,22 +175,11 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
 	    	  for (unsigned int i=0; i<dofs_per_cell; ++i){
 	    	    for (unsigned int q=0; q<n_q_points_face; ++q){
 
-			cell_rhs_boundary(i) +=  ( - sigma_penalty * ( alphas_boundary[q]- prev_soln_alpha_face[component][q] )
-						   * fe_values_face[*(alpha[component])].value(i,q) ) * JxW_face[q];
+		      cell_rhs_boundary(i) +=  ( - sigma_penalty * ( alphas_boundary[q]- prev_soln_alpha_face[component][q] )
+						 * fe_values_face[*(alpha[component])].value(i,q) ) * JxW_face[q];
 
-	    	      /* cell_rhs_boundary(i) +=  ( - 2.0*sigma_penalty*fe_values_face[*(alpha[component])].value(i,q) */
-	    	      /* 				 *fe_values_face[*(alpha[component])].value(j,q) //\*(prev_soln_alpha_face[component])[q] */
-	    	      /* 				 + normals[q] * (fe_values_face[*(alpha[component])].gradient(i,q))  */
-	    	      /* 				 *fe_values_face[*(alpha[component])].value(j,q) //(prev_soln_alpha_face[component])[q] */
-	    	      /* 				 + normals[q] * (fe_values_face[*(alpha[component])].gradient(j,q)) */
-                      /*                            *fe_values_face[*(alpha[component])].value(i,q) ) * JxW_face[q]; */
-			
-			
 	    	    }
 	    	  }
-		  
-
-		  
 	    	}
 	      else{ //The is the face integration step
 	      }
@@ -263,7 +199,6 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
       SolverControl solver_control (n_iters, conv_threshold, true, true);
       
       PETScWrappers::SolverGMRES solver(solver_control, mpi_communicator);
-      //PETScWrappers::SolverCG solver(solver_control, mpi_communicator);
       
       solver.solve (poisson_matrix.block(0,0), 
 		    subdomain_solution[component].block(0), 
@@ -271,7 +206,7 @@ void arcOn<dim>::calc_poisson(SolutionVector& subdomain_solution, double delta_t
       		    preconditioner);
       
       pcout << "\033[1;37m   Solved in " << solver_control.last_step()
-          << " iterations " << std::endl;
+	    << " iterations " << std::endl;
     }
   }
 

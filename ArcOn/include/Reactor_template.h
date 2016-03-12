@@ -19,7 +19,6 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
 {
 
   unsigned int qud_pts = (unsigned int)std::ceil(3.0*(double)deg/2.0 - 1.0/2.0); // For artificial diff might need to go to 3p/2+1/2 
-  //if (qud_pts <= 1) qud_pts = 2;
 
   for (unsigned int component=0; component< alphadim; ++component){
     dof_handler.push_back (new DoFHandler<dim>(triangulation));
@@ -33,15 +32,6 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
     fe_collection.push_back ( new FESystem<dim>(FE_DGQArbitraryNodes<dim>( *(line_quadrature_collection[component]) ), 1,
     						FE_DGQArbitraryNodes<dim>( *(line_quadrature_collection[component]) ), dim) );
 
-    /* fe_collection.push_back ( new FESystem<dim>(FE_DGQ<dim>(deg), 1, */
-    /* 						FE_DGQ<dim>(deg), dim)); */
-    /* /\* quadrature_collection.push_back ( new QGauss<dim>( (unsigned int)std::ceil( 3.0*(double)deg / 2.0 - 1.0) )); *\/ */
-    /* /\* face_quadrature_collection.push_back ( new QGauss<dim-1>( (unsigned int)std::ceil( 3.0*(double)deg / 2.0 - 1.0)  )); *\/ */
-    /* quadrature_collection.push_back ( new QGaussLobatto<dim>(qud_pts)); */
-    /* face_quadrature_collection.push_back ( new QGaussLobatto<dim-1>(qud_pts)); */
-
-    //alpha_mask.push_back (new ComponentMask );
-    
     idof_handler.push_back (new DoFHandler<dim>(triangulation));
     ialpha.push_back (new FEValuesExtractors::Scalar(0));
     isigma.push_back (new FEValuesExtractors::Vector(1));
@@ -53,14 +43,6 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
     ife_collection.push_back ( new FESystem<dim>(FE_DGQArbitraryNodes<dim>( *line_iquadrature_collection[component] ), 1,
     						 FE_DGQArbitraryNodes<dim>( *line_iquadrature_collection[component] ), dim));
 
-    /* ife_collection.push_back ( new FESystem<dim>(FE_DGQ<dim>(deg-1), 1, */
-    /* 						 FE_DGQ<dim>(deg-1), dim)); */
-    /* /\* iquadrature_collection.push_back ( new QGauss<dim>( (unsigned int)std::ceil( 3.0*((double)deg) / 2.0 - 1.0) )); *\/ */
-    /* /\* iface_quadrature_collection.push_back ( new QGauss<dim-1>( (unsigned int)std::ceil( 3.0*((double)deg) / 2.0 - 1.0)  )); *\/ */
-
-    /* iquadrature_collection.push_back ( new QGaussLobatto<dim>(qud_pts)); */
-    /* iface_quadrature_collection.push_back ( new QGaussLobatto<dim-1>(qud_pts)); */
-    
     ldof_handler.push_back (new DoFHandler<dim>(triangulation));
     lalpha.push_back (new FEValuesExtractors::Scalar(0));
     lsigma.push_back (new FEValuesExtractors::Vector(1));
@@ -71,13 +53,6 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
 
     lfe_collection.push_back ( new FESystem<dim>(FE_DGQArbitraryNodes<dim>( *line_lquadrature_collection[component] ), 1,
     						 FE_DGQArbitraryNodes<dim>( *line_lquadrature_collection[component] ), dim));
-
-    /* lfe_collection.push_back ( new FESystem<dim>(FE_DGQ<dim>(1), 1, */
-    /* 						 FE_DGQ<dim>(1), dim)); */
-    /* /\* lquadrature_collection.push_back ( new QGauss<dim>( (unsigned int)std::ceil( 3.0*((double)deg) / 2.0 - 1.0) )); *\/ */
-    /* /\* lface_quadrature_collection.push_back ( new QGauss<dim-1>( (unsigned int)std::ceil( 3.0*((double)deg) / 2.0 - 1.0)  )); *\/ */
-    /* lquadrature_collection.push_back ( new QGaussLobatto<dim>(qud_pts)); */
-    /* lface_quadrature_collection.push_back ( new QGaussLobatto<dim-1>(qud_pts)); */
 
     unsigned int top_deg = deg;
     unsigned int tqud_pts = (unsigned int)std::ceil(3.0*(double)top_deg/2.0);
@@ -90,19 +65,9 @@ arcOn<dim>::arcOn(const unsigned int deg, const unsigned int refine,
     line_tquadrature_collection.push_back ( new QGauss<1>(qud_pts));
     tface_quadrature_collection.push_back ( new QGauss<dim-1>(qud_pts));
  
-   //    tfe_collection.push_back ( new FESystem<dim>(FE_DGQArbitraryNodes<dim>( *line_tquadrature_collection[component] ), 1,
-    //						 FE_DGQArbitraryNodes<dim>( *line_tquadrature_collection[component] ), dim));
-
     tfe_collection.push_back ( new FESystem<dim>(FE_Q<dim>(top_deg), 1, 
 						 FE_Q<dim>(top_deg), dim)); 
 
-
-    /* tfe_collection.push_back ( new FESystem<dim>(FE_DGQ<dim>(top_deg), 1, */
-    /* 						 FE_DGQ<dim>(top_deg), dim)); */
-
-    /* tquadrature_collection.push_back ( new QGaussLobatto<dim>(tqud_pts)); */
-    /* tface_quadrature_collection.push_back ( new QGaussLobatto<dim-1>(tqud_pts)); */
-    
    }
 
   for(unsigned int j=0; j<num_boundaries;j++){
@@ -190,21 +155,5 @@ arcOn<dim>::~arcOn(){
   }
   
   pcout << "\033[0;37m\n  Closing and cleaning up ...." << std::endl;
-
- 
-  /* for (unsigned int component=0; component< alphadim; ++component){ */
-  /*   dof_handler[component]->clear_space(); */
-  /*   idof_handler[component]->clear_space(); */
-  /*   ldof_handler[component]->clear_space(); */
-  /* } */
-
- 
-  //deallog.depth_console (10);
-  //triangulation.unsubscribe();
-  //triangulation.list_subscribers();
-
-  //triangulation.clear();
-  //fake_triangulation.clear();
-  /* vector_dof_handler.clear (); */
 
 }

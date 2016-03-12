@@ -51,17 +51,6 @@ void arcOn<dim>::static_periodicity_map(SolutionVector& subdomain_solution, doub
 
 	      periodic_dof_indX[component][Cell_matchX[celli->index()]] =  local_dof_indices;
 	      
-	      /* soln_draw[component][Cell_match[celli->index()]] = std::vector<double>(n_q_points_face); */
-	      /* prev_soln_alpha_face[component] =  std::vector<double>(n_q_points_face); */
-	      /* fe_values_face[*(alpha[component])].get_function_values(subdomain_solution[component], */
-	      /* 							      prev_soln_alpha_face[component]);   */
-
-	      /* grad_draw[component][Cell_match[celli->index()]] = std::vector<Tensor<1,dim> >(n_q_points_face); */
-	      /* prev_soln_sigma_face[component] = std::vector<Tensor<1,dim> >(n_q_points_face); */
-	      /* fe_values_face[*(sigma[component])].get_function_values(subdomain_solution[component], */
-	      /* 							      prev_soln_sigma_face[component]);   */
-
-
 	      for (unsigned int q=0; q<n_q_points_face; ++q){
 
 		periodic_gradX[component][Cell_matchX[celli->index()]][q]  =  std::vector<Tensor<1,dim> >(dofs_per_cell); 
@@ -72,9 +61,7 @@ void arcOn<dim>::static_periodicity_map(SolutionVector& subdomain_solution, doub
 		  periodic_gradX[component][Cell_matchX[celli->index()]][q][i]  = (fe_values_face[*(alpha[component])].gradient(i,q));
 		
 		}
-		
-		//periodic_dof_ind[component][Cell_match[celli->index()]][i] = local_dof_indices[i];
-		
+				
 	      }
 
 	    }

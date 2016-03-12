@@ -69,7 +69,6 @@ void arcOn<dim>::compute_l2_error(SolutionVector& subdomain_solution, double cur
 	  }
 
 	  fe_values[*(alpha[1])].get_function_values(L2_interpolate_active[1],prev_soln_alpha[component]);
-	  //fe_values[*(alpha[component])].get_function_values(L2_error_interpolant[component],soln_alpha[component]);
 
 	  FullMatrix<double> MassMatrix(dofs_per_cell,dofs_per_cell);
 	  MassMatrix = 0.0;
@@ -101,46 +100,18 @@ void arcOn<dim>::compute_l2_error(SolutionVector& subdomain_solution, double cur
  	  for(unsigned int q=0;q<n_q_points;q++){
 	    IV.vector_value(quadrature_points[q],qpvalue);
 	    for (unsigned int i=0; i<dofs_per_cell; ++i){
-	      //if(component ==2){
-	      //	std::cout << "base_val = " << qpvalue(component) << "integrated val = " << (prev_soln_alpha[component])[q]
-	      //  *fe_values[*(alpha[component])].value(i,q) << std::endl;}
-	      
-	      // alpha_sum[component](i) += std::pow( (qpvalue( component ) - (prev_soln_alpha[component])[q] )* fe_values[*(alpha[component])].value(i,q), 1.0) * JxW[q];
-	      
-	      //alpha_sum[component](i) += std::pow( ( (soln_alpha[component])[q] - (prev_soln_alpha[component])[q] )* fe_values[*(alpha[component])].value(i,q), 1.0) * JxW[q];
+
 	      double xpt = quadrature_point[q][0];
 	      double ypt = quadrature_point[q][1];
-
-	      //alpha_sum[component](i) +=  (current_time*std::exp(-(std::pow(xpt,2.0)+std::pow(ypt,2.0))/2.0 ) -  (prev_soln_alpha[component])[q] ) 
-	      //	*(fe_values[*(alpha[component])].value(i,q) * JxW[q]) ;
 
 	      alpha_sum[component](i) +=  (current_time*std::exp(-(std::pow(xpt,2.0)+std::pow(ypt,2.0))/2.0 ) -  (prev_soln_alpha[component])[q] ) 
 		*(fe_values[*(alpha[component])].value(i,q) * JxW[q]) ;
 
-
-	      //std::cout << "alpha_sum[component](i) = " << alpha_sum[component](i) << std::endl;
-
-	      /* for (unsigned int j=0; j<dofs_per_cell; ++i){ */
-	      /* alpha_sum[component](i) -= (prev_soln_alpha[component])[q] *fe_values[*(alpha[component])].value(i,q) */
-	      /* 	*fe_values[*(alpha[component])].value(j,q)* JxW[q]; */
-	      /* } */
-	      
-
-	      //alpha_sum[component](i) += ( qpvalue( component )*fe_values[*(alpha[component])].value(i,q)
-	      //				   - preprojected(i)[q]  ) * JxW[q];
-
-	      // alpha_sum[component](i) += std::pow((prev_soln_alpha[0])[q]-(prev_soln_alpha[component])[q],1.0)
-	      //	*fe_values[*(alpha[component])].value(i,q)*JxW[q];
 	    }
 	  }
 
 	  Vector<double> projected(dofs_per_cell);
 	  InverseMassMatrix.vmult(projected,alpha_sum[component]);
-	  //projected /= JxWsum;
-	  //alpha_sum[component] /= JxWsum;
-	  //mapinfo[component][0].localInverseMassMatrix.vmult(projected,alpha_sum[component]);
-	  //projected /= JxWsum;
-
 
           if (component == 0){
             density_constraints.distribute_local_to_global (projected,
@@ -158,10 +129,6 @@ void arcOn<dim>::compute_l2_error(SolutionVector& subdomain_solution, double cur
                                                               naive_L2_error_method[component]);
           }
 
-	  /* tparahyp_constraints[component].distribute_local_to_global (projected, */
-	  /* 							     local_dof_indices, */
-	  /* 							     naive_L2_error_method[component]); */
-	  
 	}
     
     naive_L2_error_method[component].compress(VectorOperation::add);

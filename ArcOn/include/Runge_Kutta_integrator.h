@@ -76,16 +76,10 @@ void arcOn<dim>::setup_RK()
 		
 		RK_alpha(i,j) = 1.0;
 		RK_beta(i,j)  = 1.0/(nrk - 1.0);
-
-		//std::cout << "rkalpha= " << RK_alpha(i,j) << "rkbeta =" << RK_beta(i,j) << std::endl;
-
 	      }
 	      if (j == 0 && i == RK_stage-1){ 
 		
 		RK_alpha(i,j) = 1.0/nrk;
-
-		//std::cout << "rkalpha= " << RK_alpha(i,j) << std::endl;
-	      
 	      }
 	      if (j == RK_stage - 1 &&  i == RK_stage -1){
 
@@ -93,8 +87,6 @@ void arcOn<dim>::setup_RK()
 		RK_beta(i,j)  = 1.0/(nrk);
 		
 	      }
-	      // pcout << "rkalpha[" << i << "][" << j << " = " << RK_alpha(i,j) << std::endl;
-	      //pcout << "rkbeta[" << i << "][" << j << " = " << RK_beta(i,j) << std::endl;
 	    }
 	  }
 
@@ -220,55 +212,9 @@ void arcOn<dim>::setup_RK()
 
   //Compute the time-dependent parameters
 
-  // pcout << "RK_stage = " << RK_stage << std::endl;
-
   if(RK_stage == 1 ){RK_mu2(0) = 1.0;}
   
   if(RK_stage > 1  ){
-    
-    /* //Chris version */
-    /* for(unsigned int j = 1; j <= RK_stage; j++){ */
-    /*   for(unsigned int i = 1; i <= RK_stage; i++){ */
-    /* 	RK_mu1(i-1,j-1) = RK_beta(i-1,j-1); */
-    /* 	if (i > 1){ */
-    /* 	  for(unsigned int k = j; k <= i-1; k++){ */
-    /* 	    RK_mu1(i-1,j-1) = RK_mu1(i-1,j-1) + RK_mu1(k-1,j-1)*RK_alpha(i-1,k); */
-    /* 	    pcout << "rkmu1[" << i-1 << "][" << j-1 << "] = " << RK_mu1(i-1,j-1) << std::endl;  */
-    /* 	  } */
-    /* 	} */
-    /*   } */
-    /* }  */
-    
-    
-    /* for(unsigned int j = 1; j <= RK_stage; j++){ */
-    /*   if(j>1){ */
-    /* 	for(unsigned int k = 1; k <= j-1; k++){ */
-    /* 	  RK_mu2(j-1) = RK_mu2(j-1) + RK_mu1(j-2,k-1); */
-    /* 	  pcout << "rkmu2[" << j-1 << "] = " << RK_mu2(j-1) << std::endl; */
-    /* 	} */
-    /*   } */
-    /* } */
-
-
-
-      /* DO K = 0,RK_STAGE-1 */
-      /*   DO I = 1,RK_STAGE */
-      /*     CASUM = 0.D0 */
-      /*     DO L = K+1,I-1 */
-      /*       CASUM = CASUM + CTVD(L,K+1)*ATVD(I,L+1) */
-      /*     ENDDO */
-      /*     CTVD(I,K+1) = BTVD(I,K+1) + CASUM */
-
-      /*     print*, "ctvd[",I,"][",K+1,"] = ", CTVD(I,K+1) */
-      /*   ENDDO */
-      /* ENDDO */
-
-      /* DO K = 1,RK_STAGE-1 */
-      /*   DTVD(K+1) = 0.D0 */
-      /*   DO L = 0,K-1 */
-      /*     DTVD(K+1) = DTVD(K+1) + CTVD(K,L+1) */
-      /*   ENDDO */
-      /* ENDDO */
 
     for(unsigned int k = 0; k <= RK_stage-1; k++){
       for(unsigned int i = 1; i <= RK_stage; i++){
@@ -281,14 +227,10 @@ void arcOn<dim>::setup_RK()
 	  }
 	}
 	  
-	  RK_mu1(i-1,k) = RK_beta(i-1,k) + casum;
-	  
-	  //pcout << "rkmu1[" << i-1 << "][" << k << "] = " << RK_mu1(i-1,k) << std::endl;
-
+	RK_mu1(i-1,k) = RK_beta(i-1,k) + casum;
+	
       }
     }
-    
-    //pcout << "rkmu2[" << 0.0 << "] = " << RK_mu2(0) << std::endl;
     
     for(unsigned int k=1; k<RK_stage ;k++){
 
@@ -298,66 +240,9 @@ void arcOn<dim>::setup_RK()
 
   	RK_mu2(k) = RK_mu2(k) + RK_mu1(k-1,l);
 
-  	//pcout << "rkmu2[" << k << "] = " << RK_mu2(k) << std::endl;
-
       }
 
     }
-
-  
- 
-  /* do j = 1,nStages */
-  /*      do i = 1,nStages */
-  /*         rGamma(i,j) = rBeta(i,j) */
-  /*         do k = j,i-1 */
-  /*            rGamma(i,j) = rGamma(i,j) + rGamma(k,j)*rAlpha(i,k+1) */
-  /*         end do */
-  /*      end do */
-  /*   end do */
-
-  /*   !--------------------------------------------------------------------- */
-  /*   ! [x] Compute the time lagging parameter rDelta from rGamma. */
-  /*   !--------------------------------------------------------------------- */
-
-  /*   do j = 1,nStages */
-  /*      do k = 1,j-1 */
-  /*         rDelta(j) = rDelta(j) + rGamma(j-1,k) */
-  /*      end do */
-  /*   end do */
-
-  
-  /*   for(unsigned int k = 0; k < RK_stage; k++){ */
-  /*     for(unsigned int i = 0; i < RK_stage; i++){ */
-      
-  /* 	casum = 0.0; */
-      
-  /* 	for(unsigned int l=k; l <= i; l++){ */
-  /* 	  casum = casum + RK_mu1(l,k)*RK_alpha(i,l); */
-  /* 	} */
-      
-  /* 	RK_mu1(i,k) = RK_beta(i,k) + casum; */
-
-  /* 	pcout << "rkmu1[" << i << "][" << k << "] = " << RK_mu1(i,k) << std::endl; */
-
-  /*     } */
-
-  /*   } */
-
-  /*   //pcout << "rkmu2[" << 0.0 << "] = " << RK_mu2(0) << std::endl; */
-
-  /*   for(unsigned int k=0; k<RK_stage-1 ;k++){ */
-
-  /*     RK_mu2(k+1) = 0.0; */
-      
-  /*     for(unsigned int l=0;l<=k; l++){ */
-
-  /* 	RK_mu2(k+1) = RK_mu2(k+1) + RK_mu1(k,l); */
-
-  /* 	//pcout << "rkmu2[" << k+1 << "] = " << RK_mu2(k+1) << std::endl; */
-
-  /*     } */
-
-  /*   } */
 
     double RKC_omega0;
     double RKC_omega1;

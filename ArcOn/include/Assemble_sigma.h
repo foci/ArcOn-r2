@@ -22,7 +22,6 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 							     updateflags | update_normal_vectors | update_hessians));
 
     naive_subdomain_solution[component] = 0.0;
-    //naive_subdomain_solution[component].block(0) =  subdomain_solution[component].block(0);
 
     std::vector<double> transport_alphas(alphadim,0.0);
     Functionals<dim> functionals;
@@ -121,7 +120,6 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 
 
 	      std::vector<double> alphas_boundary(n_q_points_face);
-	      //std::vector<double> lap_boundary(n_q_points_face);
 	      unsigned char boundary_index = face->boundary_indicator();
 	      const WallBoundaryValues<dim>& wbv = WBV[boundary_index];
 	      alphas_boundary = soln_alpha_face[component];
@@ -129,7 +127,6 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 
 	      if (component == 0){
 
-		//lap_boundary = soln_alpha_face[1];
 		wbv.value_list( quadrature_point, alphas_boundary, component, current_time);
 		
 	      }
@@ -143,11 +140,6 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	    	for (unsigned int q=0; q<fe_values_face.n_quadrature_points; ++q){
 
 		  const Point<dim>& normal = normals[q];
-		  /* if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
-		  /* } */
-		  /* else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
-		  /* } */
-		  /* LDG_beta(0)=0.0; LDG_beta(1)=0.0; */
 
 		  if (component == 2){
 		    
@@ -155,16 +147,9 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 		  	* ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
 		      
 		  }
-		    
-		  
 		  
 		  else{
 		    
-		  /*   sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q]) */
-		  /*     * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q]; */
-		    
-		  /* } */
-		  
 		    sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + alphas_boundary[q] )
 						  + beta_pen_coeff*(soln_alpha_face[component][q] - alphas_boundary[q]) )
 		      * (  fe_values_face[*(sigma[component])].value(i,q)
@@ -201,18 +186,13 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 
 
 	      std::vector<double> alphas_boundary(n_q_points_face);
-	      //std::vector<double> lap_boundary(n_q_points_face);
 	      unsigned char boundary_index = face->boundary_indicator();
 	      const WallBoundaryValues<dim>& wbv = WBV[boundary_index];
 	      alphas_boundary = soln_alpha_face[component];
 
 	      if (component == 0){
 
-		//alphas_boundary = glob_min_ribbon_density;
-		//alphas_boundary = total_density/ triangulation.n_global_active_cells();
-		//lap_boundary = soln_alpha_face[1];
 		wbv.value_list2( quadrature_point, alphas_boundary, component, glob_min_ribbon_density);
-		//std::cout <<  glob_min_ribbon_density << std::endl;
 		
 	      }
 	      else{
@@ -227,26 +207,15 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	    	for (unsigned int q=0; q<fe_values_face.n_quadrature_points; ++q){
 
 		  const Point<dim>& normal = normals[q];
-		  /* if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
-		  /* } */
-		  /* else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
-		  /* } */
-		  /* LDG_beta(0)=0.0; LDG_beta(1)=0.0; */
 		  
 		  if (component == 2){
 		    
 		    sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q])
 		      * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q];
-		    //total_density/ triangulation.n_global_active_cells(); //alphas_boundary[q];
 		    
 		  }
 		  else{
 		    
-		  /*   sigma_flux[component](i) += 0.5*(soln_alpha_face[component][q] + alphas_boundary[q]) */
-		  /*     * ( fe_values_face[*(sigma[component])].value(i,q) * normals[q] ) * JxW_face[q]; */
-		    
-		  /* } */
-
 		    sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + alphas_boundary[q] )
 						  + beta_pen_coeff *(soln_alpha_face[component][q] - alphas_boundary[q]) )
 		      * (  fe_values_face[*(sigma[component])].value(i,q)
@@ -259,15 +228,10 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	    else if (  face->at_boundary() && ( face->boundary_indicator() == 3 ||
 					       face->boundary_indicator() == 4)){
 
-	      //	      typename DoFHandler<dim>::cell_iterator neighbor = cell->neighbor(face_num);
-	      //const unsigned int neighbor2 = cell->neighbor_of_neighbor(face_num);
 	      hp_fe_values_face[component]->reinit(cell, face_num);
-	      //hp_fe_values_neigh_face[component]->reinit(neighbor,neighbor2);
 
 	      const FEFaceValues<dim>& fe_values_face = 
 		hp_fe_values_face[component]->get_present_fe_values ();
-	      //const FEFaceValues<dim>& fe_values_neigh_face = 
-	      //hp_fe_values_neigh_face[component]->get_present_fe_values();
 
 	      const std::vector<double> &JxW_face = fe_values_face.get_JxW_values ();
 	      const std::vector<Point<dim> > &normals = fe_values_face.get_normal_vectors ();   
@@ -279,29 +243,10 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	      fe_values_face[*(alpha[component])].get_function_values(subdomain_solution[component],
 								      soln_alpha_face[component]);
 
-	      
-
-	      //soln_alpha_neigh_face[component] =  std::vector<double>(n_q_points_face);
-	      //fe_values_neigh_face[*(alpha[component])].get_function_values(subdomain_solution[component],
-	      //							    soln_alpha_neigh_face[component]);
-
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 		for (unsigned int q=0; q<n_q_points_face; ++q){
 
 		  const Point<dim>& normal = normals[q];
-		  /* if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
-		  /* } */
-		  /* else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
-		  /* } */
-		  /* LDG_beta(0)=0.0; LDG_beta(1)=0.0; */
-
-		  //double add_it = 0.0;
-		  //if(component == 0){add_it = 0.1;}
-
-	      	  /* sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] */
-		  /* 					+ soln_drawX[component][CO][q] + 2.0*add_it) */
-		  /* 				* (  fe_values_face[*(sigma[component])].value(i,q) */
-		  /* 				     * normals[q] ) ) * JxW_face[q]; */
 
 		  if (component != 2){
                   sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + soln_drawX[component][CO][q] )
@@ -313,9 +258,6 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 		    				* (  fe_values_face[*(sigma[component])].value(i,q)
 		    				     * normals[q] ) ) * JxW_face[q];
 		  }
-
-	      	  /* sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + soln_drawX[component][CO][q] ) */
-		  /* 				+ LDG_beta*normal*(soln_alpha_face[component][q] - soln_drawX[component][CO][q]) ) * JxW_face[q]; */
 	      	}
 	      }
 
@@ -324,15 +266,10 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	    else if (  face->at_boundary() && ( face->boundary_indicator() == 1 ||
 						face->boundary_indicator() == 2)){
 	      
-	      //	      typename DoFHandler<dim>::cell_iterator neighbor = cell->neighbor(face_num);
-	      //const unsigned int neighbor2 = cell->neighbor_of_neighbor(face_num);
 	      hp_fe_values_face[component]->reinit(cell, face_num);
-	      //hp_fe_values_neigh_face[component]->reinit(neighbor,neighbor2);
 
 	      const FEFaceValues<dim>& fe_values_face = 
 		hp_fe_values_face[component]->get_present_fe_values ();
-	      //const FEFaceValues<dim>& fe_values_neigh_face = 
-	      //hp_fe_values_neigh_face[component]->get_present_fe_values();
 
 	      const std::vector<double> &JxW_face = fe_values_face.get_JxW_values ();
 	      const std::vector<Point<dim> > &normals = fe_values_face.get_normal_vectors ();   
@@ -343,27 +280,10 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 	      soln_alpha_face[component] =  std::vector<double>(n_q_points_face);
 	      fe_values_face[*(alpha[component])].get_function_values(subdomain_solution[component],
 								      soln_alpha_face[component]);
-	      //soln_alpha_neigh_face[component] =  std::vector<double>(n_q_points_face);
-	      //fe_values_neigh_face[*(alpha[component])].get_function_values(subdomain_solution[component],
-	      //							    soln_alpha_neigh_face[component]);
-
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
 		for (unsigned int q=0; q<n_q_points_face; ++q){
 
 		  const Point<dim>& normal = normals[q];
-		  /* if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
-		  /* } */
-		  /* else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
-		  /* } */
-                  /* LDG_beta(0)=0.0; LDG_beta(1)=0.0; */
-
-		  /* double add_it = 0.0; */
-		  /* //if(component == 0){add_it = 0.1;} */
-		  
-	      	  /* sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q]  */
-		  /* 					+ soln_drawY[component][CO][q] + 2.0*add_it)  */
-		  /* 				* (  fe_values_face[*(sigma[component])].value(i,q)  */
-		  /* 				     * normals[q] ) ) * JxW_face[q]; */
 		  
 		  if (component != 2){
 		    
@@ -376,8 +296,6 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 						  * (  fe_values_face[*(sigma[component])].value(i,q)
 						       * normals[q] ) ) * JxW_face[q];
 		  }
-		  
-
 	      	}
 	      }
 	      
@@ -413,19 +331,7 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
 		for (unsigned int q=0; q<n_q_points_face; ++q){
 
 		  const Point<dim>& normal = normals[q];
-		  /* if (normal(0)>1e-6){ LDG_beta(0) = 0.5/normal(0); LDG_beta(1) = 0.0; */
-		  /* } */
-		  /* else if (normal(1)>1e-6) {LDG_beta(0)=0.0; LDG_beta(1) = 0.5/normal(1); */
-		  /* } */
-		  /* LDG_beta(0)=0.0; LDG_beta(1)=0.0; */
 
-		  /* double add_it = 0.0; */
-		  /* //if(component == 0){add_it = 0.1;} */
-
-	      	  /* sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q]  */
-		  /* 					+ soln_alpha_neigh_face[component][q] + 2.0*add_it)  */
-		  /* 				* (  fe_values_face[*(sigma[component])].value(i,q)  */
-		  /* 				     * normals[q] ) ) * JxW_face[q]; */
 		  if (component != 2){
 		    sigma_flux[component](i) += ( 0.5 * ( soln_alpha_face[component][q] + soln_alpha_neigh_face[component][q]  )
 						  + beta_pen_coeff *(soln_alpha_face[component][q] - soln_alpha_neigh_face[component][q]) )
@@ -472,10 +378,6 @@ void arcOn<dim>::assemble_sigma(SolutionVector& subdomain_solution, double curre
                                                               naive_subdomain_solution[component]);
 	  }
 	}	  
-	  /* parahyp_constraints[component].distribute_local_to_global (projected, */
-	/* 							     local_dof_indices, */
-	/* 							     naive_subdomain_solution[component]); */
-       	/* } */
     
     naive_subdomain_solution[component].compress(VectorOperation::add);
     subdomain_solution[component].block(1) = naive_subdomain_solution[component].block(1);

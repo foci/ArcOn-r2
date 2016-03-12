@@ -18,7 +18,7 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
   }
   
 
-    /* We can using ramping to avoid shocking the system */
+  /* We can using ramping to avoid shocking the system */
   double dramp;
   if (Time_ramp > 1.0e-5){
     dramp  = std::tanh( 2.0*( current_time/Time_ramp ) );
@@ -76,84 +76,23 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 	  mass_action = 0.0;
 
 	  double ramp = std::tanh(current_time/100.0);
-
-	  //double rseed = Utilities::generate_normal_random_number(0.0,0.25); 	
 	
 	  if (component == 0){
-	    //double alph = 8e-4; //5e-4;
 	    double gam = 1.0; //2e-2;
 	    double sqrt2pi = 2.506628275;
 	    double sigs = 0.002*290.0;
 	    for (unsigned int q=0; q<n_q_points; ++q){
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
-		//mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) * (syncopated[0][q]-syncopated[2][q]) * JxW[q]);
-		/* if ( quadrature_point[q][0] <= 0.0 ){ */
-		/*   mass_action(component,i) += 0.001*std::abs(std::sin(0.1*quadrature_point[q][1]))*fe_values[*(alpha[component])].value(i,q)*JxW[q]; */
-		/* } */
 
-		//if(ncopated[component][q]>0.0){
-
-		//good one
 		mass_action(component,i) -= ( -7.0*alph*std::exp(-std::pow(quadrature_point[q][0]-37.0,2.0)/144.0)/std::exp(syncopated[0][q]) + alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q];
-		  //( -3.0*alph*std::exp(-std::pow(quadrature_point[q][0]-59.0,2.0)/0.10)/std::exp(syncopated[0][q]) + alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
 
-		//mass_action(component,i) += ( 3.0*alph*(1.0+std::abs(std::sin(0.08*quadrature_point[q][1]))*std::exp(-0.5*std::pow(quadrature_point[q][0],2.0)/std::pow(sigs,2.0))) - alph ) * fe_values[*(alpha[component])].value(i,q)*JxW[q] ;
-		  /* if ( quadrature_point[q][0] > 200.0 ){ */
-		    
-		  /*   mass_action(component,i) -= 2.0 * alph * fe_values[*(alpha[component])].value(i,q)*JxW[q] ; */
-
-		  /* } */
-
-		  //&& syncopated[0][q] > 2.0*glob_min_ribbon_density
-		//	else{
-		//mass_action(component,i) += 0.0;}
-
-		//mass_action(component,i) += difs(0) * (fe_values[*(alpha[component])].gradient(i,q)) * (fe_values[*(alpha[component])].gradient(i,q))  * JxW[q];
-
-		  //mass_action(component,i) += std::exp( std::abs(quadrature_point[q][1])/(2.0*pi) ) * ( std::sin(quadrature_point[q][1]*pi) / (quadrature_point[q][1]*pi) * sin(quadrature_point[q][0]*pi) / (quadrature_point[q][0]*pi) )  *   (fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q) * JxW[q]);        
-
-		  //mass_action(component,i) += dramp *(0.00101 + 0.001 *( std::cos(0.5*pi*quadrature_point[q][1]) ) ) 
-		  //*   (fe_values[*(alpha[component])].value(i,q) * JxW[q]);
-
-		  //mass_action(component,i) += dramp *(0.00095 + 0.001 *( std::cos(0.157*quadrature_point[q][1])+std::sin( pi*quadrature_point[q][1] ) ) ) 
-		  // *   (fe_values[*(alpha[component])].value(i,q) * JxW[q]);    
-		  
-		  /* double xpt = quadrature_point[q][0]; */
-		  /* double ypt = quadrature_point[q][1]; */
-
-		  /* double ga = 0.1; */
-		  /* double gad = 0.001; */
-		  /* double gac = 0.001; */
-		  
-
-		  /* /\* mass_action(component,i) += ( -0.5*(std::pow(xpt,2.0)+std::pow(ypt,2.0))*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))  *\/ */
-		  /* /\*   + 0.001*xpt*current_time*std::sin(xpt)*std::cos(ypt)*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))   *\/ */
-		  /* /\*   - 0.001*ypt*current_time*std::cos(xpt)*std::sin(ypt)*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))   *\/ */
-		  /* /\*   + (current_time-std::pow(current_time,2.0)*std::pow(xpt,2.0))*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 )) *\/ */
-		  /* /\* 				*   (fe_values[*(alpha[component])].value(i,q) * JxW[q]) ); *\/ */
-
-		  /* //pcout << "current_time = " << current_time << std::endl; */
-
-		  /* mass_action(component,i) += ( 1.0 + (current_time)*xpt*std::cos(xpt)*std::sin(ypt)*ga */
-		  /* 				-(current_time)*ypt*std::sin(xpt)*std::cos(ypt)*ga  */
-		  /* 				+ 2.0*gad*current_time - gad*current_time*std::pow(xpt,2.0) - gad * current_time * std::pow(ypt,2.0)  */
-		  /* 				- ga*xpt*std::pow(std::cosh(xpt),-1.0)*std::pow(std::cosh(ypt),-1.0)*std::tanh(ypt)*std::exp(std::pow(std::cosh(xpt),-1.0) * std::pow(std::cosh(ypt),-1.0)) )  */
-		  /*   //+ 0.02*current_time - */
-		  /*   //0.01*(current_time+1.0)*std::pow(xpt,2.0)-0.01*(current_time+1.0)*std::pow(ypt,2.0)) */
-		  /*   *std::exp(-(std::pow(xpt,2.0)+std::pow(ypt,2.0))/2.0 ) */
-		  /*   *(fe_values[*(alpha[component])].value(i,q) * JxW[q]) ; */
-		  
- 
-		  //} 
 	      }
 	    }
 	  }
-	  //for speed
-	  //if (current_time>1000.0){
+
 	  if (component == 1){
 	    fe_values[*(alpha[2])].get_function_values(subdomain_solution[2],syncopated[2]);
 	    int q_cent = 0.43764*n_q_points; //Where the bias plate is centered --> center bump function here 
-	    //double alph_0 = 8e-4 - 1e-4; //5e-4;
 	    double some_constant = 0.5;
 
 	    double l_x = 100;    //x domain size
@@ -163,13 +102,6 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 
 	    for (unsigned int q=0; q<n_q_points; ++q){
 	      for (unsigned int i=0; i<dofs_per_cell; ++i){
-	  	// mass_action(component,i) += alph*(fe_values[*(alpha[component])].value(pinfo[component].alpha_dof_index[i],q)
-
-		//double phi_b = some_constant*quadrature_point[q][0];
-
-
-		//		mass_action(component,i) += alph*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q]/* - phi_b*/ ) *JxW[q];
-
 
 		if(abs(center - quadrature_point[q][0]) < .1*l_x){  //width of plate is 2*.1*l_x
 		  
@@ -181,36 +113,8 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
 
 		mass_action(component,i) += alph*fe_values[*(alpha[component])].value(i,q)* (syncopated[2][q] - phi_b ) *JxW[q];
 
-
-
-		/* double xpt = quadrature_point[q][0]; */
-	  	  /* double ypt = quadrature_point[q][1]; */
-
-	  	  /* double ga = 0.1; */
-	  	  /* double gad = 0.001; */
-
-	  	  /* mass_action(component,i) += ( -0.5*(std::pow(xpt,2.0)+std::pow(ypt,2.0))*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))  */
-	  	  /*   + 0.001*xpt*current_time*std::sin(xpt)*std::cos(ypt)*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))   */
-	  	  /*   - 0.001*ypt*current_time*std::cos(xpt)*std::sin(ypt)*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 ))   */
-	  	  /*   + (current_time-std::pow(current_time,2.0)*std::pow(xpt,2.0))*std::exp(-current_time*( (std::pow(xpt,2.0)+std::pow(ypt,2.0) )/2.0 )) */
-	  	  /* 				*   (fe_values[*(alpha[component])].value(i,q) * JxW[q]) ); */
-
-	  	  //pcout << "current_time = " << current_time << std::endl;
-
-	  	  /* mass_action(component,i) += ( ( 1.0 + (current_time)*xpt*std::cos(xpt)*std::sin(ypt)*ga */
-	  	  /* 				-(current_time)*ypt*std::sin(xpt)*std::cos(ypt)*ga  */
-	  	  /* 				+ 2.0*gad*current_time - gad*current_time*std::pow(xpt,2.0) - gad * current_time * std::pow(ypt,2.0) ) */
-						
-	  	  /*   //+ 0.02*current_time - */
-	  	  /*   //0.01*(current_time+1.0)*std::pow(xpt,2.0)-0.01*(current_time+1.0)*std::pow(ypt,2.0)) */
-	  	  /* 				*std::exp(-(std::pow(xpt,2.0)+std::pow(ypt,2.0))/2.0 )  */
-	  	  /* 				- ga*std::pow(std::cosh(xpt),-1.0)*std::pow(std::cosh(ypt),-1.0)*std::tanh(ypt)*std::exp(std::pow(std::cosh(xpt),-1.0) * std::pow(std::cosh(ypt),-1.0)) ) */
-	  	  /*   *(fe_values[*(alpha[component])].value(i,q) * JxW[q]) ; */
-		  
- 
 	      }
-	      //}
-	  }
+	    }
 	  }
 
 	  cell->get_dof_indices (local_dof_indices);
@@ -234,9 +138,6 @@ void arcOn<dim>::Calculate_MassAction_Explicit(SolutionVector& subdomain_solutio
                                                               local_dof_indices,
                                                               mass_action_term[component]);
 	  }
-	  /* parahyp_constraints[component].distribute_local_to_global (projected, */
-	  /* 							     local_dof_indices, */
-	  /* 							     mass_action_term[component]);}	   */
 	  
 	}
 

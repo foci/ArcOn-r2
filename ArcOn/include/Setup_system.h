@@ -28,7 +28,6 @@ void arcOn<dim>::setup_system()
   mapinfo.resize(alphadim);
   gmax_val_loc.resize(alphadim);
   for (unsigned int component=0; component< alphadim; ++component){
-    // mapinfo[component].resize(triangulation.n_global_active_cells());
     mapinfo[component].resize(1);
     gmax_val_loc[component] = 0.0;
   }
@@ -76,13 +75,6 @@ void arcOn<dim>::setup_system()
   MassAction_integrated.resize(alphadim);
   naive_MassAction_integrated.resize(alphadim);
 
-  /* parahyp_constraints.reserve(alphadim); */
-  /* std::vector < ConstraintMatrix >::iterator it1 = parahyp_constraints.begin();  */
-  /* tparahyp_constraints.reserve(alphadim); */
-  /* std::vector < ConstraintMatrix >::iterator it2 = tparahyp_constraints.begin();   */
-
-  //alpha_mask.resize(alphadim);
-  
   for(unsigned int s=0; s<RK_stage+1; s++){
     RK_solution[s].resize(alphadim);
     naive_RK_solution[s].resize(alphadim);
@@ -111,7 +103,6 @@ void arcOn<dim>::setup_system()
     l_soln.resize(num_blocks);
     i_soln.resize(num_blocks); 
     r_soln.resize(num_blocks); 
-    //ll_soln.resize(num_blocks); 
     ////////////////////////////////////
 
     std::vector<unsigned int> ifesystem_sub_blocks (dim+1,0);
@@ -298,9 +289,6 @@ void arcOn<dim>::setup_system()
       naive_revert_output[component].block(bl).reinit(fesystem_partitioning[bl],
 						      mpi_communicator);
 
-      /* cont_output1[component].block(bl).reinit(mpi_communicator, */
-      /*                                                tfesystem_partitioning[bl], */
-      /*                                                tfesystem_relevant_partitioning[bl] ); */
       interpolate_active[component].block(bl).reinit(ifesystem_partitioning[bl],
 						     mpi_communicator);
       proj_solution[component].block(bl).reinit(fesystem_partitioning[bl],
@@ -420,42 +408,6 @@ void arcOn<dim>::setup_system()
     naive_L2_error_method[component] = L2_error_method[component];
     naive_subdomain_solution[component] = subdomain_solution[component];
     
-    /* for (unsigned int bl=0; bl< num_blocks; ++bl){ */
-          
-    /*   local_solution[component].block(bl) = subdomain_solution[component].block(bl); */
-    /*   ilocal_solution[component].block(bl) = interpolate_active[component].block(bl); */
-    /*   //llocal_solution[component] = linterpolate_active[component]; */
-    
-    /*   l_soln[bl] =  local_solution[component].block(bl); */
-    /*   i_soln[bl] =  ilocal_solution[component].block(bl);  */
-    /*   r_soln[bl] =  local_solution[component].block(bl); */
-
-    /* } */
-
-    //*alpha_mask[component] = fe_collection[component]->component_mask(*alpha[component]);
-
-    //ConstraintMatrix parahyp_temp(locally_relevant_dofs[component]);
-    //it1->reinit(locally_relevant_dofs[component]);
-    /* parahyp_constraints[component].clear(); */
-    /* parahyp_constraints[component].reinit ( locally_relevant_dofs[component]); */
-    /* /\* DoFTools::make_periodicity_constraints(*dof_handler[component], *\/ */
-    /* /\* 					   /\\*b_id*\\/ 1, *\/ */
-    /* /\* 					   /\\*b_id*\\/ 2, *\/ */
-    /* /\* 					   /\\*direction*\\/ 0, *\/ */
-    /* /\* 					   parahyp_constraints[component]); *\/ */
-    /* parahyp_constraints[component].close(); */
-
-    /* //it2->reinit(tlocally_relevant_dofs[component]); */
-    /* //ConstraintMatrix tparahyp_temp(tlocally_relevant_dofs[component]); */
-    /* tparahyp_constraints[component].clear(); */
-    /* tparahyp_constraints[component].reinit ( tlocally_relevant_dofs[component] ); */
-    /* /\* DoFTools::make_periodicity_constraints(*dof_handler[component], *\/ */
-    /* /\* 					   /\\*b_id*\\/ 1, *\/ */
-    /* /\* 					   /\\*b_id*\\/ 2, *\/ */
-    /* /\* 					   /\\*direction*\\/ 1, *\/ */
-    /* /\* 					   parahyp_constraints[component]); *\/ */
-    /* tparahyp_constraints[component].close();     */
-
     poisson_matrix.reinit(num_blocks,num_blocks);
     cont_poisson_matrix.reinit(num_blocks,num_blocks);
 
@@ -499,435 +451,55 @@ void arcOn<dim>::setup_system()
     if(component == 0){
       density_constraints.clear ();
       density_constraints.reinit ( locally_relevant_dofs[0] );
-      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
-      /* 					     /\*b_id*\/ 1, */
-      /* 					     /\*b_id*\/ 2, */
-      /* 					     /\*direction*\/ 0, */
-      /* 					     elliptic_constraints); */
       density_constraints.close ();
     }
     if(component == 1){
       vorticity_constraints.clear ();
       vorticity_constraints.reinit ( locally_relevant_dofs[1] );
-      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
-      /*                                             /\*b_id*\/ 1, */
-      /*                                             /\*b_id*\/ 2, */
-      /*                                             /\*direction*\/ 0, */
-      /*                                             elliptic_constraints); */
       vorticity_constraints.close ();
     }
     if(component == 2){
       potential_constraints.clear ();
       potential_constraints.reinit ( locally_relevant_dofs[2] );
-      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
-      /*                                             /\*b_id*\/ 1, */
-      /*                                             /\*b_id*\/ 2, */
-      /*                                             /\*direction*\/ 0, */
-      /*                                             elliptic_constraints); */
       potential_constraints.close ();
     }
     if(component == 0){
       tdensity_constraints.clear ();
       tdensity_constraints.reinit ( locally_relevant_dofs[0] );
-      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
-      /* 					     /\*b_id*\/ 1, */
-      /* 					     /\*b_id*\/ 2, */
-      /* 					     /\*direction*\/ 0, */
-      /* 					     elliptic_constraints); */
       tdensity_constraints.close ();
     }
     if(component == 1){
       tvorticity_constraints.clear ();
       tvorticity_constraints.reinit ( locally_relevant_dofs[1] );
-      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
-      /*                                             /\*b_id*\/ 1, */
-      /*                                             /\*b_id*\/ 2, */
-      /*                                             /\*direction*\/ 0, */
-      /*                                             elliptic_constraints); */
       tvorticity_constraints.close ();
     }
     if(component == 2){
       tpotential_constraints.clear ();
       tpotential_constraints.reinit ( locally_relevant_dofs[2] );
-      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
-      /*                                             /\*b_id*\/ 1, */
-      /*                                             /\*b_id*\/ 2, */
-      /*                                             /\*direction*\/ 0, */
-      /*                                             elliptic_constraints); */
       tpotential_constraints.close ();
     }
 
     if(component == 2){
       elliptic_constraints.clear ();
       elliptic_constraints.reinit ( locally_relevant_dofs[2] );
-      /* DoFTools::make_periodicity_constraints(*dof_handler[2], */
-      /* 					     /\*b_id*\/ 1, */
-      /* 					     /\*b_id*\/ 2, */
-      /* 					     /\*direction*\/ 0, */
-      /* 					     elliptic_constraints); */
       elliptic_constraints.close ();
 
 
       //from here tellipt
       telliptic_constraints.clear ();
       telliptic_constraints.reinit ( tlocally_relevant_dofs[2] );
-      //Y-periodicity
-      /* std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > */
-      /* 	periodicity_vector; */
-
-      /* GridTools::collect_periodic_faces(    triangulation, */
-      /* 					    1 /\* b_id1 *\/, */
-      /* 					    2 /\* b_id2 *\/, */
-      /* 					    1 /\* direction *\/, */
-      /* 					    periodicity_vector ); */
-      
-      /* triangulation.add_periodicity(periodicity_vector); */
-    
-      /* unsigned char one = 1; */
-      /* unsigned char two = 2; */
 
       DoFTools::make_periodicity_constraints(*tdof_handler[2],
       					     /*b_id*/ 1,
       					     /*b_id*/ 2,
       					     /*direction*/ 1,
       					     telliptic_constraints);
-
-
-      /* const std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > periodicity_vector; */
- 
-      /* triangulation.add_periodicity(periodicity_vector); */
-
-      /* DoFTools::make_periodicity_constraints(periodicity_vector, */
-      /* 					     telliptic_constraints);; */
-    
-      //X-periodicity                                                                                                                                                                                                                             //std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> >                                                                                                                              //  periodicity_vector2 =
-      /* std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > */
-      /*   periodicity_vector2; */
-
-      /* GridTools::collect_periodic_faces(    triangulation, */
-      /*                                       3, //b_id1 */
-      /* 					    4, //b_id2 */
-      /*                                       0, //direction */
-      /* 					    periodicity_vector2 */
-      /*                                       ); */
-
-      /* triangulation.add_periodicity(periodicity_vector2); */
-      
-      /* unsigned char three = 3; */
-      /* unsigned char four = 4; */
-
       DoFTools::make_periodicity_constraints(*tdof_handler[2],
       					     /*b_id*/ 3,
       					     /*b_id*/ 4,
       					     /*direction*/ 0,
       					     telliptic_constraints);
-
-      /* const std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<dim>::cell_iterator> > periodicity_vector2; */
-      /* triangulation.add_periodicity(periodicity_vector2); */
-      
-      /* DoFTools::make_periodicity_constraints(periodicity_vector2, */
-      /* 					     telliptic_constraints); */
       telliptic_constraints.close ();
-      //to here tellipt
-      
     }
-
-    /* CompressedSimpleSparsityPattern csp (tlocally_relevant_dofs[2]); */
-    /* DoFTools::make_sparsity_pattern (*(tdof_handler[2]), csp, */
-    /* 				     constraints, false); */
-    /* SparsityTools::distribute_sparsity_pattern (csp, */
-    /* 						*(tdof_handler[2]).n_locally_owned_dofs_per_processor(), */
-    /* 						mpi_communicator, */
-    /* 						locally_relevant_dofs); */
-    /* system_matrix.reinit (locally_owned_dofs, */
-    /* 			  locally_owned_dofs, */
-    /* 			  csp, */
-    /* 			  mpi_communicator); */
-    
   }
 }
-
-  //max_active_cells = triangulation.n_active_cells()* ((unsigned int) std::pow(2.0, (double)dim*(max_refined-init_mesh)));
-  
-  /* std::pout << "Number of components=" << alphadim << std::endl; */
-  /* std::pout << " Total dimension =" << (dim+1)*alphadim << std::endl; */
-  /* std::pout << "\n Number of active cells:       " << triangulation.n_active_cells() << "   Number of degrees of freedom for alpha[0]: " << dof_handler[0]->n_dofs() << std::endl; */
-  /* std::pout << "\n Number of active cells:       " << triangulation.n_active_cells() << "   Number of degrees of freedom for alpha[1]: " << dof_handler[1]->n_dofs() << std::endl; */
-  
-  //num_vertex = triangulation.n_vertices();
-
-  //std::cout << "Number of vertices suggested:       " << num_vertex << std::endl;
-
-  /* for (unsigned int component=0; component< alphadim; ++component){ */
-  /*   subdomain_solution[component].compress();} */
-
-  //initialize_massmatrix();
-  // matrixmapper();
-
-  /*  sum_alpha_dofs = 0; */
-  /*   global_sum_alpha_dofs = 0; */
-
-  /*   std::vector<pInfo> pinfo(alphadim); */
-      
-  /*   std::vector< FEValues<dim>* > hp_fe_values; */
-  /*   std::vector< FEFaceValues<dim>* > hp_fe_values_face; */
-  /*   std::vector< FEFaceValues<dim>* > hp_fe_values_neigh_face; */
-
-  /*   for (unsigned int component=0; component< alphadim; ++component){ */
-      
-  /*     UpdateFlags updateflags=  update_values | update_gradients | update_quadrature_points | update_JxW_values; */
-	
-  /*     hp_fe_values.push_back (new FEValues<dim>(*(fe_collection[component]), *(quadrature_collection[component]), updateflags)); */
-  /*     hp_fe_values_face.push_back (new FEFaceValues<dim>(*(fe_collection[component]), *(face_quadrature_collection[component]),  updateflags | update_normal_vectors )); */
-  /*     hp_fe_values_neigh_face.push_back (new FEFaceValues<dim>(*(fe_collection[component]), *(face_quadrature_collection[component]),  updateflags | update_normal_vectors )); */
-
-  /*     sum_alpha_dofs = 0; */
-  /*     //sum_vertices = 0;                                                                                                                                                                                                                 */
-  /*     num_vert = triangulation.n_vertices(); */
- 
-  /*     //Let's test how many dofs are stored on this core */
-  /*     typename DoFHandler<dim>::active_cell_iterator cell = dof_handler[component]->begin_active(), endc = dof_handler[component]->end(); */
-  /*     for(; */
-  /* 	cell!=endc; */
-  /* 	++cell	) */
-  /*       if (cell->is_locally_owned()  ) */
-  /* 	{ */
-	      
-  /* 	  if(component == 2) { */
-  /* 	    hp_fe_values[component]->reinit (cell); */
-  /* 	    const FiniteElement<dim>& fe = cell->get_fe(); */
-  /* 	    const std::string fe_name = fe.get_name(); */
-  /* 	    pinfo[component] = pInfoFind(fe.get_name(),component); */
-
-  /* 	    const unsigned int alpha_dofs_per_cell = pinfo[component].alpha_dofs_per_cell; */
-  /* 	    sum_alpha_dofs = sum_alpha_dofs + alpha_dofs_per_cell; */
-	      
-  /* 	    for(unsigned int vi = 0; vi < GeometryInfo<dim>::vertices_per_cell; ++vi){ */
-	      
-  /* 	      int v_dex = cell->vertex_index(vi); */
-  /* 	      //std::cout << "vdex = " << v_dex << ", " << vi << ", " <<  GeometryInfo<dim>::vertices_per_cell << std::endl; */
-  /* 	      local_vertices.push_back(v_dex); */
-
-  /* 	    } */
-  /* 	    //} */
-  /* 	  } */
-  /* 	} */
-  /*   } */
-
-  /*   std::vector< int >::iterator r , w ; */
-  /*   std::set< int > tmpset ; */
-  
-  /*   for( r = local_vertices.begin() , w = local_vertices.begin() ; r != local_vertices.end() ; ++r ) */
-  /*     { */
-  /*       if( tmpset.insert( *r ).second ) */
-  /* 	{ */
-  /* 	  *w++ = *r ; */
-  /* 	} */
-  /*     } */
-  /*   lvsr = local_vertices.size(); */
-
-  /*   lvsr_size = *(std::max_element(local_vertices.begin(), local_vertices.end())) + 1; */
-
-  /*   //std::cout << "size = " << lvsr_size << ", num_vert" << std::endl; */
-  
-  /*   local_vertices.erase( w , local_vertices.end() ); */
-
-  /* /\*   int maxv_local = std::max(local_vertices); *\/ */
-  /* /\*   int minv_local = std::min(local_vertices); *\/ */
-
-  /* /\*   std::cout << "Max, min = " << maxv_local << ", " << minv_local << std:endl; *\/ */
-
-  /*   lvs = local_vertices.size(); */
-  
-  /*   //lvs = std::ceil(num_vertex/n_mpi_processes); */
-
-  /*   for (unsigned int component=0; component< alphadim; ++component){      */
-  /*     delete hp_fe_values[component]; */
-  /*     delete hp_fe_values_face[component]; */
-  /*     delete hp_fe_values_neigh_face[component]; */
-  /*   } */
-
-  //scalar_dof_handler.distribute_dofs(scalar_fe);
-  //scalar_locally_owned_dofs = scalar_dof_handler.locally_owned_dofs();
-  //DoFTools::extract_locally_relevant_dofs (scalar_dof_handler,
-  //                                       scalar_locally_relevant_dofs);
-  //elliptic_constraints.clear ();
-  //elliptic_constraints.reinit (scalar_locally_relevant_dofs);
-  /* if (component == 0){ */
-  /* alpha_mask = fe_collection[component]->component_mask(*(alpha[component])); */
-  /* std::cout << "alpha mask = " << alpha_mask << std::endl; */
-  /* VectorTools::interpolate_boundary_values (*(dof_handler[component]), */
-  /*                                        0, */
-  /*                                        ZeroFunction<dim>(), */
-  /*                                        parahyp_constraints[component], */
-  /*                                        alpha_mask); */
-  /* } */
-
-  /* if (component == 1){ */
-  /* alpha_mask1 = fe_collection[component]->component_mask(*(alpha[component])); */
-  /* std::cout << "alpha mask = " << alpha_mask << std::endl; */
-  /* VectorTools::interpolate_boundary_values (*(dof_handler[component]), */
-  /*                                        0, */
-  /*                                        ZeroFunction<dim>(), */
-  /*                                        parahyp_constraints[component], */
-  /*                                        alpha_mask1); */
-  //}                                                                                                                                                                                                                                       
-  //elliptic_constraints.close ();
-
-
-  /* MPI_Allreduce(&sum_alpha_dofs, &global_sum_alpha_dofs, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD); */
-
-
-  /* //poisson_rhs.reinit(mpi_communicator, scalar_locally_owned_dofs ); */
-  /* //poisson_rhs.reinit(mpi_communicator, global_sum_alpha_dofs, sum_alpha_dofs, true ); */
-
-  /* redistributed_solution.reinit(mpi_communicator, global_sum_alpha_dofs, sum_alpha_dofs, true ); */
-
-  /* //std::cout << "WHYWHYWHY? = " << global_sum_alpha_dofs << ", and " << sum_alpha_dofs << std::endl; */
-
-
-
-
-  /* /\* poisson_matrix.reinit( mpi_communicator, *\/ */
-  /* /\* 			 global_sum_alpha_dofs, *\/ */
-  /* /\* 			 global_sum_alpha_dofs, *\/ */
-  /* /\* 			 sum_alpha_dofs, *\/ */
-  /* /\* 			 sum_alpha_dofs, *\/ */
-  /* /\* 			 0, *\/ */
-  /* /\* 			 true  *\/ */
-  /* /\* 			 ) ; *\/	 */
-
-  /* //MPI_Allreduce(&lvs, &num_vert, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD); */
-
-  /* //  std::cout << " number of proces = " << n_mpi_processes <<", number local = " << std::endl; */
-
-  /* const unsigned int g = 1; */
-
-  /* maxf.reinit(mpi_communicator, */
-  /* 	      num_vertex, */
-  /* 	      n_mpi_processes, */
-  /* 	      lvs, */
-  /* 	      g, */
-  /* 	      0, */
-  /* 	      true */
-  /* 	      ) ; */
-
-  /* minf.reinit(mpi_communicator, */
-  /* 	      num_vertex, */
-  /* 	      n_mpi_processes, */
-  /* 	      lvs, */
-  /* 	      g, */
-  /* 	      0, */
-  /* 	      false */
-  /* 	      ) ; */
-
-
-  //minf.reinit(mpi_communicator,num_vertex,lvs,true);
-
-
-  //std::cout << "Number of vertices actual local:    " << lvs << std::endl;
-  //std::cout << "Number of vertices actual:       " << num_vert << std::endl;
-
-  /* for (unsigned int component=0; component< alphadim; ++component){ */
-  /*   subdomain_solution[component].compress();} */
-
-  //unsigned int procs = Utilities::MPI::n_mpi_processes(mpi_communicator);
-  //unsigned int proc = Utilities::MPI::this_mpi_process(mpi_communicator);
-  /* std::vector<unsigned int> COLO_max(procs); */
-  /* std::fill(COLO_max.begin(), COLO_max.end(), 0); */
-  
-  /* std::vector< FEValues<dim>* > hp_fe_values; */
-  
-  /* UpdateFlags updateflags=  update_values | update_gradients  */
-  /*   | update_quadrature_points | update_JxW_values; */
-  
-  /* hp_fe_values.push_back (new FEValues<dim>(*(fe_collection[0]),  */
-  /* 					    *(quadrature_collection[0]), updateflags)); */
-  /* //int COLO_min = 100000000; */
-  /* //int COLO = 0; */
-  /* typename DoFHandler<dim>::active_cell_iterator  */
-  /*   cell = dof_handler[0]->begin_active(),  */
-  /*   endc = dof_handler[0]->end(); */
-  /* for(; */
-  /*     cell!=endc; */
-  /*     ++cell	) */
-  /*   if (cell->is_ghost()  ) */
-  /*     { */
-
-
-  /* 	unsigned int CO = cell->index(); */
-  /* 	std::cout << "CO = " << CO <<  ", this mpi_proc = " << Utilities::MPI::this_mpi_process(mpi_communicator)  << std::endl; */
-  /* 	//COLO = COLO+1; */
-
-
-  /* 	COLO_max[proc] = std::max(CO,COLO_max[proc]); */
-  /* 	//COLO_min = std::min(CO,COLO_min); */
-
-  /*     } */
-
-  /* delete hp_fe_values[0]; */
-   
- 
-  /* //  COLO = COLO_max; */
-  /* std::cout << "COLO = " << COLO_max[proc]   << ", this mpi_proc = " << proc  << std::endl; */
-  /* std::cout << "mpi_procs = " << Utilities::MPI::n_mpi_processes(mpi_communicator)  << std::endl; */
-  /* //unsigned int procs = Utilities::MPI::n_mpi_processes(mpi_communicator); */
-  /* std::cout << "procs = " << procs  << std::endl; */
-  //matpatch.resize(procs);
-  //for (unsigned int proc=0; proc< procs; ++proc){
-  // mapinfo[component].resize(triangulation.n_global_active_cells());
-  //matpatch[proc].resize(COLO_max[proc]);
-  //matpatch.resize(triangulation.n_global_active_cells());
-  //}
-
-  /* std::vector< FEValues<dim>* > hp_fe_values; */
-  
-  /* UpdateFlags updateflags=  update_values | update_gradients  */
-  /*   | update_quadrature_points | update_JxW_values; */
-  
-  /* hp_fe_values.push_back (new FEValues<dim>(*(fe_collection[2]),  */
-  /* 					    *(quadrature_collection[2]), updateflags)); */
-  /* //int COLO_min = 100000000; */
-  /* //int COLO = 0; */
-  /* typename DoFHandler<dim>::cell_iterator  */
-  /*   cell = dof_handler[2]->begin_active(),  */
-  /*   endc = dof_handler[2]->end(); */
-  /* for(; */
-  /*     cell!=endc; */
-  /*     ++cell	) */
-  /*   if (cell->is_locally_owned() ) */
-  /*     { */
-  /* 	hp_fe_values[component]->reinit (cell); */
-  /* 	const FEValues<dim> &fe_values = hp_fe_values[component]->get_present_fe_values (); */
-  /* 	const FiniteElement<dim>& fe = cell->get_fe(); */
-  /* 	const unsigned int   dofs_per_cell = fe.dofs_per_cell; */
-  /* 	glob_dof_ind = dofs_per_cell; */
-  /* 	matpatch[CO].localM12 = FullMatrix<double>(dofs_per_cell,dofs_per_cell); */
-	  
-  /*     } */
-  /*   else{ */
-
-
-  /* 	unsigned int CO = cell->index(); */
-  /* 	/\* hp_fe_values[0]->reinit (cell); *\/ */
-  /* 	/\* const FiniteElement<dim>& fe = cell->get_fe(); *\/ */
-  /* 	/\* const unsigned int   dofs_per_cell = fe.dofs_per_cell; *\/ */
-  /* 	//	unsigned int ghostcell_index = cell->neighbor_index(face_num); */
-  /* 	//unsigned int proc = Utilities::MPI::this_mpi_process(mpi_communicator);	 */
-  /* 	//std::cout << "CO = " << CO <<  ", this mpi_proc = " << Utilities::MPI::this_mpi_process(mpi_communicator)  << std::endl; */
-  /* 	//COLO = COLO+1; */
-	
-  /* 	matpatch[CO].localM12 = FullMatrix<double>(glob_dof_ind,glob_dof_ind); */
-	
-  /* 	//COLO_max[proc] = std::max(CO,COLO_max[proc]); */
-  /* 	//COLO_min = std::min(CO,COLO_min); */
-	
-  /*   } */
-
-  /* delete hp_fe_values[0]; */
-
- 
-  //std::cout << "mpi_procs = " << Utilities::MPI::n_mpi_processes(mpi_communicator)  << std::endl;
-
-
-
